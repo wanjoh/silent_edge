@@ -13,6 +13,8 @@ qt_add_library(
     turret.h
     weapon.cpp
     weapon.h
+    bullet.cpp
+    bullet.h
 )
 
 target_link_libraries(
