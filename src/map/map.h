@@ -1,10 +1,9 @@
 #pragma once
 
-#include "game.h"
 #include "room.h"
 #include <list>
 
-class Map : public Game
+class Map
 {
 public:
     int get_number_of_rooms();

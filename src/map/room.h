@@ -1,6 +1,5 @@
 #pragma once
-
-#include "turret.h"
+#include <iostream>
 
 class Room
 {
@@ -11,10 +10,8 @@ public:
     };
 
     float get_id();
-    std::list<Turret> get_turrets();
     std::string get_room_type();
 private:
     int id;
-    std::list<Turret> turrets;
     room_type type;
 };

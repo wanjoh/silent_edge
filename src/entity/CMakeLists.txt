@@ -1,0 +1,28 @@
+qt_add_library(
+    SilentEdgeEntity
+    STATIC
+    entity.cpp
+    entity.h
+    meleeWeapon.cpp
+    meleeWeapon.h
+    player.cpp
+    player.h
+    rangedWeapon.cpp
+    rangedWeapon.h
+    turret.cpp
+    turret.h
+    weapon.cpp
+    weapon.h
+)
+
+target_link_libraries(
+    SilentEdgeEntity
+    PRIVATE 
+    Qt${QT_VERSION_MAJOR}::Core 
+    Qt${QT_VERSION_MAJOR}::Widgets
+)
+target_include_directories(
+    SilentEdgeEntity 
+    INTERFACE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
