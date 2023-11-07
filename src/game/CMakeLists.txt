@@ -1,7 +1,7 @@
 qt_add_library(
     SilentEdgeGame
     game.cpp
-    game.h
+    game.hpp
 )
 
 target_link_libraries(SilentEdgeGame PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Widgets)

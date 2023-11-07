@@ -2,13 +2,13 @@ qt_add_library(
     SilentEdgeMap
     STATIC
     map.cpp
-    map.h
+    map.hpp
     room.cpp
-    room.h
+    room.hpp
     tile.cpp
-    tile.h
+    tile.hpp
     tileset.cpp
-    tileset.h
+    tileset.hpp
 )
 
 target_link_libraries(SilentEdgeMap PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Widgets)

@@ -1,9 +1,7 @@
-#include "entity.h"
+#include "entity.hpp"
 
-std::pair<float, float> get_position() {
 
-}
-
-std::pair<float, float> get_size() {
-
+void Entity::updatePixmap(QString path)
+{
+    pixmap_path_ = path;
 }

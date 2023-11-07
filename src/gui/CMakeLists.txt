@@ -2,7 +2,7 @@ qt_add_library(
     SilentEdgeGUI 
     STATIC
     mainwindow.cpp
-    mainwindow.h
+    mainwindow.hpp
     mainwindow.ui
 )
 

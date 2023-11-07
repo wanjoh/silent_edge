@@ -1,17 +1,18 @@
 #pragma once
 
-#include "entity.h"
+#include "entity.hpp"
 
 class Bullet : public Entity
 {
 public:
-    enum class bullet_type {
+    enum class BulletType
+    {
         LIGHT,
         MEDIUM,
         HEAVY
     };
 
-    std::string get_bullet_type();
+    BulletType getBulletType();
 private:
-    bullet_type type;
+    BulletType type_;
 };

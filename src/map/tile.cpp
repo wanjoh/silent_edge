@@ -1,5 +1,2 @@
-#include "tile.h"
+#include "tile.hpp"
 
-std::string get_tile_type() {
-
-}

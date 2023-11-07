@@ -1,11 +1,11 @@
 #pragma once
 
-#include "weapon.h"
+#include "weapon.hpp"
 
 class MeleeWeapon : public Weapon
 {
 public:
-    float get_cooldown();
+    qreal getCooldown();
 private:
-    float cooldown;
+    qreal cooldown_;
 };

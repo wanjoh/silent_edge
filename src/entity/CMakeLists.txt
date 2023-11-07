@@ -2,19 +2,19 @@ qt_add_library(
     SilentEdgeEntity
     STATIC
     entity.cpp
-    entity.h
-    meleeWeapon.cpp
-    meleeWeapon.h
+    entity.hpp
+    melee_weapon.cpp
+    melee_weapon.hpp
     player.cpp
-    player.h
-    rangedWeapon.cpp
-    rangedWeapon.h
+    player.hpp
+    ranged_weapon.cpp
+    ranged_weapon.hpp
     turret.cpp
-    turret.h
+    turret.hpp
     weapon.cpp
-    weapon.h
+    weapon.hpp
     bullet.cpp
-    bullet.h
+    bullet.hpp
 )
 
 target_link_libraries(

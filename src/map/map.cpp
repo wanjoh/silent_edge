@@ -1,9 +1,2 @@
-#include "map.h"
+#include "map.hpp"
 
-int get_number_of_rooms() {
-
-}
-
-std::list<Room> get_rooms() {
-
-}
