@@ -12,6 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Network)
 
 set(PROJECT_SOURCES
         src/main.cpp
@@ -34,8 +35,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/entity/melee_weapon.hpp
         src/entity/bullet.cpp
         src/entity/bullet.hpp
-        src/map/tileset.cpp
-        src/map/tileset.hpp
         src/entity/turret.cpp
         src/entity/turret.hpp
         src/entity/weapon.cpp
@@ -48,6 +47,12 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/map/room.hpp
         src/map/tile.cpp
         src/map/tile.hpp
+        src/map/tileset.cpp
+        src/map/tileset.hpp
+        src/server/server.cpp
+        src/server/server.hpp
+        src/server/connection_thread.cpp
+        src/server/connection_thread.hpp
     )
     else()
 if(ANDROID)
@@ -63,11 +68,8 @@ else()
 endif()
 endif()
 
-target_link_libraries(
-    SilentEdge 
-    PRIVATE 
-    Qt${QT_VERSION_MAJOR}::Widgets
-)
+target_link_libraries(SilentEdge PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(SilentEdge PRIVATE Qt${QT_VERSION_MAJOR}::Network)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
