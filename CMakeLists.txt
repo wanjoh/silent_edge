@@ -53,6 +53,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/server/server.hpp
         src/server/connection_thread.cpp
         src/server/connection_thread.hpp
+        src/client/client.hpp
+        src/client/client.cpp
     )
     else()
 if(ANDROID)

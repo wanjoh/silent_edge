@@ -10,6 +10,7 @@ class QJsonObject;
 class GameServer : public QTcpServer {
   Q_OBJECT
 public:
+    // ok
     static constexpr qint32 PORT = 6969;
     static constexpr qint32 MAX_USERS = 8;
     static constexpr qint32 MAX_ROOMS = MAX_USERS / 2;
@@ -23,15 +24,21 @@ public:
 public slots:
     void error(QTcpSocket::SocketError);
     void dataReceived(ConnectionThread*, const QJsonObject&);
-    void userDisconnected(ConnectionThread*);
+    void userDisconnected(ConnectionThread*, int);
     void broadcast(const QJsonObject&, ConnectionThread*);
+    void stopServer();
 signals:
     void logMessage(const QString&);
+    void stopAllClients();
 private:
     void sendData(ConnectionThread*, const QJsonObject&);
     void incomingConnection(qintptr socket_desc) override;
     // dodati kad napravimo algoritam za uparivanje ljudi u sobe
     // za sad je samo jedna soba
     //QVector<QVector<ConnectionThread*>> room_users_;
+
+    const int ideal_thread_count_;
+    QVector<QThread *> available_threads_;
+    QVector<int> threads_load_;
     QVector<ConnectionThread*> users_;
 };

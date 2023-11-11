@@ -2,6 +2,7 @@
 
 #include <QThread>
 #include <QTcpSocket>
+#include <QReadWriteLock>
 
 class ConnectionThread : public QObject//: public QThread
 {
