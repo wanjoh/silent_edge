@@ -33,9 +33,9 @@ signals:
     void messageReceived(const QString &sender, const QString &text);
     void error(QAbstractSocket::SocketError socketError);
 private:
-    QTcpSocket *m_clientSocket;
-    bool m_loggedIn;
+    QTcpSocket *client_socket_;
+    bool logged_in_;
     void jsonReceived(const QJsonObject &doc);
-    float m_playerX;
-    float m_playerY;
+    float player_x_;
+    float player_y_;
 };

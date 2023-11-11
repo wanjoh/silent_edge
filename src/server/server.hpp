@@ -37,7 +37,6 @@ private:
     // za sad je samo jedna soba
     //QVector<QVector<ConnectionThread*>> room_users_;
 
-    const int ideal_thread_count_;
     QVector<QThread *> available_threads_;
     QVector<int> threads_load_;
     QVector<ConnectionThread*> users_;

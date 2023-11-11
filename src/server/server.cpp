@@ -7,10 +7,9 @@
 
 GameServer::GameServer(QObject *parent)
     : QTcpServer(parent)
-    , ideal_thread_count_(qMax(QThread::idealThreadCount(), 1))
 {
-    available_threads_.reserve(ideal_thread_count_);
-    threads_load_.reserve(ideal_thread_count_);
+    available_threads_.reserve(MAX_USERS);
+    threads_load_.reserve(MAX_USERS);
 
     if (!this->listen(HOST, PORT))
     {
@@ -59,9 +58,9 @@ void GameServer::dataReceived(ConnectionThread* sender, const QJsonObject& msg)
     broadcast(msg, sender);
 }
 
-void GameServer::userDisconnected(ConnectionThread* user, int threadIdx)
+void GameServer::userDisconnected(ConnectionThread* user, int thread_idx)
 {
-    --threads_load_[threadIdx];
+    --threads_load_[thread_idx];
     users_.removeAll(user);
     Q_ASSERT(user);
     users_.removeAll(user);
@@ -91,21 +90,20 @@ void GameServer::incomingConnection(qintptr socket_desc)
 {
     if (users_.size() < MAX_USERS)
     {
-        ConnectionThread *user = new ConnectionThread(socket_desc, this);
+        // ovo treba da se razmotri, nismo sigurni da li će ovo praviti siročiće
+        ConnectionThread *user = new ConnectionThread(socket_desc, nullptr);
 
-        int threadIdx = available_threads_.size();
-        if (threadIdx < ideal_thread_count_) {
+        int thread_idx = available_threads_.size();
+        if (thread_idx < MAX_USERS) {
             available_threads_.append(new QThread(this));
-            threads_load_.append(1);
             available_threads_.last()->start();
         } else {
-            threadIdx = std::distance(threads_load_.cbegin(), std::min_element(threads_load_.cbegin(), threads_load_.cend()));
-            ++threads_load_[threadIdx];
+            //TODO
         }
-        user->moveToThread(available_threads_.at(threadIdx));
+        user->moveToThread(available_threads_.at(thread_idx));
 
-        connect(available_threads_.at(threadIdx), &QThread::finished, user, &QObject::deleteLater);
-        connect(user, &ConnectionThread::disconnectedFromClient, this, std::bind(&GameServer::userDisconnected, this, user, threadIdx));
+        connect(available_threads_.at(thread_idx), &QThread::finished, user, &QObject::deleteLater);
+        connect(user, &ConnectionThread::disconnectedFromClient, this, std::bind(&GameServer::userDisconnected, this, user, thread_idx));
         connect(user, &ConnectionThread::error, this, std::bind(&GameServer::error, this, std::placeholders::_1));
         connect(user, &ConnectionThread::dataReceived, this, std::bind(&GameServer::dataReceived, this, user, std::placeholders::_1));
         connect(user, &ConnectionThread::logMessage, this, &GameServer::logMessage);
