@@ -55,6 +55,13 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/server/connection_thread.hpp
         src/client/client.hpp
         src/client/client.cpp
+        src/serialization/binary_serializer.hpp
+        src/serialization/binary_serializer.cpp
+        src/serialization/serializer.hpp
+        src/serialization/serializable.hpp
+        src/serialization/game_serialization_global.hpp
+        src/serialization/game_serialization_global.pro
+        src/data/binary/1.bin
     )
     else()
 if(ANDROID)
