@@ -12,7 +12,7 @@ public:
     ConnectionThread(const ConnectionThread&) = delete;
     ~ConnectionThread();
 
-    void sendData(const QJsonObject&);
+    void sendData(const QByteArray&);
 
     QString username() const;
 
@@ -22,7 +22,7 @@ public slots:
 signals:
     void error(QTcpSocket::SocketError);
     void logMessage(const QString&);
-    void dataReceived(const QJsonObject&);
+    void dataReceived(const QByteArray&);
     void disconnectedFromClient();
 private:
     bool connected_;

@@ -4,6 +4,9 @@
 #include <QTcpSocket>
 #include <QHostAddress>
 #include <QNetworkInterface>
+#include "../../src/serialization/binary_serializer.hpp"
+#include "../entity/player.hpp"
+
 class QHostAddress;
 class QJsonDocument;
 class Client : public QObject
@@ -22,7 +25,7 @@ public:
 
 public slots:
     void connectToServer(const QString &ipAdress, quint16 port);
-    void login(const QString &userName);
+    // void login(const QString &userName);
     void sendMessage(const QString &text);
     void disconnectFromHost();
 private slots:
@@ -35,7 +38,10 @@ signals:
 private:
     QTcpSocket *client_socket_;
     bool logged_in_;
-    void jsonReceived(const QJsonObject &doc);
+    //void jsonReceived(const QJsonObject &doc);
+    void dataReceived(const QByteArray &data);
     float player_x_;
     float player_y_;
+    BinarySerializer *serializer_;
+    Player *player_;
 };

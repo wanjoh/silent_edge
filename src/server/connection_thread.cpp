@@ -1,7 +1,6 @@
 #include "connection_thread.hpp"
 
-#include <QJsonDocument>
-#include <QJsonObject>
+#include <QByteArray>
 
 ConnectionThread::ConnectionThread(qintptr socket_desc, QObject * parent) //:QThread(parent),
     : QObject(parent),
@@ -32,32 +31,21 @@ ConnectionThread::~ConnectionThread()
     socket_descriptor_ = 0;
 }
 
-void ConnectionThread::sendData(const QJsonObject &json)
+void ConnectionThread::sendData(const QByteArray &data)
 {
-    const QByteArray data = QJsonDocument(json).toJson(QJsonDocument::Compact);
     socket_stream_ << data;
 }
 
 void ConnectionThread::receiveData()
 {
-    QByteArray json_data;
+    QByteArray data;
     while (connected_)
     {
         socket_stream_.startTransaction();
-        socket_stream_ >> json_data;
+        socket_stream_ >> data;
         if (socket_stream_.commitTransaction())
         {
-            QJsonParseError error;
-            const QJsonDocument data = QJsonDocument::fromJson(json_data, &error);
-
-            if (error.error == QJsonParseError::NoError && data.isObject())
-            {
-                emit dataReceived(data.object());
-            }
-            else
-            {
-                emit logMessage(QLatin1String("Invalid message"));
-            }
+            emit dataReceived(data);
         }
 
     }

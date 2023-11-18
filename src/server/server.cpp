@@ -1,8 +1,7 @@
 #include "server.hpp"
-#include "qjsonobject.h"
 #include <QDebug>
 #include <QTcpSocket>
-#include <QJsonDocument>
+#include <QByteArray>
 #include <QTimer>
 
 GameServer::GameServer(QObject *parent)
@@ -19,8 +18,6 @@ GameServer::GameServer(QObject *parent)
     {
         qDebug() << "Server started on " << HOST <<  ", port" << PORT;
     }
-
-
 }
 
 GameServer::~GameServer()
@@ -47,7 +44,7 @@ void GameServer::error(QTcpSocket::SocketError error)
     emit logMessage(QLatin1String("error"));
 }
 
-void GameServer::dataReceived(ConnectionThread* sender, const QJsonObject& msg)
+void GameServer::dataReceived(ConnectionThread* sender, const QByteArray& msg)
 {
     Q_ASSERT(sender);
 
@@ -60,15 +57,15 @@ void GameServer::dataReceived(ConnectionThread* sender, const QJsonObject& msg)
 
 void GameServer::userDisconnected(ConnectionThread* user, int thread_idx)
 {
+    Q_ASSERT(user);
     --threads_load_[thread_idx];
     users_.removeAll(user);
-    Q_ASSERT(user);
-    users_.removeAll(user);
+
     user->disconnectClient();
     user->deleteLater();
 }
 
-void GameServer::broadcast(const QJsonObject& msg, ConnectionThread *sender)
+void GameServer::broadcast(const QByteArray& msg, ConnectionThread *sender)
 {
     for (auto user : users_)
     {
@@ -80,10 +77,11 @@ void GameServer::broadcast(const QJsonObject& msg, ConnectionThread *sender)
     }
 }
 
-void GameServer::sendData(ConnectionThread *user, const QJsonObject& msg)
+void GameServer::sendData(ConnectionThread *user, const QByteArray& msg)
 {
     Q_ASSERT(user);
-    QTimer::singleShot(0, user, std::bind(&ConnectionThread::sendData, user, msg));
+
+    //QTimer::singleShot(0, user, std::bind(&ConnectionThread::sendData, user, msg));
 }
 
 void GameServer::incomingConnection(qintptr socket_desc)

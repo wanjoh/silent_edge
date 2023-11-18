@@ -2,7 +2,7 @@
 QT -= gui
 
 TEMPLATE = lib
-DEFINES += STUDENTSERIALIZATION_LIBRARY
+DEFINES += GameSerializationLibrary
 
 CONFIG += c++20
 

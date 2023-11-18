@@ -2,12 +2,9 @@
 
 #include <QTcpSocket>
 #include <QDataStream>
-#include <QJsonParseError>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonValue>
 #include <QHostAddress>
 #include <QHostInfo>
+#include <QFile>
 
 float x_received;
 float y_received;
@@ -16,6 +13,8 @@ Client::Client(QObject *parent)
     : QObject(parent)
     , client_socket_(new QTcpSocket(this))
     , logged_in_(false)
+    , serializer_(new BinarySerializer())
+    , player_(new Player())
 {
     x_received = 0;
     y_received = 0;
@@ -27,18 +26,17 @@ Client::Client(QObject *parent)
     connect(client_socket_, &QTcpSocket::disconnected, this, [this]()->void{logged_in_ = false;});
 }
 
-void Client::login(const QString &userName)
-{
-
-    if (client_socket_->state() == QAbstractSocket::ConnectedState) {
-        QDataStream clientStream(client_socket_);
-        clientStream.setVersion(QDataStream::Qt_6_4);
-        QJsonObject message;
-        message[QStringLiteral("type")] = QStringLiteral("login");
-        message[QStringLiteral("username")] = userName;
-        clientStream << QJsonDocument(message).toJson(QJsonDocument::Compact);
-    }
-}
+// void Client::login(const QString &userName)
+// {
+//     if (client_socket_->state() == QAbstractSocket::ConnectedState) {
+//         QDataStream clientStream(client_socket_);
+//         clientStream.setVersion(QDataStream::Qt_6_4);
+//         QJsonObject message;
+//         message[QStringLiteral("type")] = QStringLiteral("login");
+//         message[QStringLiteral("username")] = userName;
+//         clientStream << QJsonDocument(message).toJson(QJsonDocument::Compact);
+//     }
+// }
 
 Client::~Client()
 {
@@ -47,27 +45,20 @@ Client::~Client()
 
 void Client::sendMessage(const QString &text)
 {
-
     if (text.isEmpty())
         return;
     QDataStream clientStream(client_socket_);
     clientStream.setVersion(QDataStream::Qt_6_4);
-    QJsonObject message;
 
-    if(text != "Space")
+    serializer_->save(*player_, "../data/binary/1.bin");
+
+    QFile file("../data/binary/1.bin");
+    if (file.open(QIODevice::ReadOnly))
     {
-        message = {
-            {"x", player_x_},
-            {"y", player_y_},
-        };
+        QByteArray data = file.readAll();
+        file.close();
+        clientStream << data;
     }
-    else if(text == "Space")
-    {
-        message = {
-            {text, 9}
-        };
-    }
-    clientStream << QJsonDocument(message).toJson();
 }
 
 void Client::disconnectFromHost()
@@ -75,14 +66,26 @@ void Client::disconnectFromHost()
     client_socket_->disconnectFromHost();
 }
 
-void Client::jsonReceived(const QJsonObject &docObj)
+// void Client::jsonReceived(const QJsonObject &docObj)
+// {
+
+//     QJsonValue xs = *docObj.find("x");
+//     QJsonValue ys = *docObj.find("y");
+
+//     x_received = xs.toDouble();
+//     y_received = ys.toDouble();
+// }
+
+void Client::dataReceived(const QByteArray &data)
 {
+    QByteArray x;
+    QByteArray y;
 
-    QJsonValue xs = *docObj.find("x");
-    QJsonValue ys = *docObj.find("y");
+    Player *enemy_ = new Player();
+    serializer_->load(*enemy_, "../data/binary/1.bin");
 
-    x_received = xs.toDouble();
-    y_received = ys.toDouble();
+    x_received = x.toDouble();
+    y_received = y.toDouble();
 }
 
 void Client::connectToServer(const QString &ipAdress, quint16 port)
@@ -91,23 +94,15 @@ void Client::connectToServer(const QString &ipAdress, quint16 port)
 }
 void Client::onReadyRead()
 {
-    QByteArray jsonData;
+    QByteArray data;
     QDataStream socketStream(client_socket_);
     socketStream.setVersion(QDataStream::Qt_6_4);
     for (;;) {
         socketStream.startTransaction();
-        socketStream >> jsonData;
+        socketStream >> data;
         if (socketStream.commitTransaction()) {
-
-            QJsonParseError parseError;
-            const QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData, &parseError);
-            if (parseError.error == QJsonParseError::NoError) {
-                if (jsonDoc.isObject()){
-                    jsonReceived(jsonDoc.object());
-                }
-            }
+            dataReceived(data);
         } else {
-
             break;
         }
     }

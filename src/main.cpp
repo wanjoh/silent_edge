@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
     player.setFlag(QGraphicsItem::ItemIsFocusable);
     player.setFocus();
 
+
     // Player enemy(deserialize(server_enemy_info))
     Player enemy;
     enemy.setBrush(Qt::red);

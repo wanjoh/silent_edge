@@ -5,3 +5,5 @@ void Entity::updatePixmap(QString path)
 {
     pixmap_path_ = path;
 }
+
+Entity::~Entity() {}

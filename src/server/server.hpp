@@ -5,7 +5,7 @@
 #include <QTcpServer>
 #include <QVector>
 
-class QJsonObject;
+class QByteArray;
 
 class GameServer : public QTcpServer {
   Q_OBJECT
@@ -23,15 +23,15 @@ public:
     void startGame();
 public slots:
     void error(QTcpSocket::SocketError);
-    void dataReceived(ConnectionThread*, const QJsonObject&);
+    void dataReceived(ConnectionThread*, const QByteArray&);
     void userDisconnected(ConnectionThread*, int);
-    void broadcast(const QJsonObject&, ConnectionThread*);
+    void broadcast(const QByteArray&, ConnectionThread*);
     void stopServer();
 signals:
     void logMessage(const QString&);
     void stopAllClients();
 private:
-    void sendData(ConnectionThread*, const QJsonObject&);
+    void sendData(ConnectionThread*, const QByteArray&);
     void incomingConnection(qintptr socket_desc) override;
     // dodati kad napravimo algoritam za uparivanje ljudi u sobe
     // za sad je samo jedna soba

@@ -3,10 +3,7 @@
 
 #include "binary_serializer.hpp"
 
-BinarySerializer::BinarySerializer()
-{
-
-}
+BinarySerializer::BinarySerializer() {}
 
 void BinarySerializer::save(const Serializable &serializable, const QString &filepath, const QString &rootName)
 {
@@ -14,7 +11,6 @@ void BinarySerializer::save(const Serializable &serializable, const QString &fil
 
     QFile file(filepath);
     file.open(QFile::WriteOnly);
-
 
     QDataStream dataStream(&file);
     dataStream << serializable.toVariant();
