@@ -24,6 +24,7 @@ Client::Client(QObject *parent)
     connect(client_socket_, &QTcpSocket::readyRead, this, &Client::onReadyRead);
     connect(client_socket_, &QAbstractSocket::errorOccurred, this, &Client::error);
     connect(client_socket_, &QTcpSocket::disconnected, this, [this]()->void{logged_in_ = false;});
+    connect(player_, &Player::positionChangedSignal, this, &Client::updatePosition);
 }
 
 // void Client::login(const QString &userName)
@@ -43,6 +44,11 @@ Client::~Client()
     disconnectFromHost();
 }
 
+Player *Client::getPlayer()
+{
+    return player_;
+}
+
 void Client::sendMessage(const QString &text)
 {
     if (text.isEmpty())
@@ -50,15 +56,17 @@ void Client::sendMessage(const QString &text)
     QDataStream clientStream(client_socket_);
     clientStream.setVersion(QDataStream::Qt_6_4);
 
-    serializer_->save(*player_, "../data/binary/1.bin");
+//    serializer_->save(*player_, "../data/binary/1.bin");
 
-    QFile file("../data/binary/1.bin");
-    if (file.open(QIODevice::ReadOnly))
-    {
-        QByteArray data = file.readAll();
-        file.close();
-        clientStream << data;
-    }
+//    QFile file("../data/binary/1.bin");
+//    if (file.open(QIODevice::ReadOnly))
+//    {
+//        QByteArray data = file.readAll();
+//        file.close();
+//        clientStream << data;
+//    }
+
+    clientStream << text.QString::toUtf8();
 }
 
 void Client::disconnectFromHost()
@@ -66,26 +74,14 @@ void Client::disconnectFromHost()
     client_socket_->disconnectFromHost();
 }
 
-// void Client::jsonReceived(const QJsonObject &docObj)
-// {
-
-//     QJsonValue xs = *docObj.find("x");
-//     QJsonValue ys = *docObj.find("y");
-
-//     x_received = xs.toDouble();
-//     y_received = ys.toDouble();
-// }
-
 void Client::dataReceived(const QByteArray &data)
 {
-    QByteArray x;
-    QByteArray y;
+//    Player *enemy_ = new Player();
+//    serializer_->load(*enemy_, "../data/binary/1.bin");
 
-    Player *enemy_ = new Player();
-    serializer_->load(*enemy_, "../data/binary/1.bin");
-
-    x_received = x.toDouble();
-    y_received = y.toDouble();
+//    x_received = enemy_->x();
+//    y_received = enemy_->y();
+    qDebug() << QString::fromUtf8(data);
 }
 
 void Client::connectToServer(const QString &ipAdress, quint16 port)
@@ -106,5 +102,11 @@ void Client::onReadyRead()
             break;
         }
     }
+}
+
+void Client::updatePosition()
+{
+    QString msg = QString::number(player_->x()) + QString::number(player_->y());
+    sendMessage(msg);
 }
 

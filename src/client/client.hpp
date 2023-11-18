@@ -22,14 +22,15 @@ public:
 
     float getPlayerX();
     float getPlayerY();
-
+    Player* getPlayer();
 public slots:
     void connectToServer(const QString &ipAdress, quint16 port);
     // void login(const QString &userName);
     void sendMessage(const QString &text);
     void disconnectFromHost();
-private slots:
+//private slots:
     void onReadyRead();
+    void updatePosition();
 signals:
     void connected();
     void disconnected();

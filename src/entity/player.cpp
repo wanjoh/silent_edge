@@ -23,6 +23,7 @@ void Player::keyPressEvent(QKeyEvent *event)
     }
 
     setPos(x_pos, y_pos);
+    emit positionChangedSignal();
 }
 
 QVariant Player::toVariant() const

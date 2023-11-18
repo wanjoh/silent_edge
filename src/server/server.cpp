@@ -70,7 +70,7 @@ void GameServer::broadcast(const QByteArray& msg, ConnectionThread *sender)
     for (auto user : users_)
     {
         Q_ASSERT(user);
-        if (user != sender)
+        if (1 || user != sender)
         {
             user->sendData(msg);
         }

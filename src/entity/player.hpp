@@ -5,6 +5,7 @@
 
 class Player : public Entity
 {
+    Q_OBJECT
 public:
     // ovo ce leteti odavde
     constexpr static qint32 VELOCITY = 5;
@@ -21,6 +22,8 @@ public:
     void keyPressEvent(QKeyEvent* event) override;
     QVariant toVariant() const override;
     void fromVariant(const QVariant&) override;
+signals:
+    void positionChangedSignal();
 private:
     // nakon sto dodamo klase za  crtanje eniteta, ovo cemo skloniti
     qreal hp_;

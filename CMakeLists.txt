@@ -59,13 +59,15 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/serialization/binary_serializer.cpp
         src/serialization/serializer.hpp
         src/serialization/serializable.hpp
-
-        src/data/binary/1.bin
-        src/server/server_main.cpp
         src/client/client_main.cpp
         src/server/server_main.cpp
+        
+        src/data/binary/1.bin
         src/data/binary/2.bin
     )
+    # qt_add_executable(ServerMain src/server/server_main.cpp)
+    # # qt_add_executable(ClientMain src/client/client_main.cpp)
+    # target_link_libraries(ServerMain INTERFACE SilentEdge)
     else()
 if(ANDROID)
     add_library(SilentEdge SHARED

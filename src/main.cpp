@@ -1,5 +1,7 @@
 //#include "gui/mainwindow.hpp"
 #include "entity/player.hpp"
+#include "server/server.hpp"
+#include "client/client.hpp"
 
 #include <QApplication>
 #include <QGraphicsScene>
@@ -12,11 +14,14 @@ int main(int argc, char *argv[])
 //    w.show();
 
     // ovo sve ispod sigurno nece ici u main
-    Player player;
-    player.setBrush(Qt::green);
-    player.setRect(Player::INITIAL);
-    player.setFlag(QGraphicsItem::ItemIsFocusable);
-    player.setFocus();
+    GameServer server;
+    Client client;
+    client.connectToServer(GameServer::HOST.toString(), GameServer::PORT);
+    Player *player = client.getPlayer();
+    player->setBrush(Qt::green);
+    player->setRect(Player::INITIAL);
+    player->setFlag(QGraphicsItem::ItemIsFocusable);
+    player->setFocus();
 
 
     // Player enemy(deserialize(server_enemy_info))
@@ -26,7 +31,7 @@ int main(int argc, char *argv[])
 
     QGraphicsScene scene;
     scene.setSceneRect(0, 0, 600, 400);
-    scene.addItem(&player);
+    scene.addItem(player);
     scene.addItem(&enemy);
 
     QGraphicsView view;

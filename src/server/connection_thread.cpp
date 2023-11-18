@@ -6,22 +6,22 @@ ConnectionThread::ConnectionThread(qintptr socket_desc, QObject * parent) //:QTh
     : QObject(parent),
     connected_(true),
     username_("TODO"),
-    socket_(new QTcpSocket()),
+    socket_(new QTcpSocket(this)),
     socket_descriptor_(socket_desc),
     socket_stream_(socket_)
 {
     socket_stream_.setVersion(QDataStream::Qt_6_4);
-    if (!(socket_ = new QTcpSocket(this)))
-    {
-        qDebug() << "Creating socket failed";
-    }
-    else
-    {
+//    if (!(socket_ = new QTcpSocket(this)))
+//    {
+//        qDebug() << "Creating socket failed";
+//    }
+//    else
+//    {
         connect(socket_, &QTcpSocket::readyRead, this, &ConnectionThread::receiveData);
         connect(socket_, &QTcpSocket::disconnected, this, &ConnectionThread::disconnectedFromClient);
         connect(socket_, &QTcpSocket::disconnected, this, &ConnectionThread::disconnectClient);
         connect(socket_, &QAbstractSocket::errorOccurred, this, &ConnectionThread::error);
-    }
+//    }
 }
 
 ConnectionThread::~ConnectionThread()
