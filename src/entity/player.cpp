@@ -24,3 +24,22 @@ void Player::keyPressEvent(QKeyEvent *event)
 
     setPos(x_pos, y_pos);
 }
+
+QVariant Player::toVariant() const
+{
+    QVariantMap map;
+    map.insert("name", name_);
+    map.insert("position_x", x());
+    map.insert("position_y", y());
+//    map.insert("hp", hp_);
+
+    return map;
+}
+
+void Player::fromVariant(const QVariant& variant)
+{
+    const auto map = variant.toMap();
+    qreal x = map.value("position_x").toReal();
+    qreal y = map.value("position_y").toReal();
+    setPos(x, y);
+}

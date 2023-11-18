@@ -18,13 +18,15 @@ public:
     qreal getScore();
     void move(std::pair<qint32, qint32>);
     // ovo ce verovatno ici u kontroler?
-    void keyPressEvent(QKeyEvent* event);
-
+    void keyPressEvent(QKeyEvent* event) override;
+    QVariant toVariant() const override;
+    void fromVariant(const QVariant&) override;
 private:
     // nakon sto dodamo klase za  crtanje eniteta, ovo cemo skloniti
     qreal hp_;
     qreal energy_;
     qreal dpp_;
     qreal score_;
-    std::list<Weapon> weapon_list_;
+    QString name_;
+//    std::list<Weapon> weapon_list_;
 };

@@ -1,9 +1,8 @@
 #pragma once
 
-#include "game_serialization_global.hpp"
 #include "serializable.hpp"
 
-class GameSerializationExport Serializer
+class Serializer
 {
 public:
     virtual ~Serializer() = default;

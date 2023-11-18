@@ -59,8 +59,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/serialization/binary_serializer.cpp
         src/serialization/serializer.hpp
         src/serialization/serializable.hpp
-        src/serialization/game_serialization_global.hpp
-        src/serialization/game_serialization_global.pro
+
         src/data/binary/1.bin
         src/server/server_main.cpp
         src/client/client_main.cpp

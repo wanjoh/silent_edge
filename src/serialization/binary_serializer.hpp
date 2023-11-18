@@ -1,9 +1,8 @@
 #pragma once
 
-#include "game_serialization_global.hpp"
 #include "serializer.hpp"
 
-class GameSerializationExport BinarySerializer : public Serializer
+class BinarySerializer : public Serializer
 {
 public:
     BinarySerializer();
