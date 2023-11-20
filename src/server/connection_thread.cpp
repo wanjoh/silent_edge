@@ -6,11 +6,12 @@ ConnectionThread::ConnectionThread(qintptr socket_desc, QObject * parent) //:QTh
     : QObject(parent),
     connected_(true),
     username_("TODO"),
-    socket_(new QTcpSocket(this)),
+    socket_(new QTcpSocket()),
     socket_descriptor_(socket_desc),
     socket_stream_(socket_)
 {
     socket_stream_.setVersion(QDataStream::Qt_6_4);
+    socket_->setSocketDescriptor(socket_descriptor_);
 //    if (!(socket_ = new QTcpSocket(this)))
 //    {
 //        qDebug() << "Creating socket failed";
