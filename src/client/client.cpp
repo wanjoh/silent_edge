@@ -27,18 +27,6 @@ Client::Client(QObject *parent)
     connect(player_, &Player::positionChangedSignal, this, &Client::updatePosition);
 }
 
-// void Client::login(const QString &userName)
-// {
-//     if (client_socket_->state() == QAbstractSocket::ConnectedState) {
-//         QDataStream clientStream(client_socket_);
-//         clientStream.setVersion(QDataStream::Qt_6_4);
-//         QJsonObject message;
-//         message[QStringLiteral("type")] = QStringLiteral("login");
-//         message[QStringLiteral("username")] = userName;
-//         clientStream << QJsonDocument(message).toJson(QJsonDocument::Compact);
-//     }
-// }
-
 Client::~Client()
 {
     disconnectFromHost();
@@ -106,7 +94,8 @@ void Client::onReadyRead()
 
 void Client::updatePosition()
 {
-    QString msg = QString::number(player_->x()) + QString::number(player_->y());
+    QString msg = QString("x:") + QString::number(player_->x())
+                  + QString("; y:") + QString::number(player_->y());
     sendMessage(msg);
 }
 

@@ -64,6 +64,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         
         src/data/binary/1.bin
         src/data/binary/2.bin
+
     )
     # qt_add_executable(ServerMain src/server/server_main.cpp)
     # # qt_add_executable(ClientMain src/client/client_main.cpp)

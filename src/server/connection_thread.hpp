@@ -4,7 +4,7 @@
 #include <QTcpSocket>
 #include <QReadWriteLock>
 
-class ConnectionThread : public QObject//: public QThread
+class ConnectionThread : public QObject
 {
     Q_OBJECT
 public:
@@ -25,9 +25,8 @@ signals:
     void dataReceived(const QByteArray&);
     void disconnectedFromClient();
 private:
-    bool connected_;
     QString username_;
     qintptr socket_descriptor_;
     QTcpSocket *socket_;
-    QDataStream socket_stream_;
+    QDataStream *socket_stream_;
 };

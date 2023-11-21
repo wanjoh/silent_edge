@@ -10,7 +10,6 @@ class QByteArray;
 class GameServer : public QTcpServer {
   Q_OBJECT
 public:
-    // ok
     static constexpr qint32 PORT = 6969;
     static constexpr qint32 MAX_USERS = 8;
     static constexpr qint32 MAX_ROOMS = MAX_USERS / 2;
