@@ -2,8 +2,8 @@
 
 #include <QByteArray>
 
-ConnectionThread::ConnectionThread(qintptr socket_desc, QObject * parent) //:QThread(parent),
-    : QObject(parent),
+ConnectionThread::ConnectionThread(qintptr socket_desc, QObject * parent)
+    :QThread(parent),
     username_("TODO"),
     socket_descriptor_(socket_desc)
 {
@@ -45,7 +45,6 @@ void ConnectionThread::receiveData()
     {
         emit dataReceived(data);
     }
-
 }
 
 void ConnectionThread::disconnectClient()

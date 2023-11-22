@@ -2,9 +2,9 @@
 
 #include <QThread>
 #include <QTcpSocket>
-#include <QReadWriteLock>
+#include <QMutex>
 
-class ConnectionThread : public QObject
+class ConnectionThread : public QThread
 {
     Q_OBJECT
 public:
@@ -29,4 +29,5 @@ private:
     qintptr socket_descriptor_;
     QTcpSocket *socket_;
     QDataStream *socket_stream_;
+    QMutex mutex_;
 };

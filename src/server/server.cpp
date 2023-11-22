@@ -81,7 +81,8 @@ void GameServer::sendData(ConnectionThread *user, const QByteArray& msg)
 {
     Q_ASSERT(user);
 
-    //QTimer::singleShot(0, user, std::bind(&ConnectionThread::sendData, user, msg));
+
+    QTimer::singleShot(0, user, std::bind(&ConnectionThread::sendData, user, msg));
 }
 
 void GameServer::incomingConnection(qintptr socket_desc)
@@ -91,6 +92,7 @@ void GameServer::incomingConnection(qintptr socket_desc)
         // ovo treba da se razmotri, nismo sigurni da li će ovo praviti siročiće
         ConnectionThread *user = new ConnectionThread(socket_desc, nullptr);
 
+
         int thread_idx = available_threads_.size();
         if (thread_idx < MAX_USERS) {
             available_threads_.append(new QThread(this));
@@ -98,17 +100,19 @@ void GameServer::incomingConnection(qintptr socket_desc)
         } else {
             //TODO
         }
+
+        // nesto = user->username();
         user->moveToThread(available_threads_.at(thread_idx));
 
-        connect(available_threads_.at(thread_idx), &QThread::finished, user, &QObject::deleteLater);
         connect(user, &ConnectionThread::disconnectedFromClient, this, std::bind(&GameServer::userDisconnected, this, user, thread_idx));
         connect(user, &ConnectionThread::error, this, std::bind(&GameServer::error, this, std::placeholders::_1));
         connect(user, &ConnectionThread::dataReceived, this, std::bind(&GameServer::dataReceived, this, user, std::placeholders::_1));
         connect(user, &ConnectionThread::logMessage, this, &GameServer::logMessage);
         connect(this, &GameServer::stopAllClients, user, &ConnectionThread::disconnectedFromClient);
+        connect(available_threads_.at(thread_idx), &QThread::finished, user, &QObject::deleteLater);
 
         users_.push_back(user);
         qDebug() << "thread created";
-        //user->start();
+        user->start();
     }
 }

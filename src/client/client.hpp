@@ -28,7 +28,7 @@ public slots:
     // void login(const QString &userName);
     void sendMessage(const QString &text);
     void disconnectFromHost();
-//private slots:
+private slots:
     void onReadyRead();
     void updatePosition();
 signals:
@@ -43,6 +43,7 @@ private:
     void dataReceived(const QByteArray &data);
     float player_x_;
     float player_y_;
+    QString name_;
     BinarySerializer *serializer_;
     Player *player_;
 };

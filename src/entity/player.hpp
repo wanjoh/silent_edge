@@ -13,6 +13,8 @@ public:
 //    using Entity::Entity;
     Player() {};
 
+    Player(QString, qreal, qreal) {};
+
     qreal getHp();
     qreal getEnergy();
     qreal getDpp();
@@ -22,6 +24,7 @@ public:
     void keyPressEvent(QKeyEvent* event) override;
     QVariant toVariant() const override;
     void fromVariant(const QVariant&) override;
+    QString name_;
 signals:
     void positionChangedSignal();
 private:
@@ -30,6 +33,5 @@ private:
     qreal energy_;
     qreal dpp_;
     qreal score_;
-    QString name_;
 //    std::list<Weapon> weapon_list_;
 };

@@ -6,6 +6,8 @@ void Player::keyPressEvent(QKeyEvent *event)
 {
     qreal x_pos = x();
     qreal y_pos = y();
+
+    bool moved = true;
     switch(event->key())
     {
     case Qt::Key_W:
@@ -20,10 +22,14 @@ void Player::keyPressEvent(QKeyEvent *event)
     case Qt::Key_D:
         x_pos += Player::VELOCITY;
         break;
+    default:
+        moved = false;
     }
 
-    setPos(x_pos, y_pos);
-    emit positionChangedSignal();
+    if(moved) {
+        setPos(x_pos, y_pos);
+        emit positionChangedSignal();
+    }
 }
 
 QVariant Player::toVariant() const
@@ -40,6 +46,7 @@ QVariant Player::toVariant() const
 void Player::fromVariant(const QVariant& variant)
 {
     const auto map = variant.toMap();
+    QString name = map.value("name").toString();
     qreal x = map.value("position_x").toReal();
     qreal y = map.value("position_y").toReal();
     setPos(x, y);

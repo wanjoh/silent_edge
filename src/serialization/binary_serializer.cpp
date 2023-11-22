@@ -23,7 +23,6 @@ void BinarySerializer::load(Serializable &serializable, const QString &filepath)
     QFile file(filepath);
     file.open(QFile::ReadOnly);
 
-
     QDataStream dataStream(&file);
     QVariant variant;
 
