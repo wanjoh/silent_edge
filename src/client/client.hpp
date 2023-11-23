@@ -43,7 +43,7 @@ private:
     void dataReceived(const QByteArray &data);
     float player_x_;
     float player_y_;
-    QString name_;
+    QString *name_;
     BinarySerializer *serializer_;
     Player *player_;
 };

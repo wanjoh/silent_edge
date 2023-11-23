@@ -61,7 +61,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/serialization/serializable.hpp
         src/client/client_main.cpp
         src/server/server_main.cpp
-        
+        src/client/client_main.hpp
+        src/server/server_main.hpp
+
         src/data/binary/1.bin
         src/data/binary/2.bin
 

@@ -32,6 +32,11 @@ void Player::keyPressEvent(QKeyEvent *event)
     }
 }
 
+Player::Player(QString name)
+{
+    this->name_ = name;
+}
+
 QVariant Player::toVariant() const
 {
     QVariantMap map;
@@ -50,4 +55,10 @@ void Player::fromVariant(const QVariant& variant)
     qreal x = map.value("position_x").toReal();
     qreal y = map.value("position_y").toReal();
     setPos(x, y);
+    setName(name);
+}
+
+void Player::setName(QString name)
+{
+    this->name_ = name;
 }

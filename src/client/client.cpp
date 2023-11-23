@@ -15,7 +15,7 @@ Client::Client(QObject *parent)
     , client_socket_(new QTcpSocket(this))
     //, logged_in_(false)
     , serializer_(new BinarySerializer())
-    , player_(new Player("test", 0, 0))
+    , player_(new Player())
 {
     name = "TODO";
     x_received = 0;

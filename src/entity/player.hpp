@@ -13,12 +13,15 @@ public:
 //    using Entity::Entity;
     Player() {};
 
+    Player(QString);
+
     Player(QString, qreal, qreal) {};
 
     qreal getHp();
     qreal getEnergy();
     qreal getDpp();
     qreal getScore();
+    void setName(QString name);
     void move(std::pair<qint32, qint32>);
     // ovo ce verovatno ici u kontroler?
     void keyPressEvent(QKeyEvent* event) override;

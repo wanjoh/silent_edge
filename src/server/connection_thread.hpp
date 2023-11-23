@@ -29,5 +29,4 @@ private:
     qintptr socket_descriptor_;
     QTcpSocket *socket_;
     QDataStream *socket_stream_;
-    QMutex mutex_;
 };

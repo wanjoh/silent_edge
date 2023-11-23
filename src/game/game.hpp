@@ -1,13 +1,22 @@
 #pragma once
 
-#include <QGraphicsView>
+#include "qgraphicsview.h"
+#include "qobject.h"
 
-class Game : public QGraphicsView
+class Game : public QObject
 {
+    Q_OBJECT
+    Q_DISABLE_COPY(Game)
 public:
-    using QGraphicsView::QGraphicsView;
-//    Game();
+    explicit Game(QObject *parent = nullptr);
+    ~Game();
     void startGame();
+    void startServer();
+    void show();
+    void quit();
+
+    QGraphicsView *view_;
+    QGraphicsScene *scene_;
+
 private:
-    QGraphicsScene scene_;
 };
