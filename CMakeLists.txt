@@ -51,8 +51,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/map/tileset.hpp
         src/server/server.cpp
         src/server/server.hpp
-        src/server/connection_thread.cpp
-        src/server/connection_thread.hpp
+        src/server/connection.cpp
+        src/server/connection.hpp
         src/client/client.hpp
         src/client/client.cpp
         src/serialization/binary_serializer.hpp

@@ -2,6 +2,8 @@
 
 #include "qgraphicsview.h"
 #include "qobject.h"
+#include "../server/server.hpp"
+#include "../client/client.hpp"
 
 class Game : public QObject
 {
@@ -19,4 +21,7 @@ public:
     QGraphicsScene *scene_;
 
 private:
+    GameServer* server_;
+    Player *player_, *enemy_;
+    Client client_;
 };

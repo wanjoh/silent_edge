@@ -4,7 +4,7 @@
 #include <QTcpSocket>
 #include <QMutex>
 
-class ConnectionThread : public QThread
+class ConnectionThread : public QObject
 {
     Q_OBJECT
 public:

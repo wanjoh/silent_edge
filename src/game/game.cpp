@@ -1,7 +1,5 @@
 #include "game.hpp"
 
-#include "../client/client.hpp"
-#include "../server/server.hpp"
 #include "qapplication.h"
 #include "qgraphicsscene.h"
 #include "qgraphicsview.h"
@@ -31,25 +29,24 @@ void Game::show()
 
 void Game::startGame()
 {
-    Client client;
-    client.connectToServer(GameServer::HOST.toString(), GameServer::PORT);
-    Player *player = client.getPlayer();
-    player->setBrush(Qt::green);
-    player->setRect(Player::INITIAL);
-    player->setFlag(QGraphicsItem::ItemIsFocusable);
-    player->setFocus();
+    client_.connectToServer(GameServer::HOST.toString(), GameServer::PORT);
+    player_ = client_.getPlayer();
+    player_->setBrush(Qt::green);
+    player_->setRect(Player::INITIAL);
+    player_->setFlag(QGraphicsItem::ItemIsFocusable);
+    player_->setFocus();
 
-    Player *enemy = new Player("enemy");
-    enemy->setBrush(Qt::red);
-    enemy->setRect(Player::INITIAL);
+    enemy_ = new Player("enemy");
+    enemy_->setBrush(Qt::red);
+    enemy_->setRect(Player::INITIAL);
 
-    scene_->addItem(player);
-    scene_->addItem(enemy);
+    scene_->addItem(player_);
+    scene_->addItem(enemy_);
 }
 
 void Game::startServer()
 {
-    GameServer server;
+    server_ = new GameServer();
 
     startGame();
 }

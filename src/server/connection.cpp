@@ -1,9 +1,9 @@
-#include "connection_thread.hpp"
+#include "connection.hpp"
 
 #include <QByteArray>
 
 ConnectionThread::ConnectionThread(qintptr socket_desc, QObject * parent)
-    :QThread(parent),
+    :QObject(parent),
     username_("TODO"),
     socket_descriptor_(socket_desc)
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "connection_thread.hpp"
+#include "connection.hpp"
 
 #include <QTcpServer>
 #include <QVector>
