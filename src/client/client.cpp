@@ -6,21 +6,13 @@
 #include <QHostInfo>
 #include <QFile>
 
-float x_received;
-float y_received;
-QString name;
-
 Client::Client(QObject *parent)
     : QObject(parent)
     , client_socket_(new QTcpSocket(this))
     //, logged_in_(false)
     , serializer_(new BinarySerializer())
-    , player_(new Player())
+    , player_(new Player("todo", 0, 0))
 {
-    name = "TODO";
-    x_received = 0;
-    y_received = 0;
-
     connect(client_socket_, &QTcpSocket::connected, this, &Client::connected);
     connect(client_socket_, &QTcpSocket::disconnected, this, &Client::disconnected);
     connect(client_socket_, &QTcpSocket::readyRead, this, &Client::onReadyRead);
@@ -64,16 +56,11 @@ void Client::disconnectFromHost()
 
 void Client::dataReceived(const QByteArray &data)
 {
-    Player *enemy_ = new Player("enemy", 0, 0);
-    serializer_->load(*enemy_, "../silent-edge/src/data/binary/1.bin");
+    Player *enemy = new Player("enemy", 0, 0);
+    serializer_->load(*enemy, "../silent-edge/src/data/binary/1.bin");
+    qDebug() << enemy->getName() << ": " << enemy->x() << " " <<  enemy->y();
 
-    name = enemy_->name_;
-    x_received = enemy_->x();
-    y_received = enemy_->y();
-
-    qDebug() << name << ": " << x_received << " " << y_received;
-
-    //emit messageReceived();
+    emit signalDataReceived(enemy);
 }
 
 void Client::connectToServer(const QString &ipAdress, quint16 port)

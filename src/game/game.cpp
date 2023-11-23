@@ -5,7 +5,8 @@
 #include "qgraphicsview.h"
 
 Game::Game(QObject *parent)
-    :QObject(parent)
+    :QObject(parent),
+    client_(new Client())
 {
     Q_UNUSED(parent);
 
@@ -15,6 +16,8 @@ Game::Game(QObject *parent)
     view_ = new QGraphicsView();
     view_->setScene(scene_);
     view_->setBackgroundBrush(Qt::gray);
+
+    connect(client_, &Client::signalDataReceived, this, std::bind(&Game::updateEnemy, this, std::placeholders::_1));
 }
 
 Game::~Game()
@@ -29,8 +32,9 @@ void Game::show()
 
 void Game::startGame()
 {
-    client_.connectToServer(GameServer::HOST.toString(), GameServer::PORT);
-    player_ = client_.getPlayer();
+    startServer();
+    client_->connectToServer(GameServer::HOST.toString(), GameServer::PORT);
+    player_ = client_->getPlayer();
     player_->setBrush(Qt::green);
     player_->setRect(Player::INITIAL);
     player_->setFlag(QGraphicsItem::ItemIsFocusable);
@@ -47,8 +51,6 @@ void Game::startGame()
 void Game::startServer()
 {
     server_ = new GameServer();
-
-    startGame();
 }
 
 void Game::quit()
@@ -56,4 +58,11 @@ void Game::quit()
     delete this;
 
     QApplication::exit();
+}
+
+void Game::updateEnemy(Player *enemy)
+{
+    enemy_->setX(enemy->x());
+    enemy_->setY(enemy->y());
+    delete enemy;
 }

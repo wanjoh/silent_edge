@@ -34,7 +34,7 @@ private slots:
 signals:
     void connected();
     void disconnected();
-    void messageReceived(const QString &sender, const QString &text);
+    void signalDataReceived(Player*);
     void error(QAbstractSocket::SocketError socketError);
 private:
     QTcpSocket *client_socket_;
@@ -43,7 +43,6 @@ private:
     void dataReceived(const QByteArray &data);
     float player_x_;
     float player_y_;
-    QString *name_;
     BinarySerializer *serializer_;
     Player *player_;
 };

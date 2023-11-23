@@ -19,9 +19,9 @@ public:
 
     QGraphicsView *view_;
     QGraphicsScene *scene_;
-
+    void updateEnemy(Player*);
 private:
     GameServer* server_;
     Player *player_, *enemy_;
-    Client client_;
+    Client *client_;
 };

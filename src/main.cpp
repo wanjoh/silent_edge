@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 
     Game *game = new Game();
     game->show();
-    game->startServer();
+    game->startGame();
     game->moveToThread(new QThread);
     return a.exec();
 }

@@ -1,6 +1,7 @@
 #include "player.hpp"
 
 #include <QKeyEvent>
+//TODO: OCISTITI DJUBRE
 
 void Player::keyPressEvent(QKeyEvent *event)
 {
@@ -32,9 +33,14 @@ void Player::keyPressEvent(QKeyEvent *event)
     }
 }
 
-Player::Player(QString name)
+Player::Player(QString name) : name_(name)
 {
-    this->name_ = name;
+}
+
+Player::Player(QString name, qreal x, qreal y) : name_(name)
+{
+    setX(x);
+    setY(y);
 }
 
 QVariant Player::toVariant() const
@@ -55,7 +61,12 @@ void Player::fromVariant(const QVariant& variant)
     qreal x = map.value("position_x").toReal();
     qreal y = map.value("position_y").toReal();
     setPos(x, y);
-    setName(name);
+    name_ = name;
+}
+
+QString Player::getName()
+{
+    return name_;
 }
 
 void Player::setName(QString name)

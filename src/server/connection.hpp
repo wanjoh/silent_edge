@@ -4,13 +4,13 @@
 #include <QTcpSocket>
 #include <QMutex>
 
-class ConnectionThread : public QObject
+class Connection : public QObject
 {
     Q_OBJECT
 public:
-    ConnectionThread(qintptr, QObject* = nullptr);
-    ConnectionThread(const ConnectionThread&) = delete;
-    ~ConnectionThread();
+    Connection(qintptr, QObject* = nullptr);
+    Connection(const Connection&) = delete;
+    ~Connection();
 
     void sendData(const QByteArray&);
 

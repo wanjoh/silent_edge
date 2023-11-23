@@ -10,12 +10,11 @@ public:
     // ovo ce leteti odavde
     constexpr static qint32 VELOCITY = 5;
     constexpr static QRect INITIAL = QRect(0, 0, 50, 50);
-//    using Entity::Entity;
     Player() {};
 
     Player(QString);
 
-    Player(QString, qreal, qreal) {};
+    Player(QString, qreal, qreal);
 
     qreal getHp();
     qreal getEnergy();
@@ -23,15 +22,14 @@ public:
     qreal getScore();
     void setName(QString name);
     void move(std::pair<qint32, qint32>);
-    // ovo ce verovatno ici u kontroler?
     void keyPressEvent(QKeyEvent* event) override;
     QVariant toVariant() const override;
     void fromVariant(const QVariant&) override;
-    QString name_;
+    QString getName();
 signals:
     void positionChangedSignal();
 private:
-    // nakon sto dodamo klase za  crtanje eniteta, ovo cemo skloniti
+    QString name_;
     qreal hp_;
     qreal energy_;
     qreal dpp_;
