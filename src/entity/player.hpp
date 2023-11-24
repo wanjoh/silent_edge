@@ -21,7 +21,7 @@ public:
     qreal getDpp();
     qreal getScore();
     void setName(QString name);
-    void move(std::pair<qint32, qint32>);
+    void move(Player*);
     void keyPressEvent(QKeyEvent* event) override;
     QVariant toVariant() const override;
     void fromVariant(const QVariant&) override;

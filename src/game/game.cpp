@@ -6,7 +6,8 @@
 
 Game::Game(QObject *parent)
     :QObject(parent),
-    client_(new Client())
+    client_(new Client()),
+    enemy_(new Player("enemy"))
 {
     Q_UNUSED(parent);
 
@@ -17,7 +18,7 @@ Game::Game(QObject *parent)
     view_->setScene(scene_);
     view_->setBackgroundBrush(Qt::gray);
 
-    connect(client_, &Client::signalDataReceived, this, std::bind(&Game::updateEnemy, this, std::placeholders::_1));
+    connect(client_, &Client::signalDataReceived, enemy_, std::bind(&Player::move, enemy_, std::placeholders::_1));
 }
 
 Game::~Game()
@@ -40,7 +41,6 @@ void Game::startGame()
     player_->setFlag(QGraphicsItem::ItemIsFocusable);
     player_->setFocus();
 
-    enemy_ = new Player("enemy");
     enemy_->setBrush(Qt::red);
     enemy_->setRect(Player::INITIAL);
 
@@ -58,11 +58,4 @@ void Game::quit()
     delete this;
 
     QApplication::exit();
-}
-
-void Game::updateEnemy(Player *enemy)
-{
-    enemy_->setX(enemy->x());
-    enemy_->setY(enemy->y());
-    delete enemy;
 }

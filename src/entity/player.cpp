@@ -62,6 +62,7 @@ void Player::fromVariant(const QVariant& variant)
     qreal y = map.value("position_y").toReal();
     setPos(x, y);
     name_ = name;
+//    qDebug() << "from variant" << x << " " << y << " " << name;
 }
 
 QString Player::getName()
@@ -72,4 +73,9 @@ QString Player::getName()
 void Player::setName(QString name)
 {
     this->name_ = name;
+}
+
+void Player::move(Player* enemy)
+{
+    setPos(enemy->x(), enemy->y());
 }
