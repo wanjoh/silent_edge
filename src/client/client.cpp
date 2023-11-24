@@ -6,6 +6,8 @@
 #include <QHostInfo>
 #include <QFile>
 
+const QString filepath = "../silent-edge/src/data/binary/data.bin";
+
 Client::Client(QObject *parent)
     : QObject(parent)
     , client_socket_(new QTcpSocket(this))
@@ -38,9 +40,9 @@ void Client::sendMessage(const QString &text)
     QDataStream clientStream(client_socket_);
     clientStream.setVersion(QDataStream::Qt_6_4);
 
-    serializer_->save(*player_, "../silent-edge/src/data/binary/1.bin");
+    serializer_->save(*player_, filepath);
 
-    QFile file("../silent-edge/src/data/binary/1.bin");
+    QFile file(filepath);
     if (file.open(QIODevice::ReadOnly))
     {
         QByteArray data = file.readAll();
@@ -51,13 +53,14 @@ void Client::sendMessage(const QString &text)
 
 void Client::disconnectFromHost()
 {
+    //serializer_->deleteData(filepath);
     client_socket_->disconnectFromHost();
 }
 
 void Client::dataReceived(const QByteArray &data)
 {
     Player *enemy = new Player("enemy", 0, 0);
-    serializer_->load(*enemy, "../silent-edge/src/data/binary/1.bin");
+    serializer_->load(*enemy, filepath);
     qDebug() << enemy->getName() << ": " << enemy->x() << " " <<  enemy->y();
 
     emit signalDataReceived(enemy);

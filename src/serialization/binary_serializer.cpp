@@ -32,3 +32,13 @@ void BinarySerializer::load(Serializable &serializable, const QString &filepath)
     file.close();
 }
 
+void BinarySerializer::deleteData(const QString &filepath)
+{
+    QFile file(filepath);
+    file.open(QFile::WriteOnly);
+
+    QDataStream dataStream(&file);
+
+    file.close();
+}
+
