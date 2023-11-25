@@ -14,6 +14,8 @@ class Client : public QObject
     Q_OBJECT
     Q_DISABLE_COPY(Client)
 public:
+    inline static const QString FILEPATH_FOR_SENDING = "../silent-edge/src/data/binary/1.bin";
+    inline static const QString FILEPATH_FOR_RECEIVING = "../silent-edge/src/data/binary/2.bin";
     explicit Client(QObject *parent = nullptr);
     ~Client();
 

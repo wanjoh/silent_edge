@@ -6,8 +6,6 @@
 #include <QHostInfo>
 #include <QFile>
 
-const QString filepath = "../silent-edge/src/data/binary/data.bin";
-
 Client::Client(QObject *parent)
     : QObject(parent)
     , client_socket_(new QTcpSocket(this))
@@ -40,12 +38,13 @@ void Client::sendMessage(const QString &text)
     QDataStream clientStream(client_socket_);
     clientStream.setVersion(QDataStream::Qt_6_4);
 
-    serializer_->save(*player_, filepath);
+    serializer_->save(*player_, FILEPATH_FOR_SENDING);
 
-    QFile file(filepath);
+    QFile file(FILEPATH_FOR_SENDING);
     if (file.open(QIODevice::ReadOnly))
     {
         QByteArray data = file.readAll();
+
         file.close();
         clientStream << data;
     }
@@ -60,7 +59,13 @@ void Client::disconnectFromHost()
 void Client::dataReceived(const QByteArray &data)
 {
     Player *enemy = new Player("enemy", 0, 0);
-    serializer_->load(*enemy, filepath);
+    QFile file(FILEPATH_FOR_RECEIVING);
+    if (file.open(QIODevice::WriteOnly))
+    {
+        file.write(data);
+        file.close();
+    }
+    serializer_->load(*enemy, FILEPATH_FOR_RECEIVING);
     qDebug() << enemy->getName() << ": " << enemy->x() << " " <<  enemy->y();
 
     emit signalDataReceived(enemy);
