@@ -2,13 +2,15 @@
 
 #include "entity.hpp"
 #include "weapon.hpp"
+#include<QMap>
+#include<QTimer>
 
 class Player : public Entity
 {
     Q_OBJECT
 public:
     // ovo ce leteti odavde
-    constexpr static qint32 VELOCITY = 5;
+    constexpr static qint32 VELOCITY = 3;
     constexpr static QRect INITIAL = QRect(0, 0, 50, 50);
     Player() {};
 
@@ -23,9 +25,13 @@ public:
     void setName(QString name);
     void move(Player*);
     void keyPressEvent(QKeyEvent* event) override;
+    void keyReleaseEvent(QKeyEvent* event) override;
+    void initializeTimer();
     QVariant toVariant() const override;
     void fromVariant(const QVariant&) override;
     QString getName();
+public slots:
+    void updateMovement();
 signals:
     void positionChangedSignal();
 private:
@@ -34,5 +40,8 @@ private:
     qreal energy_;
     qreal dpp_;
     qreal score_;
+    QMap<int, bool> keys_;
+    QTimer movementTimer_;
+
 //    std::list<Weapon> weapon_list_;
 };
