@@ -4,7 +4,6 @@
 #include <QTcpSocket>
 #include <QHostAddress>
 #include <QNetworkInterface>
-#include "../../src/serialization/binary_serializer.hpp"
 #include "../entity/player.hpp"
 
 class QHostAddress;
@@ -14,8 +13,6 @@ class Client : public QObject
     Q_OBJECT
     Q_DISABLE_COPY(Client)
 public:
-    inline static const QString FILEPATH_FOR_SENDING = "../silent-edge/src/data/binary/1.bin";
-    inline static const QString FILEPATH_FOR_RECEIVING = "../silent-edge/src/data/binary/2.bin";
     explicit Client(QObject *parent = nullptr);
     ~Client();
 
@@ -28,7 +25,7 @@ public:
 public slots:
     void connectToServer(const QString &ipAdress, quint16 port);
     // void login(const QString &userName);
-    void sendMessage(const QString &text);
+    void sendMessage();
     void disconnectFromHost();
 private slots:
     void onReadyRead();
@@ -42,9 +39,8 @@ private:
     QTcpSocket *client_socket_;
     bool logged_in_;
     //void jsonReceived(const QJsonObject &doc);
-    void dataReceived(const QByteArray &data);
+    void dataReceived(QByteArray &data);
     float player_x_;
     float player_y_;
-    BinarySerializer *serializer_;
     Player *player_;
 };

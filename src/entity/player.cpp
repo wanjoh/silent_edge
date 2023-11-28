@@ -41,6 +41,7 @@ void Player::updateMovement()
 
     if (moved) {
         setPos(x_pos, y_pos);
+
         emit positionChangedSignal();
     }
 }
@@ -70,7 +71,8 @@ QVariant Player::toVariant() const
     map.insert("name", name_);
     map.insert("position_x", x());
     map.insert("position_y", y());
-//    map.insert("hp", hp_);
+    //qDebug() << "to variant" << map;
+    //map.insert("hp", hp_);
 
     return map;
 }
@@ -83,7 +85,7 @@ void Player::fromVariant(const QVariant& variant)
     qreal y = map.value("position_y").toReal();
     setPos(x, y);
     name_ = name;
-//    qDebug() << "from variant" << x << " " << y << " " << name;
+    //qDebug() << "from variant" << x << " " << y << " " << name;
 }
 
 QString Player::getName()

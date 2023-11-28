@@ -55,16 +55,12 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/server/connection.hpp
         src/client/client.hpp
         src/client/client.cpp
-        src/serialization/binary_serializer.hpp
-        src/serialization/binary_serializer.cpp
-        src/serialization/serializer.hpp
+        src/serialization/serializable.cpp
         src/serialization/serializable.hpp
         src/client/client_main.cpp
         src/server/server_main.cpp
         src/client/client_main.hpp
         src/server/server_main.hpp
-
-        src/data/binary/data.bin
 
     )
     # qt_add_executable(ServerMain src/server/server_main.cpp)

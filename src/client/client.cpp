@@ -10,7 +10,6 @@ Client::Client(QObject *parent)
     : QObject(parent)
     , client_socket_(new QTcpSocket(this))
     //, logged_in_(false)
-    , serializer_(new BinarySerializer())
     , player_(new Player("todo", 0, 0))
 {
     connect(client_socket_, &QTcpSocket::connected, this, &Client::connected);
@@ -31,41 +30,32 @@ Player *Client::getPlayer()
     return player_;
 }
 
-void Client::sendMessage(const QString &text)
+void Client::sendMessage()
 {
-    if (text.isEmpty())
-        return;
     QDataStream clientStream(client_socket_);
     clientStream.setVersion(QDataStream::Qt_6_4);
+    QVariant variant = player_->toVariant();
 
-    serializer_->save(*player_, FILEPATH_FOR_SENDING);
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+    stream << variant;
 
-    QFile file(FILEPATH_FOR_SENDING);
-    if (file.open(QIODevice::ReadOnly))
-    {
-        QByteArray data = file.readAll();
-
-        file.close();
-        clientStream << data;
-    }
+    clientStream << data;
 }
 
 void Client::disconnectFromHost()
 {
-    //serializer_->deleteData(filepath);
     client_socket_->disconnectFromHost();
 }
 
-void Client::dataReceived(const QByteArray &data)
+void Client::dataReceived(QByteArray &data)
 {
-    Player *enemy = new Player("enemy", 0, 0);
-    QFile file(FILEPATH_FOR_RECEIVING);
-    if (file.open(QIODevice::WriteOnly))
-    {
-        file.write(data);
-        file.close();
-    }
-    serializer_->load(*enemy, FILEPATH_FOR_RECEIVING);
+    QVariant variant;
+    QDataStream stream(data);
+    stream >> variant;
+
+    Player *enemy = new Player();
+    enemy->fromVariant(variant);
     qDebug() << enemy->getName() << ": " << enemy->x() << " " <<  enemy->y();
 
     emit signalDataReceived(enemy);
@@ -93,8 +83,6 @@ void Client::onReadyRead()
 
 void Client::updatePosition()
 {
-    QString msg = QString("x:") + QString::number(player_->x())
-                  + QString("; y:") + QString::number(player_->y());
-    sendMessage(msg);
+    sendMessage();
 }
 
