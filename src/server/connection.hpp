@@ -23,7 +23,7 @@ signals:
     void error(QTcpSocket::SocketError);
     void logMessage(const QString&);
     void dataReceived(const QByteArray&);
-    void disconnectedFromClient();
+    void disconnectedFromServer();
 private:
     QString username_;
     qintptr socket_descriptor_;

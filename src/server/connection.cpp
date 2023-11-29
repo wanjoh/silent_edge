@@ -18,7 +18,7 @@ Connection::Connection(qintptr socket_desc, QObject * parent)
         socket_->setSocketDescriptor(socket_descriptor_);
 
         connect(socket_, &QTcpSocket::readyRead, this, &Connection::receiveData);
-        connect(socket_, &QTcpSocket::disconnected, this, &Connection::disconnectedFromClient);
+//        connect(socket_, &QTcpSocket::disconnected, this, &Connection::disconnectedFromServer);
         connect(socket_, &QTcpSocket::disconnected, this, &Connection::disconnectClient);
         connect(socket_, &QAbstractSocket::errorOccurred, this, &Connection::error);
     }
@@ -29,6 +29,8 @@ Connection::~Connection()
     socket_stream_ = nullptr;
     socket_->deleteLater();
     socket_descriptor_ = 0;
+
+//    emit disconnectedFromServer();
 }
 
 void Connection::sendData(const QByteArray &data)
@@ -51,6 +53,8 @@ void Connection::disconnectClient()
 {
     socket_->disconnectFromHost();
     qDebug() << "client disconnected";
+
+    emit disconnectedFromServer();
 }
 
 QString Connection::username() const

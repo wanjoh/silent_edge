@@ -31,8 +31,8 @@ private slots:
     void onReadyRead();
     void updatePosition();
 signals:
-    void connected();
-    void disconnected();
+//    void connected();
+//    void disconnected();
     void signalDataReceived(Player*);
     void error(QAbstractSocket::SocketError socketError);
 private:
