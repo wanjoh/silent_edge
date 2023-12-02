@@ -12,8 +12,6 @@ Client::Client(QObject *parent)
     //, logged_in_(false)
     , player_(new Player("todo", 0, 0))
 {
-//    connect(client_socket_, &QTcpSocket::connected, this, &Client::connected);
-//    connect(client_socket_, &QTcpSocket::disconnected, this, &Client::disconnected);
     connect(client_socket_, &QTcpSocket::readyRead, this, &Client::onReadyRead);
     connect(client_socket_, &QAbstractSocket::errorOccurred, this, &Client::error);
     connect(client_socket_, &QTcpSocket::disconnected, this, [this]()->void{logged_in_ = false;});
