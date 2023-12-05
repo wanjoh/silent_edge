@@ -1,9 +1,23 @@
 #include "entity.hpp"
 
-
-void Entity::updatePixmap(QString path)
+Entity::Entity(QObject* parent) : Entity("dummy", parent)
 {
-    pixmap_path_ = path;
+
 }
 
-Entity::~Entity() {}
+Entity::Entity(QString name, QObject* parent) :
+    QObject(parent)
+    , name_(name)
+{
+
+}
+
+EntityDrawer* Entity::getDrawer()
+{
+    return drawer_;
+}
+
+QString Entity::getName()
+{
+    return name_;
+}

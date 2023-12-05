@@ -1,7 +1,7 @@
 #include "gui/mainwindow.hpp"
 #include "game/game.hpp"
 #include "qapplication.h"
-
+#include <QKeyEvent>
 #include <QThread>
 int main(int argc, char *argv[])
 {
@@ -10,7 +10,6 @@ int main(int argc, char *argv[])
         w.show();
 
     Game *game = new Game();
-    game->show();
     game->startGame();
     game->moveToThread(new QThread);
     return a.exec();

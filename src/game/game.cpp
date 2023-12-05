@@ -1,51 +1,32 @@
 #include "game.hpp"
 
+// pomeriti u gui
 #include "qapplication.h"
-#include "qgraphicsscene.h"
-#include "qgraphicsview.h"
 
-Game::Game(QObject *parent)
+Game::Game(QString name, QObject *parent)
     :QObject(parent),
     client_(new Client()),
-    enemy_(new Player("enemy"))
+    player_(new Player(name, false))
 {
-    Q_UNUSED(parent);
-
-    scene_ = new QGraphicsScene();
-    scene_->setSceneRect(0, 0, 800, 600);
-
-    view_ = new QGraphicsView();
-    view_->setScene(scene_);
-    view_->setBackgroundBrush(Qt::gray);
-
-    connect(client_, &Client::signalDataReceived, enemy_, std::bind(&Player::move, enemy_, std::placeholders::_1));
+    gui_ = new GameWindow(player_->getDrawer());
+    connect(client_, &Client::signalDataReceived,
+            this, std::bind(&Game::updateEnemy, this, std::placeholders::_1), Qt::DirectConnection);
+    connect(gui_, &GameWindow::playerMoved, this, &Game::playerMoved, Qt::DirectConnection);
 }
 
 Game::~Game()
 {
-
-}
-
-void Game::show()
-{
-    view_->show();
+    for (auto [_, enemy] : enemies_)
+    {
+        delete enemy;
+    }
 }
 
 void Game::startGame()
 {
     startServer();
     client_->connectToServer(GameServer::HOST.toString(), GameServer::PORT);
-    player_ = client_->getPlayer();
-    player_->setBrush(Qt::green);
-    player_->setRect(Player::INITIAL);
-    player_->setFlag(QGraphicsItem::ItemIsFocusable);
-    player_->setFocus();
-
-    enemy_->setBrush(Qt::red);
-    enemy_->setRect(Player::INITIAL);
-
-    scene_->addItem(player_);
-    scene_->addItem(enemy_);
+    gui_->show(GameWindow::GamePhase::FIGHT_PHASE);
 }
 
 void Game::startServer()
@@ -59,3 +40,31 @@ void Game::quit()
 
     QApplication::exit();
 }
+
+void Game::updateEnemy(QVariant variant)
+{
+    Player *enemy = new Player("enemy");
+    enemy->fromVariant(variant);
+    QString enemy_name = enemy->getName();
+//    qDebug() << "primljeni podaci za: " << enemy->getName() << ": " << enemy->getDrawer()->pos();
+
+    if (enemies_.find(enemy_name) == enemies_.end())
+    {
+        enemies_[enemy_name] = enemy;
+        gui_->addEntity(enemy_name, enemy->getDrawer());
+    }
+    else
+    {
+        // ovo je jako lose, ali trenutna serijalizacija je jos gora tako da nema veze:)
+        delete enemy;
+        enemies_[enemy_name]->fromVariant(variant);
+    }
+
+}
+
+void Game::playerMoved()
+{
+    client_->sendMessage(player_->toVariant());
+//    qDebug() << "slanje iz gejma, pos : " << player_->getDrawer()->pos();
+}
+
