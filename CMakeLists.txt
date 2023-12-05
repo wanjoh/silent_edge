@@ -55,12 +55,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/server/connection.hpp
         src/client/client_manager.hpp
         src/client/client_manager.cpp
-        src/serialization/serializable.cpp
-        src/serialization/serializable.hpp
-
-
-
-
         src/gui/entity_drawer.hpp
         src/gui/entity_drawer.cpp
         src/gui/game_window.hpp

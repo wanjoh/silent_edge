@@ -39,7 +39,7 @@ void Client::disconnectFromHost()
     client_socket_->disconnectFromHost();
 }
 
-void Client::dataReceived(QByteArray &data)
+void Client::dataReceived(const QByteArray &data)
 {
     QVariant variant;
     QDataStream stream(data);

@@ -46,7 +46,7 @@ void Game::updateEnemy(QVariant variant)
     Player *enemy = new Player("enemy");
     enemy->fromVariant(variant);
     QString enemy_name = enemy->getName();
-//    qDebug() << "primljeni podaci za: " << enemy->getName() << ": " << enemy->getDrawer()->pos();
+    qDebug() << "primljeni podaci za: " << enemy->getName() << ": " << enemy->getDrawer()->pos();
 
     if (enemies_.find(enemy_name) == enemies_.end())
     {

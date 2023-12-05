@@ -32,5 +32,5 @@ private:
     QTcpSocket *client_socket_;
     bool logged_in_;
     //void jsonReceived(const QJsonObject &doc);
-    void dataReceived(QByteArray &data);
+    void dataReceived(const QByteArray &data);
 };

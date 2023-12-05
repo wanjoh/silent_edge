@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../serialization/serializable.hpp"
 #include "../gui/entity_drawer.hpp"
+#include <QVariant>
 
-class Entity : public Serializable, public QObject
+class Entity : public QObject
 {
 public:
     Entity(QObject* = nullptr);
@@ -11,6 +11,8 @@ public:
     ~Entity() = default;
     QString getName();
     EntityDrawer* getDrawer();
+    virtual QVariant toVariant() const = 0;
+    virtual void fromVariant(const QVariant&) = 0;
 protected:
     EntityDrawer* drawer_;
     QString name_;
