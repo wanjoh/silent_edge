@@ -1,14 +1,17 @@
 #pragma once
 
-#include <QGraphicsRectItem>
-#include "../../src/serialization/serializable.hpp"
+#include "../serialization/serializable.hpp"
+#include "../gui/entity_drawer.hpp"
 
-class Entity : public QGraphicsRectItem, public Serializable, public QObject
+class Entity : public Serializable, public QObject
 {
 public:
-    using QGraphicsRectItem::QGraphicsRectItem;
-    void updatePixmap(QString);
-    ~Entity();
-private:
-    QString pixmap_path_;
+    Entity(QObject* = nullptr);
+    Entity(QString, QObject* = nullptr);
+    ~Entity() = default;
+    QString getName();
+    EntityDrawer* getDrawer();
+protected:
+    EntityDrawer* drawer_;
+    QString name_;
 };

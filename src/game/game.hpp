@@ -1,26 +1,31 @@
 #pragma once
 
-#include "qgraphicsview.h"
-#include "qobject.h"
 #include "../server/server.hpp"
-#include "../client/client.hpp"
+#include "../gui/game_window.hpp"
+#include "../client/client_manager.hpp"
+#include "../entity/player.hpp"
 
 class Game : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(Game)
 public:
-    explicit Game(QObject *parent = nullptr);
+    inline static const QString DEFAULT_NAME = "playa";
+    explicit Game(QString = DEFAULT_NAME, QObject* = nullptr);
     ~Game();
     void startGame();
     void startServer();
-    void show();
     void quit();
-
-    QGraphicsView *view_;
-    QGraphicsScene *scene_;
+public slots:
+    void updateEnemy(QVariant);
+    void playerMoved();
 private:
+    void initializeTimer();
     GameServer* server_;
-    Player *player_, *enemy_;
+
+    GameWindow *gui_;
+    Player *player_;
+
+    std::map<QString, Player*> enemies_;
     Client *client_;
 };

@@ -53,14 +53,18 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/server/server.hpp
         src/server/connection.cpp
         src/server/connection.hpp
-        src/client/client.hpp
-        src/client/client.cpp
+        src/client/client_manager.hpp
+        src/client/client_manager.cpp
         src/serialization/serializable.cpp
         src/serialization/serializable.hpp
-        src/client/client_main.cpp
-        src/server/server_main.cpp
-        src/client/client_main.hpp
-        src/server/server_main.hpp
+
+
+
+
+        src/gui/entity_drawer.hpp
+        src/gui/entity_drawer.cpp
+        src/gui/game_window.hpp
+        src/gui/game_window.cpp
 
     )
     # qt_add_executable(ServerMain src/server/server_main.cpp)
