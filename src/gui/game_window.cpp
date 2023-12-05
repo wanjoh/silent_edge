@@ -21,7 +21,7 @@ GameWindow::GameWindow(EntityDrawer* player, quint32 width, quint32 height, QObj
 
 GameWindow::~GameWindow()
 {
-    for (auto [_, item] : items_)
+    for (auto& [_, item] : items_)
     {
         delete item;
     }

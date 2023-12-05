@@ -16,7 +16,7 @@ Game::Game(QString name, QObject *parent)
 
 Game::~Game()
 {
-    for (auto [_, enemy] : enemies_)
+    for (auto& [_, enemy] : enemies_)
     {
         delete enemy;
     }
