@@ -1,18 +1,19 @@
 #pragma once
 
 #include <QGraphicsRectItem>
+#include <QGraphicsPixmapItem>
 
-class EntityDrawer : public QGraphicsRectItem
+class EntityDrawer : public QGraphicsPixmapItem
 {
 public:
-    // izbaciti ovo kad ubacimo pixmape i izmeniti klasu
-    static constexpr QRect DEFAULT_RECT = QRect(0, 0, 50, 50);
     static constexpr qreal DEFAULT_VELOCITY = 5.0f;
-    EntityDrawer(Qt::GlobalColor = Qt::red, const QRect& = DEFAULT_RECT,
-                 const QString& = "path_to_pixmap", qreal = DEFAULT_VELOCITY,
-                 QGraphicsItem* = nullptr);
+    static constexpr QRect DEFAULT_RECT = QRect(0, 0, 32, 32);
+    EntityDrawer(Qt::GlobalColor = Qt::red,
+                 const QString& = "../images/samurai2.png",
+                 const QRect &rect = DEFAULT_RECT,
+                 qreal = DEFAULT_VELOCITY,
+                 QGraphicsItem * = nullptr);
     qreal getVelocity();
 private:
-    QPixmap* pixmap_;
     qreal velocity_;
 };

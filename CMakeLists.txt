@@ -60,6 +60,13 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/gui/game_window.hpp
         src/gui/game_window.cpp
 
+        src/images/samurai.png
+        src/images/samurai2.png
+        src/images/ground.png
+        src/images/big_ground.png
+        src/images/wall.png
+        src/images/big_wall.png
+
     )
     # qt_add_executable(ServerMain src/server/server_main.cpp)
     # # qt_add_executable(ClientMain src/client/client_main.cpp)

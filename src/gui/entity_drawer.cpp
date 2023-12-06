@@ -2,15 +2,15 @@
 #include <QBrush>
 #include <QPixmap>
 
-EntityDrawer::EntityDrawer(Qt::GlobalColor color, const QRect& rect,
-                           const QString& pixmap_path, qreal velocity,
+EntityDrawer::EntityDrawer(Qt::GlobalColor color,
+                           const QString& pixmap_path,
+                           const QRect& rect,
+                           qreal velocity,
                            QGraphicsItem* parent):
-    QGraphicsRectItem(parent)
-    //, pixmap_(new QPixmap(pixmap_path))
+    QGraphicsPixmapItem(QPixmap(pixmap_path), parent)
     , velocity_(velocity)
 {
-    setRect(rect);
-    setBrush(color);
+
 }
 
 qreal EntityDrawer::getVelocity()

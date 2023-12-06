@@ -8,7 +8,7 @@ Player::Player() : Entity()
 }
 Player::Player(QString name, bool enemy, QObject* parent) : Entity(name, parent)
 {
-    drawer_ = new EntityDrawer(enemy ? Qt::red : Qt::green);
+    drawer_ = new EntityDrawer(enemy ? Qt::red : Qt::green, "../images/samurai2.png");
 }
 
 QVariant Player::toVariant() const
