@@ -20,11 +20,13 @@ public:
     };
 
     void show(GamePhase);
+
     void addEntity(QString, EntityDrawer*);
+    void removeEntity(QString);
+
     void keyPressEvent(QKeyEvent*) override;
     void keyReleaseEvent(QKeyEvent*) override;
     void focusOutEvent(QFocusEvent*) override;
-
 signals:
     void keyPressedSignal(quint32, bool);
     void focusedOutSignal();

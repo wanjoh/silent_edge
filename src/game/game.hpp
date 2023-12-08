@@ -3,7 +3,6 @@
 #include "../server/server.hpp"
 #include "../gui/game_window.hpp"
 #include "../client/client_manager.hpp"
-#include "../entity/player.hpp"
 #include "game_logic_handler.hpp"
 
 class Game : public QObject
@@ -19,7 +18,7 @@ public:
     void quit();
 public slots:
     void updateEnemy(QVariant);
-    void playerMoved();
+    void playerMoved(QVariant);
 private:
     void initializeTimer();
     GameServer* server_;
@@ -27,7 +26,6 @@ private:
     Client *client_;
     GameWindow *gui_;
     GameLogicHandler* logic_handler_;
-    Player *player_;
 
     std::map<QString, Player*> enemies_;
 };

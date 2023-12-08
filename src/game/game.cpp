@@ -7,14 +7,16 @@ Game::Game(QString name, QObject *parent)
     : QObject(parent)
     , client_(new Client())
     , gui_(new GameWindow())
-    , player_(new Player(name, false))
+    , logic_handler_(new GameLogicHandler(name))
 {
-    logic_handler_ = new GameLogicHandler(player_);
-    gui_->addEntity(player_->getName(), player_->getDrawer());
+    gui_->addEntity(name, logic_handler_->getPlayer()->getDrawer());
 
     connect(client_, &Client::signalDataReceived, this, &Game::updateEnemy, Qt::DirectConnection);
 
     connect(logic_handler_, &GameLogicHandler::playerMoved, this, &Game::playerMoved, Qt::DirectConnection);
+
+    connect(logic_handler_, &GameLogicHandler::newBulletSignal, gui_, &GameWindow::addEntity);
+    connect(logic_handler_, &GameLogicHandler::destroyBullet, gui_, &GameWindow::removeEntity);
 
     connect(gui_, &GameWindow::keyPressedSignal, logic_handler_, &GameLogicHandler::updateKeys);
     connect(gui_, &GameWindow::focusedOutSignal, logic_handler_, &GameLogicHandler::resetKeys);
@@ -67,9 +69,9 @@ void Game::updateEnemy(QVariant variant)
 
 }
 
-void Game::playerMoved()
+void Game::playerMoved(QVariant variant)
 {
-    client_->sendMessage(player_->toVariant());
+    client_->sendMessage(variant);
 //    qDebug() << "slanje iz gejma, pos : " << player_->getDrawer()->pos();
 }
 

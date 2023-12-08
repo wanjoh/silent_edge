@@ -12,6 +12,8 @@ public:
         HEAVY
     };
 
+    Bullet(QString, QObject* = nullptr);
+    ~Bullet() = default;
     BulletType getBulletType();
 private:
     BulletType type_;

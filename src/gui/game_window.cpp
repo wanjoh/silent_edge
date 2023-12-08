@@ -42,6 +42,12 @@ void GameWindow::addEntity(QString name, EntityDrawer* entity)
     addItem(entity);
 }
 
+void GameWindow::removeEntity(QString name)
+{
+    delete items_[name];
+    items_.erase(name);
+}
+
 void GameWindow::keyPressEvent(QKeyEvent *event)
 {
     emit keyPressedSignal(event->key(), true);

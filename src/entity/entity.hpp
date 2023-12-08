@@ -7,6 +7,7 @@ class Entity : public QObject
 {
     Q_OBJECT
 public:
+    // todo: obrisati ovaj kontruktor
     Entity(QObject* = nullptr);
     Entity(QString, QObject* = nullptr);
     ~Entity() = default;

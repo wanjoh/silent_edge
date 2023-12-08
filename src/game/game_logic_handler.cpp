@@ -1,10 +1,24 @@
 #include "game_logic_handler.hpp"
 
 
-GameLogicHandler::GameLogicHandler(Player* player)
-    : controllable_player_(player)
+GameLogicHandler::GameLogicHandler(QString name, QObject* parent)
+    : QObject(parent)
+    , player_(new Player(name, false))
 {
     initializeTimers();
+}
+
+GameLogicHandler::~GameLogicHandler()
+{
+    for (auto& [_, enemy] : enemies_)
+    {
+        delete enemy;
+    }
+}
+
+Player *GameLogicHandler::getPlayer()
+{
+    return player_;
 }
 
 void GameLogicHandler::resetKeys()
@@ -20,10 +34,19 @@ void GameLogicHandler::updateKeys(quint32 key, bool pressed)
     keys_[key] = pressed;
 }
 
+void GameLogicHandler::addBullet(QString name, Bullet* bullet)
+{
+    // thread safe?
+    QString bullet_name = name + QString::number(player_bullet_count_[name]);
+    player_bullet_count_[name]++;
+    bullets_[name].push_back(bullet);
+    emit newBulletSignal(bullet_name, bullet->getDrawer());
+}
+
 void GameLogicHandler::updateMovement()
 {
-    qreal x = controllable_player_->getDrawer()->x();
-    qreal y = controllable_player_->getDrawer()->y();
+    qreal x = player_->getDrawer()->x();
+    qreal y = player_->getDrawer()->y();
 
     bool moved = false;
 
@@ -48,14 +71,25 @@ void GameLogicHandler::updateMovement()
 
     if (moved)
     {
-        emit playerMoved();
-        controllable_player_->getDrawer()->setPos(x, y);
+        emit playerMoved(player_->toVariant());
+        player_->getDrawer()->setPos(x, y);
+    }
+}
+
+void GameLogicHandler::updateBullets()
+{
+    if (keys_[Qt::LeftButton])
+    {
+        //todo: naci nacin na koji se metak pravi
+        //addBullet(player_->getName(), bullet);
     }
 }
 
 void GameLogicHandler::initializeTimers()
 {
-    movement_timer_.setInterval(1000.0 / TARGET_FPS);  // Approximately 60 FPS
+    movement_timer_.setInterval(1000 / TARGET_FPS);
     connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updateMovement);
+    // za sad se koristi isti tajmer
+    connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updateBullets);
     movement_timer_.start();
 }
