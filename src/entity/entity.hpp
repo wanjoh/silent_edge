@@ -5,6 +5,7 @@
 
 class Entity : public QObject
 {
+    Q_OBJECT
 public:
     Entity(QObject* = nullptr);
     Entity(QString, QObject* = nullptr);

@@ -4,6 +4,7 @@
 #include "../gui/game_window.hpp"
 #include "../client/client_manager.hpp"
 #include "../entity/player.hpp"
+#include "game_logic_handler.hpp"
 
 class Game : public QObject
 {
@@ -23,9 +24,10 @@ private:
     void initializeTimer();
     GameServer* server_;
 
+    Client *client_;
     GameWindow *gui_;
+    GameLogicHandler* logic_handler_;
     Player *player_;
 
     std::map<QString, Player*> enemies_;
-    Client *client_;
 };

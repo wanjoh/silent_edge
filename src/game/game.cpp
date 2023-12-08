@@ -4,14 +4,20 @@
 #include "qapplication.h"
 
 Game::Game(QString name, QObject *parent)
-    :QObject(parent),
-    client_(new Client()),
-    player_(new Player(name, false))
+    : QObject(parent)
+    , client_(new Client())
+    , gui_(new GameWindow())
+    , player_(new Player(name, false))
 {
-    gui_ = new GameWindow(player_->getDrawer());
-    connect(client_, &Client::signalDataReceived,
-            this, std::bind(&Game::updateEnemy, this, std::placeholders::_1), Qt::DirectConnection);
-    connect(gui_, &GameWindow::playerMoved, this, &Game::playerMoved, Qt::DirectConnection);
+    logic_handler_ = new GameLogicHandler(player_);
+    gui_->addEntity(player_->getName(), player_->getDrawer());
+
+    connect(client_, &Client::signalDataReceived, this, &Game::updateEnemy, Qt::DirectConnection);
+
+    connect(logic_handler_, &GameLogicHandler::playerMoved, this, &Game::playerMoved, Qt::DirectConnection);
+
+    connect(gui_, &GameWindow::keyPressedSignal, logic_handler_, &GameLogicHandler::updateKeys);
+    connect(gui_, &GameWindow::focusedOutSignal, logic_handler_, &GameLogicHandler::resetKeys);
 }
 
 Game::~Game()
@@ -55,7 +61,6 @@ void Game::updateEnemy(QVariant variant)
     }
     else
     {
-        // ovo je jako lose, ali trenutna serijalizacija je jos gora tako da nema veze:)
         delete enemy;
         enemies_[enemy_name]->fromVariant(variant);
     }

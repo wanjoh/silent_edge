@@ -27,6 +27,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         src/game/game.cpp
         src/game/game.hpp
+        src/game/game_logic_handler.hpp
+        src/game/game_logic_handler.cpp
         src/entity/entity.cpp
         src/entity/entity.hpp
         src/entity/player.cpp
