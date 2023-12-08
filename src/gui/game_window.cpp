@@ -3,13 +3,15 @@
 #include <QKeyEvent>
 
 
-GameWindow::GameWindow(EntityDrawer* player, quint32 width, quint32 height, QObject *parent)
+GameWindow::GameWindow(EntityDrawer* player, QGraphicsItemGroup* map, quint32 width, quint32 height, QObject *parent)
     : QGraphicsScene(0, 0, width, height, parent)
     , window_width_(width)
     , window_height_(height)
     , controllable_player_(player)
+    , map_(map)
 {
     addItem(controllable_player_);
+    addItem(map_);
 
     fight_phase_ = new QGraphicsView(this);
     fight_phase_->setBackgroundBrush(Qt::gray);

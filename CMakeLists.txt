@@ -66,6 +66,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/images/big_ground.png
         src/images/wall.png
         src/images/big_wall.png
+        src/map/map_matrix.txt
 
     )
     # qt_add_executable(ServerMain src/server/server_main.cpp)

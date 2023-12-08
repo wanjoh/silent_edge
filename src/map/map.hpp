@@ -1,14 +1,11 @@
 #pragma once
 
 #include "room.hpp"
-#include <list>
+#include "../gui/entity_drawer.hpp"
 
 class Map
 {
 public:
-    int getNumberOfRooms();
-    std::list<Room> getRooms();
-private:
-    qint32 number_of_rooms_;
-    std::list<qint32> rooms_;
+    Map(QString*);
+    QGraphicsItemGroup *draw_matrix(QString* path_to_map);
 };

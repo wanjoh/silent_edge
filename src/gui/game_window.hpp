@@ -9,9 +9,9 @@ class GameWindow : public QGraphicsScene
 {
     Q_OBJECT
 public:
-    static constexpr quint32 WINDOW_WIDTH = 600u;
-    static constexpr quint32 WINDOW_HEIGHT = 400u;
-    GameWindow(EntityDrawer*, quint32 = WINDOW_WIDTH, quint32 = WINDOW_HEIGHT, QObject* = nullptr);
+    static constexpr quint32 WINDOW_WIDTH = 640u;
+    static constexpr quint32 WINDOW_HEIGHT = 384u;
+    GameWindow(EntityDrawer*, QGraphicsItemGroup*, quint32 = WINDOW_WIDTH, quint32 = WINDOW_HEIGHT, QObject* = nullptr);
     ~GameWindow();
 
     enum class GamePhase : quint32
@@ -42,6 +42,7 @@ private:
     // ovo ce moci i da bude lista od 10ak bulova jer nemamo mnogo dugmica
     std::unordered_map<quint32, bool> keys_;
     EntityDrawer* controllable_player_;
+    QGraphicsItemGroup* map_;
     // --------------------------------------------------
     std::unordered_map<QString, EntityDrawer*> items_;
     QGraphicsView *fight_phase_;

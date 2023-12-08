@@ -2,8 +2,7 @@
 #include <QBrush>
 #include <QPixmap>
 
-EntityDrawer::EntityDrawer(Qt::GlobalColor color,
-                           const QString& pixmap_path,
+EntityDrawer::EntityDrawer(const QString& pixmap_path,
                            const QRect& rect,
                            qreal velocity,
                            QGraphicsItem* parent):
