@@ -17,8 +17,9 @@ QVariant Player::toVariant() const
     map.insert("name", name_);
     map.insert("position_x", drawer_->x());
     map.insert("position_y", drawer_->y());
+    map.insert("rotation", drawer_->rotation());
+//    map.insert("hp", hp_);
     //qDebug() << "to variant" << map;
-    //map.insert("hp", hp_);
 
     return map;
 }
@@ -30,7 +31,7 @@ void Player::fromVariant(const QVariant& variant)
     qreal x = map.value("position_x").toReal();
     qreal y = map.value("position_y").toReal();
     drawer_->setPos(x, y);
-    // ovde ce ici i rotacija i sve ostalo
+    drawer_->setRotation(map.value("rotation").toReal());
     name_ = name;
     //qDebug() << "from variant" << x << " " << y << " " << name;
 }
