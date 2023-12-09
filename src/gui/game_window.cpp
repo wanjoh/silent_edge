@@ -1,7 +1,7 @@
 #include "game_window.hpp"
 
 #include <QKeyEvent>
-
+#include <QGraphicsSceneMouseEvent>
 
 GameWindow::GameWindow(quint32 width, quint32 height, QObject *parent)
     : QGraphicsScene(0, 0, width, height, parent)
@@ -10,6 +10,7 @@ GameWindow::GameWindow(quint32 width, quint32 height, QObject *parent)
 {
     fight_phase_ = new QGraphicsView(this);
     fight_phase_->setBackgroundBrush(Qt::gray);
+    fight_phase_->setMouseTracking(true);
 
     // todo: promeniti
     current_active_phase_ = GamePhase::FIGHT_PHASE;
@@ -57,6 +58,23 @@ void GameWindow::keyReleaseEvent(QKeyEvent *event)
 {
     emit keyPressedSignal(event->key(), false);
 }
+
+void GameWindow::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    emit mousePos(event->scenePos());
+}
+
+void GameWindow::mousePressEvent(QGraphicsSceneMouseEvent *)
+{
+
+}
+
+void GameWindow::mouseReleaseEvent(QGraphicsSceneMouseEvent *)
+{
+
+}
+
+
 
 void GameWindow::focusOutEvent(QFocusEvent *)
 {

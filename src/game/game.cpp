@@ -17,7 +17,7 @@ Game::Game(QString name, QObject *parent)
 
     connect(logic_handler_, &GameLogicHandler::newBulletSignal, gui_, &GameWindow::addEntity);
     connect(logic_handler_, &GameLogicHandler::destroyBullet, gui_, &GameWindow::removeEntity);
-
+    connect(gui_, &GameWindow::mousePos, logic_handler_, &GameLogicHandler::updateAimingPoint);
     connect(gui_, &GameWindow::keyPressedSignal, logic_handler_, &GameLogicHandler::updateKeys);
     connect(gui_, &GameWindow::focusedOutSignal, logic_handler_, &GameLogicHandler::resetKeys);
 }
@@ -54,7 +54,7 @@ void Game::updateEnemy(QVariant variant)
     Player *enemy = new Player("enemy");
     enemy->fromVariant(variant);
     QString enemy_name = enemy->getName();
-    qDebug() << "primljeni podaci za: " << enemy->getName() << ": " << enemy->getDrawer()->pos();
+//    qDebug() << "primljeni podaci za: " << enemy->getName() << ": " << enemy->getDrawer()->pos();
 
     if (enemies_.find(enemy_name) == enemies_.end())
     {

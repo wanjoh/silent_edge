@@ -11,6 +11,7 @@ class GameLogicHandler : public QObject
 public:
     static constexpr qreal DEFAULT_PLAYER_VELOCITY = 5.0f;
     static constexpr quint32 TARGET_FPS = 60;
+    static constexpr qreal EPSILON = 1e-5;
 
     GameLogicHandler(QString = "playa", QObject* = nullptr);
     GameLogicHandler(const GameLogicHandler&) = delete;
@@ -21,6 +22,7 @@ public slots:
     void resetKeys();
     void updateKeys(quint32, bool);
     void addBullet(QString, Bullet*);
+    void updateAimingPoint(QPointF);
 private slots:
     void updateMovement();
     void updateBullets();
@@ -32,11 +34,13 @@ signals:
     void destroyBullet(QString);
 private:
     void initializeTimers();
+    bool updateRotation();
+
     QTimer movement_timer_;
     Player* player_;
+    QPointF aiming_point_;
     // todo: izbaciti enemies iz game klase
     std::map<QString, Player*> enemies_;
-    // k -> v ~~~ name -> list of bullets
     std::map<QString, std::vector<Bullet*>> bullets_;
     std::map<QString, quint32> player_bullet_count_;
     // ovo ce mozda moci i da bude lista od 10ak bulova jer nemamo mnogo dugmica

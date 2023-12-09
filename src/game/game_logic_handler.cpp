@@ -1,5 +1,5 @@
 #include "game_logic_handler.hpp"
-
+#include <QtMath>
 
 GameLogicHandler::GameLogicHandler(QString name, QObject* parent)
     : QObject(parent)
@@ -69,6 +69,8 @@ void GameLogicHandler::updateMovement()
         moved = true;
     }
 
+    moved |= updateRotation();
+
     if (moved)
     {
         emit playerMoved(player_->toVariant());
@@ -78,11 +80,17 @@ void GameLogicHandler::updateMovement()
 
 void GameLogicHandler::updateBullets()
 {
-    if (keys_[Qt::LeftButton])
+    // todo: promeniti u left mouse button
+    if (keys_[Qt::Key_Space])
     {
         //todo: naci nacin na koji se metak pravi
         //addBullet(player_->getName(), bullet);
     }
+}
+
+void GameLogicHandler::updateAimingPoint(QPointF point)
+{
+    aiming_point_ = point;
 }
 
 void GameLogicHandler::initializeTimers()
@@ -92,4 +100,13 @@ void GameLogicHandler::initializeTimers()
     // za sad se koristi isti tajmer
     connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updateBullets);
     movement_timer_.start();
+}
+
+bool GameLogicHandler::updateRotation()
+{
+    qreal angle = atan2(aiming_point_.y() - player_->getDrawer()->scenePos().y(),
+                        aiming_point_.x() - player_->getDrawer()->scenePos().x());
+    bool rotated = angle - player_->getDrawer()->rotation() > EPSILON;
+    player_->getDrawer()->setRotation(qRadiansToDegrees(angle));
+    return rotated;
 }

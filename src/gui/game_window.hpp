@@ -26,10 +26,14 @@ public:
 
     void keyPressEvent(QKeyEvent*) override;
     void keyReleaseEvent(QKeyEvent*) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent*) override;
+    void mousePressEvent(QGraphicsSceneMouseEvent*) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent*) override;
     void focusOutEvent(QFocusEvent*) override;
 signals:
     void keyPressedSignal(quint32, bool);
     void focusedOutSignal();
+    void mousePos(QPointF);
 private:
 
     quint32 window_width_;
