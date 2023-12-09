@@ -21,6 +21,7 @@ public:
 public slots:
     void resetKeys();
     void updateKeys(quint32, bool);
+    void updateMouseClick(Qt::MouseButton, bool);
     void addBullet(QString, Bullet*);
     void updateAimingPoint(QPointF);
 private slots:

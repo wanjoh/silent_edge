@@ -34,6 +34,12 @@ void GameLogicHandler::updateKeys(quint32 key, bool pressed)
     keys_[key] = pressed;
 }
 
+void GameLogicHandler::updateMouseClick(Qt::MouseButton button, bool pressed)
+{
+    keys_[button] = pressed;
+}
+
+
 void GameLogicHandler::addBullet(QString name, Bullet* bullet)
 {
     // thread safe?
@@ -53,7 +59,7 @@ void GameLogicHandler::updateMovement()
     qreal dx = (keys_[Qt::Key_D] ? 1.0 : 0.0) - (keys_[Qt::Key_A] ? 1.0 : 0.0);
     qreal dy = (keys_[Qt::Key_S] ? 1.0 : 0.0) - (keys_[Qt::Key_W] ? 1.0 : 0.0);
 
-    if (dx != 0.0 && dy != 0.0)
+    if (qFabs(dx) > EPSILON && qFabs(dy) > EPSILON)
     {
         qreal length = qSqrt(dx * dx + dy * dy);
         dx /= length;
@@ -64,7 +70,7 @@ void GameLogicHandler::updateMovement()
     x += dx * DEFAULT_PLAYER_VELOCITY;
     y += dy * DEFAULT_PLAYER_VELOCITY;
 
-    if (dx != 0.0 || dy != 0.0)
+    if (qFabs(dx) > EPSILON || qFabs(dy) > EPSILON)
     {
         moved = true;
     }
@@ -81,7 +87,7 @@ void GameLogicHandler::updateMovement()
 void GameLogicHandler::updateBullets()
 {
     // todo: promeniti u left mouse button
-    if (keys_[Qt::Key_Space])
+    if (keys_[Qt::LeftButton])
     {
         //todo: naci nacin na koji se metak pravi
         //addBullet(player_->getName(), bullet);
@@ -106,7 +112,8 @@ bool GameLogicHandler::updateRotation()
 {
     qreal angle = atan2(aiming_point_.y() - player_->getDrawer()->scenePos().y(),
                         aiming_point_.x() - player_->getDrawer()->scenePos().x());
-    bool rotated = angle - player_->getDrawer()->rotation() > EPSILON;
+    bool rotated = qFabs(angle - player_->getDrawer()->rotation()) > EPSILON;
     player_->getDrawer()->setRotation(qRadiansToDegrees(angle));
+    player_->getDrawer()->setTransformOriginPoint(player_->getDrawer()->rect().center());
     return rotated;
 }

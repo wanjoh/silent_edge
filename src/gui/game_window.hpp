@@ -32,6 +32,7 @@ public:
     void focusOutEvent(QFocusEvent*) override;
 signals:
     void keyPressedSignal(quint32, bool);
+    void mousePressedSignal(Qt::MouseButton, bool);
     void focusedOutSignal();
     void mousePos(QPointF);
 private:

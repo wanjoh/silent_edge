@@ -64,19 +64,19 @@ void GameWindow::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     emit mousePos(event->scenePos());
 }
 
-void GameWindow::mousePressEvent(QGraphicsSceneMouseEvent *)
+void GameWindow::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-
+    emit mousePressedSignal(event->button(), true);
 }
 
-void GameWindow::mouseReleaseEvent(QGraphicsSceneMouseEvent *)
+void GameWindow::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-
+    emit mousePressedSignal(event->button(), false);
 }
 
 
 
-void GameWindow::focusOutEvent(QFocusEvent *)
+void GameWindow::focusOutEvent(QFocusEvent *event)
 {
     emit focusedOutSignal();
 }
