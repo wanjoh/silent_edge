@@ -9,9 +9,9 @@ class GameWindow : public QGraphicsScene
 {
     Q_OBJECT
 public:
-    static constexpr quint32 WINDOW_WIDTH = 640u;
-    static constexpr quint32 WINDOW_HEIGHT = 384u;
-    GameWindow(EntityDrawer*, QGraphicsItemGroup*, quint32 = WINDOW_WIDTH, quint32 = WINDOW_HEIGHT, QObject* = nullptr);
+    static constexpr quint32 WINDOW_WIDTH = 1024u;
+    static constexpr quint32 WINDOW_HEIGHT = 576u;
+    GameWindow(QGraphicsItemGroup*, EntityDrawer*, QSharedPointer<QVector<QVector<int>>>, quint32 = WINDOW_WIDTH, quint32 = WINDOW_HEIGHT, QObject* = nullptr);
     ~GameWindow();
 
     enum class GamePhase : quint32
@@ -25,6 +25,7 @@ public:
     void updatePosition(QString, std::pair<qreal, qreal>, qreal);
     void keyPressEvent(QKeyEvent*) override;
     void keyReleaseEvent(QKeyEvent*) override;
+    bool canPlayerMove(qreal, qreal);
 public slots:
     void updateMovement();
 signals:
@@ -43,6 +44,7 @@ private:
     std::unordered_map<quint32, bool> keys_;
     EntityDrawer* controllable_player_;
     QGraphicsItemGroup* map_;
+    QSharedPointer<QVector<QVector<int>>> matrix_;
     // --------------------------------------------------
     std::unordered_map<QString, EntityDrawer*> items_;
     QGraphicsView *fight_phase_;

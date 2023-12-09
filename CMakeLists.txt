@@ -59,13 +59,10 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/gui/entity_drawer.cpp
         src/gui/game_window.hpp
         src/gui/game_window.cpp
-
+        src/images/big_wall.png
+        src/images/big_ground.png
         src/images/samurai.png
         src/images/samurai2.png
-        src/images/ground.png
-        src/images/big_ground.png
-        src/images/wall.png
-        src/images/big_wall.png
         src/map/map_matrix.txt
 
     )

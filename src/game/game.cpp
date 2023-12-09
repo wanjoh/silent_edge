@@ -9,7 +9,8 @@ Game::Game(QString name, QString map_path, QObject *parent)
     player_(new Player(name, false)),
     map_(new Map(&map_path))
 {
-    gui_ = new GameWindow(player_->getDrawer(), map_->draw_matrix(&map_path));
+    gui_ = new GameWindow(map_->draw_matrix(&map_path), player_->getDrawer(), map_->get_matrix(&map_path));
+    qDebug() << map_->get_matrix(&map_path);
     connect(client_, &Client::signalDataReceived,
             this, std::bind(&Game::updateEnemy, this, std::placeholders::_1), Qt::DirectConnection);
     connect(gui_, &GameWindow::playerMoved, this, &Game::playerMoved, Qt::DirectConnection);

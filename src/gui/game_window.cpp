@@ -3,15 +3,16 @@
 #include <QKeyEvent>
 
 
-GameWindow::GameWindow(EntityDrawer* player, QGraphicsItemGroup* map, quint32 width, quint32 height, QObject *parent)
+GameWindow::GameWindow(QGraphicsItemGroup* map, EntityDrawer* player, QSharedPointer<QVector<QVector<int>>> matrix, quint32 width, quint32 height, QObject *parent)
     : QGraphicsScene(0, 0, width, height, parent)
     , window_width_(width)
     , window_height_(height)
     , controllable_player_(player)
     , map_(map)
+    , matrix_(matrix)
 {
-    addItem(controllable_player_);
     addItem(map_);
+    addItem(controllable_player_);
 
     fight_phase_ = new QGraphicsView(this);
     fight_phase_->setBackgroundBrush(Qt::gray);
@@ -90,10 +91,27 @@ void GameWindow::updateMovement()
         moved = true;
     }
 
-    if (moved) {
+    bool can_move = canPlayerMove(x, y);
+
+    if (moved && can_move) {
         controllable_player_->setPos(x, y);
         emit playerMoved();
     }
+}
+
+bool GameWindow::canPlayerMove(qreal x, qreal y)
+{
+    bool can_move = true;
+
+    // magicni broj IMAGE_SIZE = 64, samo za sada, pa da se kasnije dogovorimo kako cemo da cuvamo(koristi se na vise mesta)
+
+    int x1 = x / 64;
+    int y1 = y / 64;
+
+    if((*matrix_)[y1][x1] == 2 || (*matrix_)[y1+1][x1] == 2 || (*matrix_)[y1][x1+1] == 2 || (*matrix_)[y1+1][x1+1] == 2)
+        can_move = false;
+
+    return can_move;
 }
 
 void GameWindow::initializeTimers()
