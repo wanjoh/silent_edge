@@ -32,7 +32,6 @@ void Player::fromVariant(const QVariant& variant)
     qreal y = map.value("position_y").toReal();
     drawer_->setPos(x, y);
     drawer_->setRotation(map.value("rotation").toReal());
-    drawer_->setTransformOriginPoint(drawer_->rect().center());
     name_ = name;
     //qDebug() << "from variant" << x << " " << y << " " << name;
 }

@@ -10,4 +10,5 @@ EntityDrawer::EntityDrawer(Qt::GlobalColor color, const QRect& rect,
 {
     setRect(rect);
     setBrush(color);
+    setTransformOriginPoint(this->rect().center());
 }

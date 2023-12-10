@@ -114,6 +114,5 @@ bool GameLogicHandler::updateRotation()
                         aiming_point_.x() - player_->getDrawer()->scenePos().x());
     bool rotated = qFabs(angle - player_->getDrawer()->rotation()) > EPSILON;
     player_->getDrawer()->setRotation(qRadiansToDegrees(angle));
-    player_->getDrawer()->setTransformOriginPoint(player_->getDrawer()->rect().center());
     return rotated;
 }
