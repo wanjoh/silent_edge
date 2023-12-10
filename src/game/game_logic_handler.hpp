@@ -10,7 +10,7 @@ class GameLogicHandler : public QObject
     Q_OBJECT
 public:
     static constexpr qreal DEFAULT_PLAYER_VELOCITY = 5.0f;
-    static constexpr quint32 TARGET_FPS = 60;
+    static constexpr quint32 TARGET_FPS = 30;
     static constexpr qreal EPSILON = 1e-5;
 
     GameLogicHandler(QString = "playa", QObject* = nullptr);
@@ -27,12 +27,14 @@ public slots:
 private slots:
     void updateMovement();
     void updateBullets();
+    void checkCollisions(Bullet*);
 signals:
     void playerMoved(QVariant);
     // todo: connect sa klijentom
     void playerShot();
     void newBulletSignal(QString, EntityDrawer*);
     void destroyBullet(QString);
+    void bulletUpdating(Bullet*);
 private:
     void initializeTimers();
     bool updateRotation();

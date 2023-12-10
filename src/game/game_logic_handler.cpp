@@ -86,7 +86,7 @@ void GameLogicHandler::updateMovement()
 
 void GameLogicHandler::updateBullets()
 {
-    // todo: promeniti u left mouse button
+
     if (keys_[Qt::LeftButton])
     {
 
@@ -98,34 +98,66 @@ void GameLogicHandler::updateBullets()
 
         bullet->setAim_dir(aim_dir);
 
-        bullet->getDrawer()->setPos(player_->getDrawer()->scenePos().x(),player_->getDrawer()->scenePos().y()-1.1*BULLET_HEIGHT);
-
         addBullet(player_->getName(),bullet);
 
+        bullet->getDrawer()->setPos(player_->getDrawer()->scenePos().x(),player_->getDrawer()->scenePos().y()-1.1*BULLET_HEIGHT);
 
 
-
-        //addBullet(player_->getName(),bullet);
         //todo: naci nacin na koji se metak pravi
         //addBullet(player_->getName(), bullet);
     }
 
     if(!(bullets_[player_->getName()].empty())) {
 
-        Bullet *bullet = bullets_[player_->getName()][0];
-        qreal x_pos = bullet->getDrawer()->x()+10*bullet->aim_dir().x();
-        qreal y_pos =  bullet->getDrawer()->y()+10*bullet->aim_dir().y();
-
-        bullet->getDrawer()->setPos(x_pos,y_pos);
 
 
+        for (Bullet* bullet : bullets_[player_->getName()])
+        {
+            qreal x_pos = bullet->getDrawer()->scenePos().x() + 10 * bullet->aim_dir().x();
+            qreal y_pos = bullet->getDrawer()->scenePos().y() + 10 * bullet->aim_dir().y();
 
-        qDebug() << (bullets_[player_->getName()])[0]->getName();
+            bullet->getDrawer()->setPos(x_pos, y_pos);
+
+            emit bulletUpdating(bullet);
+
+        }
+
+
     }
+
+
 
 }
 
+void GameLogicHandler::checkCollisions(Bullet* bullet){
 
+    QList<QGraphicsItem*> colidingItems = bullet->getDrawer()->collidingItems();
+
+    foreach(QGraphicsItem* item, colidingItems){
+
+        if(typeid(*item) == typeid(Player)){
+
+
+            Player* player = dynamic_cast<Player*>(item);
+
+            qDebug() << "bullet collision";
+
+           // player->decreaseHp(this);
+
+
+           // emit destroyBullet(bullet->getName());
+
+           // if(player->getHp() == 0)
+           //     player->destroy();
+
+
+
+            break;
+
+    }
+}
+
+}
 
 void GameLogicHandler::updateAimingPoint(QPointF point)
 {
@@ -138,7 +170,7 @@ void GameLogicHandler::initializeTimers()
     connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updateMovement);
     // za sad se koristi isti tajmer
     connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updateBullets);
-
+    connect(this,&GameLogicHandler::bulletUpdating,this,&GameLogicHandler::checkCollisions);
     movement_timer_.start();
 }
 
