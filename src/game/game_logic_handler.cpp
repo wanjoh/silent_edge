@@ -75,7 +75,7 @@ void GameLogicHandler::updateMovement()
         moved = true;
     }
 
-    moved |= updateRotation();
+    // moved |= updateRotation();
 
     if (moved)
     {
@@ -89,10 +89,43 @@ void GameLogicHandler::updateBullets()
     // todo: promeniti u left mouse button
     if (keys_[Qt::LeftButton])
     {
+
+        QVector2D aim_dir = QVector2D(aiming_point_-player_->getDrawer()->scenePos());
+
+        aim_dir.normalize();
+
+        Bullet *bullet = new Bullet(player_->getName());
+
+        bullet->setAim_dir(aim_dir);
+
+        bullet->getDrawer()->setPos(player_->getDrawer()->scenePos().x(),player_->getDrawer()->scenePos().y()-1.1*BULLET_HEIGHT);
+
+        addBullet(player_->getName(),bullet);
+
+
+
+
+        //addBullet(player_->getName(),bullet);
         //todo: naci nacin na koji se metak pravi
         //addBullet(player_->getName(), bullet);
     }
+
+    if(!(bullets_[player_->getName()].empty())) {
+
+        Bullet *bullet = bullets_[player_->getName()][0];
+        qreal x_pos = bullet->getDrawer()->x()+10*bullet->aim_dir().x();
+        qreal y_pos =  bullet->getDrawer()->y()+10*bullet->aim_dir().y();
+
+        bullet->getDrawer()->setPos(x_pos,y_pos);
+
+
+
+        qDebug() << (bullets_[player_->getName()])[0]->getName();
+    }
+
 }
+
+
 
 void GameLogicHandler::updateAimingPoint(QPointF point)
 {
@@ -105,6 +138,7 @@ void GameLogicHandler::initializeTimers()
     connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updateMovement);
     // za sad se koristi isti tajmer
     connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updateBullets);
+
     movement_timer_.start();
 }
 
