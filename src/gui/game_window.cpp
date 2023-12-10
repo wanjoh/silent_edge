@@ -114,12 +114,15 @@ void GameWindow::updateMovement()
         controllable_player_->setPos(x, y);
         emit playerMoved();
 
-        QString name = map_->get_name(y/64, x/64);
-        if (map_->get_ammo_piles().contains(name)) {
-            map_->remove_name_from_ammo_list(name);
-            deleteTile(name);
-        }
+        QVector<QString> names = {map_->get_name(y/64, x/64), map_->get_name(1 + y/64, x/64), map_->get_name(y/64, 1 + x/64), map_->get_name(1 + y/64, 1 + x/64)};
+        for (QString name : names) {
+            if (map_->get_ammo_piles().contains(name)) {
+                map_->remove_name_from_ammo_list(name);
+                deleteTile(name);
 
+                emit tileDeleted(name);
+            }
+        }
     }
 }
 

@@ -11,7 +11,7 @@ public:
     // ovo ce leteti odavde
     constexpr static qint32 VELOCITY = 3;
     Player();
-    Player(QString, bool = true, QObject* = nullptr);
+    Player(QString, bool = true, int x = 64, int y = 64, QObject* = nullptr);
 
     qreal getHp();
     qreal getEnergy();

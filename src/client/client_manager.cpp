@@ -44,7 +44,10 @@ void Client::dataReceived(const QByteArray &data)
     QVariant variant;
     QDataStream stream(data);
     stream >> variant;
-    emit signalDataReceived(variant);
+    if(variant.typeId() == QMetaType::QString)
+        emit signalTileNameReceived(variant);
+    else
+        emit signalDataReceived(variant);
 }
 
 void Client::connectToServer(const QString &ipAdress, quint16 port)

@@ -11,8 +11,8 @@ class GameWindow : public QGraphicsScene
 {
     Q_OBJECT
 public:
-    static constexpr quint32 WINDOW_WIDTH = 1920;
-    static constexpr quint32 WINDOW_HEIGHT = 1024;
+    static constexpr quint32 WINDOW_WIDTH = 1920u;
+    static constexpr quint32 WINDOW_HEIGHT = 1024u;
     GameWindow(Map*, EntityDrawer*, quint32 = WINDOW_WIDTH, quint32 = WINDOW_HEIGHT, QObject* = nullptr);
     ~GameWindow();
 
@@ -36,6 +36,7 @@ signals:
     void keyPressEventSignal(QKeyEvent*);
     void keyReleaseEventSignal(QKeyEvent*);
     void playerMoved();
+    void tileDeleted(QString name);
 private:
     void initializeTimers();
     quint32 window_width_;

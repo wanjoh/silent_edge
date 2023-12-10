@@ -20,7 +20,9 @@ public:
     void quit();
 public slots:
     void updateEnemy(QVariant);
+    void updateMap(QVariant variant);
     void playerMoved();
+    void tileDeleted(QString name);
 private:
     void initializeTimer();
     GameServer* server_;

@@ -13,7 +13,10 @@ Game::Game(QString name, QObject *parent)
     addAllDynamicTiles();
     connect(client_, &Client::signalDataReceived,
             this, std::bind(&Game::updateEnemy, this, std::placeholders::_1), Qt::DirectConnection);
+    connect(client_, &Client::signalTileNameReceived,
+            this, std::bind(&Game::updateMap, this, std::placeholders::_1), Qt::DirectConnection);
     connect(gui_, &GameWindow::playerMoved, this, &Game::playerMoved, Qt::DirectConnection);
+    connect(gui_, &GameWindow::tileDeleted, this, &Game::tileDeleted, Qt::DirectConnection);
 }
 
 Game::~Game()
@@ -74,9 +77,21 @@ void Game::updateEnemy(QVariant variant)
 
 }
 
+void Game::updateMap(QVariant variant)
+{
+    QString name = variant.toString();
+    map_->remove_name_from_ammo_list(name);
+    gui_->deleteTile(name);
+}
+
 void Game::playerMoved()
 {
     client_->sendMessage(player_->toVariant());
 //    qDebug() << "slanje iz gejma, pos : " << player_->getDrawer()->pos();
+}
+
+void Game::tileDeleted(QString name)
+{
+    client_->sendMessage(QVariant(name));
 }
 
