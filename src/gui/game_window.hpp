@@ -4,14 +4,16 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include "entity_drawer.hpp"
+#include "tile_drawer.hpp"
+#include "../map/map.hpp"
 
 class GameWindow : public QGraphicsScene
 {
     Q_OBJECT
 public:
-    static constexpr quint32 WINDOW_WIDTH = 1024u;
-    static constexpr quint32 WINDOW_HEIGHT = 576u;
-    GameWindow(QGraphicsItemGroup*, EntityDrawer*, QSharedPointer<QVector<QVector<int>>>, quint32 = WINDOW_WIDTH, quint32 = WINDOW_HEIGHT, QObject* = nullptr);
+    static constexpr quint32 WINDOW_WIDTH = 1920;
+    static constexpr quint32 WINDOW_HEIGHT = 1024;
+    GameWindow(Map*, EntityDrawer*, quint32 = WINDOW_WIDTH, quint32 = WINDOW_HEIGHT, QObject* = nullptr);
     ~GameWindow();
 
     enum class GamePhase : quint32
@@ -22,6 +24,8 @@ public:
 
     void show(GamePhase);
     void addEntity(QString, EntityDrawer*);
+    void addTile(QString, TileDrawer*);
+    void deleteTile(QString);
     void updatePosition(QString, std::pair<qreal, qreal>, qreal);
     void keyPressEvent(QKeyEvent*) override;
     void keyReleaseEvent(QKeyEvent*) override;
@@ -43,9 +47,10 @@ private:
     // ovo ce moci i da bude lista od 10ak bulova jer nemamo mnogo dugmica
     std::unordered_map<quint32, bool> keys_;
     EntityDrawer* controllable_player_;
-    QGraphicsItemGroup* map_;
+    Map* map_;
     QSharedPointer<QVector<QVector<int>>> matrix_;
     // --------------------------------------------------
     std::unordered_map<QString, EntityDrawer*> items_;
+    std::unordered_map<QString, TileDrawer*> tiles_;
     QGraphicsView *fight_phase_;
 };

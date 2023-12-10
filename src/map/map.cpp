@@ -1,21 +1,23 @@
 #include "map.hpp"
-#include "../gui/entity_drawer.hpp"
+#include "tile.hpp"
 
 #include <QFile>
 #include <QTextStream>
 
 constexpr static qint32 IMAGE_SIZE = 64;
 
-Map::Map(QString* path_to_map)
+Map::Map()
 {
-
+    // uvek isti
+    map_path_ = "../silent-edge/src/map/map_matrix.txt";
+    matrix_ = make_matrix();
 }
 
-QGraphicsItemGroup* Map::draw_matrix(QString* path_to_map)
+QGraphicsItemGroup* Map::draw_matrix()
 {
     QGraphicsItemGroup *group = new QGraphicsItemGroup;
 
-    QFile file(*path_to_map);
+    QFile file(map_path_);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         QTextStream stream(&file);
@@ -29,21 +31,48 @@ QGraphicsItemGroup* Map::draw_matrix(QString* path_to_map)
                 int image_code;
                 stream >> image_code;
 
-                QString path = "";
+                Tile *second_tile;
+                TileDrawer *second_drawer;
+
+                QString path = "../silent-edge/src/images/";
+                QString name = QString("%1 %2").arg(i).arg(j);
                 switch(image_code) {
                     case 0:
-                        path = "";
+                        path += "big_ground.png";
                         break;
                     case 1:
-                        path = "../silent-edge/src/images/big_ground.png";
+                        path += "big_ground.png";
                         break;
                     case 2:
-                        path = "../silent-edge/src/images/big_wall.png";
+                        path += "big_wall.png";
+                        break;
+                    case 3:
+                        path += "big_ground.png";
+
+                        second_tile = new Tile("../silent-edge/src/images/spawn_point.png");
+                        second_drawer = second_tile->getDrawer();
+                        second_drawer->setPos(j*IMAGE_SIZE, i*IMAGE_SIZE);
+
+                        spawnpoints_[name] = second_drawer;
+                        break;
+                    case 4:
+                        path += "big_ground.png";
+
+                        second_tile = new Tile("../silent-edge/src/images/ammo_bucket.png");
+                        second_drawer = second_tile->getDrawer();
+                        second_drawer->setPos(j*IMAGE_SIZE, i*IMAGE_SIZE);
+
+                        ammo_piles_[name] = second_drawer;
+                        break;
+                    default:
+                        path += "big_ground.png";
                         break;
                 }
-                EntityDrawer *tile = new EntityDrawer(path);
-                tile->setPos(j*IMAGE_SIZE, i*IMAGE_SIZE);
-                group->addToGroup(tile);
+
+                Tile *tile = new Tile(path);
+                TileDrawer *drawer = tile->getDrawer();
+                drawer->setPos(j*IMAGE_SIZE, i*IMAGE_SIZE);
+                group->addToGroup(drawer);
             }
         }
 
@@ -53,12 +82,11 @@ QGraphicsItemGroup* Map::draw_matrix(QString* path_to_map)
     return group;
 }
 
-QSharedPointer<QVector<QVector<int>>> Map::get_matrix(QString* path_to_map)
+QSharedPointer<QVector<QVector<int>>> Map::make_matrix()
 {
     QSharedPointer<QVector<QVector<int>>> matrix = QSharedPointer<QVector<QVector<int>>>(new QVector<QVector<int>>);
 
-    QFile file(*path_to_map);
-    // podrazumevam da se fajl moze otvoriti...
+    QFile file(map_path_);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         QTextStream stream(&file);
@@ -81,4 +109,29 @@ QSharedPointer<QVector<QVector<int>>> Map::get_matrix(QString* path_to_map)
     }
 
     return matrix;
+}
+
+void Map::remove_name_from_ammo_list(QString name)
+{
+    ammo_piles_.erase(name);
+}
+
+QString Map::get_name(int x, int y)
+{
+    return QString("%1 %2").arg(x).arg(y);
+}
+
+QSharedPointer<QVector<QVector<int>>> Map::get_matrix()
+{
+    return matrix_;
+}
+
+std::map<QString, TileDrawer*> Map::get_spawnpoints()
+{
+    return spawnpoints_;
+}
+
+std::map<QString, TileDrawer*> Map::get_ammo_piles()
+{
+    return ammo_piles_;
 }

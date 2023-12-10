@@ -59,11 +59,17 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/gui/entity_drawer.cpp
         src/gui/game_window.hpp
         src/gui/game_window.cpp
+
         src/images/big_wall.png
         src/images/big_ground.png
         src/images/samurai.png
-        src/images/samurai2.png
+        src/images/enemy.png
+        src/images/spawn_point.png
+        src/images/ammo_bucket.png
+
         src/map/map_matrix.txt
+        src/gui/tile_drawer.hpp
+        src/gui/tile_drawer.cpp
 
     )
     # qt_add_executable(ServerMain src/server/server_main.cpp)

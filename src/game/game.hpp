@@ -12,10 +12,11 @@ class Game : public QObject
     Q_DISABLE_COPY(Game)
 public:
     inline static const QString DEFAULT_NAME = "playa";
-    explicit Game(QString = DEFAULT_NAME, QString = "../silent-edge/src/map/map_matrix.txt", QObject* = nullptr);
+    explicit Game(QString = DEFAULT_NAME, QObject* = nullptr);
     ~Game();
     void startGame();
     void startServer();
+    void addAllDynamicTiles();
     void quit();
 public slots:
     void updateEnemy(QVariant);

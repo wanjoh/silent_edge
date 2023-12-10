@@ -3,18 +3,22 @@
 #include <QKeyEvent>
 
 
-GameWindow::GameWindow(QGraphicsItemGroup* map, EntityDrawer* player, QSharedPointer<QVector<QVector<int>>> matrix, quint32 width, quint32 height, QObject *parent)
+GameWindow::GameWindow(Map* map, EntityDrawer* player, quint32 width, quint32 height, QObject *parent)
     : QGraphicsScene(0, 0, width, height, parent)
     , window_width_(width)
     , window_height_(height)
     , controllable_player_(player)
     , map_(map)
-    , matrix_(matrix)
+    , matrix_(map->get_matrix())
 {
-    addItem(map_);
+    addItem(map_->draw_matrix());
     addItem(controllable_player_);
 
     fight_phase_ = new QGraphicsView(this);
+    fight_phase_->setFixedSize(width, height);
+    fight_phase_->setSceneRect(0, 0, width, height);
+    fight_phase_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    fight_phase_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     fight_phase_->setBackgroundBrush(Qt::gray);
 
     // todo: promeniti
@@ -25,9 +29,10 @@ GameWindow::GameWindow(QGraphicsItemGroup* map, EntityDrawer* player, QSharedPoi
 GameWindow::~GameWindow()
 {
     for (auto& [_, item] : items_)
-    {
         delete item;
-    }
+
+    for (auto& [_, tile] : tiles_)
+        delete tile;
 }
 
 void GameWindow::show(GamePhase phase)
@@ -47,6 +52,18 @@ void GameWindow::addEntity(QString name, EntityDrawer* entity)
 {
     items_[name] = entity;
     addItem(entity);
+}
+
+void GameWindow::addTile(QString name, TileDrawer* tile)
+{
+    tiles_[name] = tile;
+    addItem(tile);
+}
+
+void GameWindow::deleteTile(QString name)
+{
+    delete tiles_[name];
+    delete items_[name];
 }
 
 void GameWindow::updatePosition(QString name, std::pair<qreal, qreal> pos, qreal rot)
@@ -96,6 +113,13 @@ void GameWindow::updateMovement()
     if (moved && can_move) {
         controllable_player_->setPos(x, y);
         emit playerMoved();
+
+        QString name = map_->get_name(y/64, x/64);
+        if (map_->get_ammo_piles().contains(name)) {
+            map_->remove_name_from_ammo_list(name);
+            deleteTile(name);
+        }
+
     }
 }
 

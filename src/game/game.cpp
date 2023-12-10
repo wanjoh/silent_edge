@@ -3,14 +3,14 @@
 // pomeriti u gui
 #include "qapplication.h"
 
-Game::Game(QString name, QString map_path, QObject *parent)
+Game::Game(QString name, QObject *parent)
     :QObject(parent),
     client_(new Client()),
     player_(new Player(name, false)),
-    map_(new Map(&map_path))
+    map_(new Map())
 {
-    gui_ = new GameWindow(map_->draw_matrix(&map_path), player_->getDrawer(), map_->get_matrix(&map_path));
-    qDebug() << map_->get_matrix(&map_path);
+    gui_ = new GameWindow(map_, player_->getDrawer());
+    addAllDynamicTiles();
     connect(client_, &Client::signalDataReceived,
             this, std::bind(&Game::updateEnemy, this, std::placeholders::_1), Qt::DirectConnection);
     connect(gui_, &GameWindow::playerMoved, this, &Game::playerMoved, Qt::DirectConnection);
@@ -43,6 +43,15 @@ void Game::quit()
     QApplication::exit();
 }
 
+void Game::addAllDynamicTiles()
+{
+    for (auto& spawnpoint : map_->get_spawnpoints())
+        gui_->addTile(spawnpoint.first, spawnpoint.second);
+
+    for (auto& ammo_pile : map_->get_ammo_piles())
+        gui_->addTile(ammo_pile.first, ammo_pile.second);
+}
+
 void Game::updateEnemy(QVariant variant)
 {
     Player *enemy = new Player("enemy");
@@ -50,6 +59,7 @@ void Game::updateEnemy(QVariant variant)
     QString enemy_name = enemy->getName();
     qDebug() << "primljeni podaci za: " << enemy->getName() << ": " << enemy->getDrawer()->pos();
 
+    // ŠTA JE OVO? Da li mi brišemo neprijatelja svaki put kada se pozove ova funkcija?
     if (enemies_.find(enemy_name) == enemies_.end())
     {
         enemies_[enemy_name] = enemy;
