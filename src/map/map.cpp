@@ -11,72 +11,65 @@ Map::Map()
     // uvek isti
     map_path_ = "../silent-edge/src/map/map_matrix.txt";
     matrix_ = make_matrix();
+    group_ = make_group();
 }
 
-QGraphicsItemGroup* Map::draw_matrix()
+QGraphicsItemGroup* Map::make_group()
 {
     QGraphicsItemGroup *group = new QGraphicsItemGroup;
 
-    QFile file(map_path_);
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+    int n = matrix_->size();
+    int m = (*matrix_)[0].size();
+
+    for (int i = 0; i < n; i++)
     {
-        QTextStream stream(&file);
-        int n, m;
-        stream >> n >> m;
-
-        for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
         {
-            for (int j = 0; j < m; j++)
-            {
-                int image_code;
-                stream >> image_code;
+            int image_code = (*matrix_)[i][j];
 
-                Tile *second_tile;
-                TileDrawer *second_drawer;
+            Tile *second_tile;
+            TileDrawer *second_drawer;
 
-                QString path = "../silent-edge/src/images/";
-                QString name = QString("%1 %2").arg(i).arg(j);
-                switch(image_code) {
-                    case 0:
-                        path += "big_ground.png";
-                        break;
-                    case 1:
-                        path += "big_ground.png";
-                        break;
-                    case 2:
-                        path += "big_wall.png";
-                        break;
-                    case 3:
-                        path += "big_ground.png";
+            QString path = "../silent-edge/src/images/";
+            QString name = QString("%1 %2").arg(i).arg(j);
+            switch(image_code) {
+                case 0:
+                    path += "big_ground.png";
+                    break;
+                case 1:
+                    path += "big_ground.png";
+                    break;
+                case 2:
+                    path += "big_wall.png";
+                    break;
+                case 3:
+                    path += "big_ground.png";
 
-                        second_tile = new Tile("../silent-edge/src/images/spawn_point.png");
-                        second_drawer = second_tile->getDrawer();
-                        second_drawer->setPos(j*IMAGE_SIZE, i*IMAGE_SIZE);
+                    second_tile = new Tile("../silent-edge/src/images/spawn_point.png");
+                    second_drawer = second_tile->getDrawer();
+                    second_drawer->setPos(j*IMAGE_SIZE, i*IMAGE_SIZE);
 
-                        spawnpoints_[name] = second_drawer;
-                        break;
-                    case 4:
-                        path += "big_ground.png";
+                    spawnpoints_[name] = second_drawer;
+                    break;
+                case 4:
+                    path += "big_ground.png";
 
-                        second_tile = new Tile("../silent-edge/src/images/ammo_bucket.png");
-                        second_drawer = second_tile->getDrawer();
-                        second_drawer->setPos(j*IMAGE_SIZE, i*IMAGE_SIZE);
+                    second_tile = new Tile("../silent-edge/src/images/ammo_bucket.png");
+                    second_drawer = second_tile->getDrawer();
+                    second_drawer->setPos(j*IMAGE_SIZE, i*IMAGE_SIZE);
 
-                        ammo_piles_[name] = second_drawer;
-                        break;
-                    default:
-                        path += "big_ground.png";
-                        break;
-                }
-
-                Tile *tile = new Tile(path);
-                TileDrawer *drawer = tile->getDrawer();
-                drawer->setPos(j*IMAGE_SIZE, i*IMAGE_SIZE);
-                group->addToGroup(drawer);
+                    ammo_piles_[name] = second_drawer;
+                    break;
+                default:
+                    path += "big_ground.png";
+                    break;
             }
-        }
 
-        file.close();
+            Tile *tile = new Tile(path);
+            TileDrawer *drawer = tile->getDrawer();
+            drawer->setPos(j*IMAGE_SIZE, i*IMAGE_SIZE);
+            group->addToGroup(drawer);
+        }
     }
 
     return group;
@@ -116,6 +109,28 @@ void Map::remove_name_from_ammo_list(QString name)
     ammo_piles_.erase(name);
 }
 
+void Map::restock_ammo_piles()
+{
+    ammo_piles_.clear();
+
+    int n = matrix_->size();
+    int m = (*matrix_)[0].size();
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if ((*matrix_)[i][j] == 4) {
+                QString name = QString("%1 %2").arg(i).arg(j);
+
+                Tile *tile = new Tile("../silent-edge/src/images/ammo_bucket.png");
+                TileDrawer *drawer = tile->getDrawer();
+                drawer->setPos(j*IMAGE_SIZE, i*IMAGE_SIZE);
+
+                ammo_piles_[name] = drawer;
+            }
+        }
+    }
+}
+
 QString Map::get_name(int x, int y)
 {
     return QString("%1 %2").arg(x).arg(y);
@@ -126,7 +141,12 @@ QSharedPointer<QVector<QVector<int>>> Map::get_matrix()
     return matrix_;
 }
 
-std::map<QString, TileDrawer*> Map::get_spawnpoints()
+QGraphicsItemGroup* Map::get_group()
+{
+    return group_;
+}
+
+std::map<QString, TileDrawer *> Map::get_spawnpoints()
 {
     return spawnpoints_;
 }

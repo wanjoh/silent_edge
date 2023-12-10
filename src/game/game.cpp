@@ -48,9 +48,7 @@ void Game::quit()
 
 void Game::addAllDynamicTiles()
 {
-    for (auto& spawnpoint : map_->get_spawnpoints())
-        gui_->addTile(spawnpoint.first, spawnpoint.second);
-
+    gui_->deleteAmmoTiles();
     for (auto& ammo_pile : map_->get_ammo_piles())
         gui_->addTile(ammo_pile.first, ammo_pile.second);
 }

@@ -26,12 +26,14 @@ public:
     void addEntity(QString, EntityDrawer*);
     void addTile(QString, TileDrawer*);
     void deleteTile(QString);
+    void deleteAmmoTiles();
     void updatePosition(QString, std::pair<qreal, qreal>, qreal);
     void keyPressEvent(QKeyEvent*) override;
     void keyReleaseEvent(QKeyEvent*) override;
     bool canPlayerMove(qreal, qreal);
 public slots:
     void updateMovement();
+    void updateAmmo();
 signals:
     void keyPressEventSignal(QKeyEvent*);
     void keyReleaseEventSignal(QKeyEvent*);
@@ -45,6 +47,7 @@ private:
     // --------------------------------------------------
     // hendlovanje igracevog kretanja bi moglo da ide u zasebnu klasu
     QTimer movement_timer_;
+    QTimer ammo_timer_;
     // ovo ce moci i da bude lista od 10ak bulova jer nemamo mnogo dugmica
     std::unordered_map<quint32, bool> keys_;
     EntityDrawer* controllable_player_;

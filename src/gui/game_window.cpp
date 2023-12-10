@@ -11,7 +11,7 @@ GameWindow::GameWindow(Map* map, EntityDrawer* player, quint32 width, quint32 he
     , map_(map)
     , matrix_(map->get_matrix())
 {
-    addItem(map_->draw_matrix());
+    addItem(map_->get_group());
     addItem(controllable_player_);
 
     fight_phase_ = new QGraphicsView(this);
@@ -64,6 +64,12 @@ void GameWindow::deleteTile(QString name)
 {
     delete tiles_[name];
     delete items_[name];
+}
+
+void GameWindow::deleteAmmoTiles()
+{
+    for (auto& [_, tile] : tiles_)
+        delete tile;
 }
 
 void GameWindow::updatePosition(QString name, std::pair<qreal, qreal> pos, qreal rot)
@@ -124,6 +130,12 @@ void GameWindow::updateMovement()
             }
         }
     }
+}
+
+void GameWindow::updateAmmo()
+{
+    deleteAmmoTiles();
+    map_->restock_ammo_piles();
 }
 
 bool GameWindow::canPlayerMove(qreal x, qreal y)

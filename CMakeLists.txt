@@ -66,6 +66,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/images/enemy.png
         src/images/spawn_point.png
         src/images/ammo_bucket.png
+        src/images/katana.png
 
         src/map/map_matrix.txt
         src/gui/tile_drawer.hpp
