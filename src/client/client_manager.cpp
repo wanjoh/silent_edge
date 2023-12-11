@@ -44,8 +44,9 @@ void Client::dataReceived(const QByteArray &data)
     QVariant variant;
     QDataStream stream(data);
     stream >> variant;
-    if(variant.typeId() == QMetaType::QString)
+    if(variant.typeId() == QMetaType::QString) {
         emit signalTileNameReceived(variant);
+    }
     else
         emit signalDataReceived(variant);
 }

@@ -70,7 +70,9 @@ void Game::updateEnemy(QVariant variant)
 void Game::updateMap(QVariant variant)
 {
     QString name = variant.toString();
+    QPair<int, int> coords = map_->get_matrix()[name]->get_coords();
     map_->remove_tile(name);
+    map_->add_ground_tile_of_type_ammo(name, coords.first, coords.second);
 }
 
 void Game::playerMoved()

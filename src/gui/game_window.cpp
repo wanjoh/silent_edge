@@ -95,23 +95,29 @@ void GameWindow::updateMovement()
     int x1 = x/64;
     int y1 = y/64;
 
+    QVector<QString> names;
+    for(int i = x1; i < x1 + 2; i++) {
+        for(int j = y1; j < y1 + 2; j++) {
+            QString name = QString("%1 %2").arg(i).arg(j);
+            names.push_back(name);
+        }
+    }
+
     // magicni broj IMAGE_SIZE = 64, samo za sada, pa da se kasnije dogovorimo kako cemo da cuvamo(koristi se na vise mesta)
-    bool can_move = canPlayerMove(x1, y1);
+    bool can_move = canPlayerMove(names);
 
     if (moved && can_move) {
         controllable_player_->setPos(x, y);
         emit playerMoved();
 
-        for(int i = x1; i < x1 + 2; i++) {
-            for(int j = y1; j < y1 + 2; j++) {
-                QString name = QString("%1 %2").arg(i).arg(j);
-                if (map_.contains(name)) {
-                    if(map_[name]->getTileType() == Tile::TileType::AMMO_PILE) {
-                        map_object_->remove_tile(name);
-                        map_object_->add_ground_tile_of_type_ammo(name, i, j);
+        for(QString &name : names) {
+            if (map_.contains(name)) {
+                if(map_[name]->getTileType() == Tile::TileType::AMMO_PILE) {
+                    QPair<int, int> coords = map_[name]->get_coords();
+                    map_object_->remove_tile(name);
+                    map_object_->add_ground_tile_of_type_ammo(name, coords.first, coords.second);
 
-                        emit tileDeleted(name);
-                    }
+                    emit tileDeleted(name);
                 }
             }
         }
@@ -123,23 +129,19 @@ void GameWindow::updateAmmo()
     map_object_->restock_ammo_piles();
 }
 
-bool GameWindow::canPlayerMove(int x, int y)
+bool GameWindow::canPlayerMove(QVector<QString> names)
 {
     bool can_move = true;
 
-    for(int i = x; i < x + 2; i++) {
-        for(int j = y; j < y + 2; j++) {
-            QString name = QString("%1 %2").arg(i).arg(j);
-            if(map_.contains(name)) {
-                Tile* tile = map_[name];
-                if(tile && tile->getTileType() == Tile::TileType::WALL) {
-                    can_move = false;
-                }
-            }
-            else {
-                qDebug() << "this tile doesn't exist: " << name;
+    for(QString &name : names) {
+        if(map_.contains(name)) {
+            Tile* tile = map_[name];
+            if(tile && tile->getTileType() == Tile::TileType::WALL) {
+                can_move = false;
             }
         }
+        else
+            qDebug() << "this tile doesn't exist: " << name;
     }
 
     return can_move;

@@ -27,7 +27,7 @@ public:
     void updatePosition(QString, std::pair<qreal, qreal>, qreal);
     void keyPressEvent(QKeyEvent*) override;
     void keyReleaseEvent(QKeyEvent*) override;
-    bool canPlayerMove(int, int);
+    bool canPlayerMove(QVector<QString> names);
 public slots:
     void updateMovement();
     void updateAmmo();
