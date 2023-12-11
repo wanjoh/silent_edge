@@ -4,6 +4,7 @@
 #include <QTimer>
 #include "../entity/player.hpp"
 #include "../entity/bullet.hpp"
+#include <QMutex>
 
 class GameLogicHandler : public QObject
 {
@@ -27,6 +28,7 @@ public slots:
 private slots:
     void updateMovement();
     void updateBullets();
+    void shoot();
     void checkCollisions(Bullet*);
 signals:
     void playerMoved(QVariant);
@@ -40,7 +42,9 @@ private:
     bool updateRotation();
 
     QTimer movement_timer_;
+    QTimer shooting_timer_;
     Player* player_;
+    Weapon* weapon_;
     QPointF aiming_point_;
     // todo: izbaciti enemies iz game klase
     std::map<QString, Player*> enemies_;
@@ -48,5 +52,6 @@ private:
     std::map<QString, quint32> player_bullet_count_;
     // ovo ce mozda moci i da bude lista od 10ak bulova jer nemamo mnogo dugmica
     std::unordered_map<quint32, bool> keys_;
+    QMutex mutex_;
 };
 
