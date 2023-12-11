@@ -10,7 +10,7 @@ Tile::Tile(const QString name, const QString &path, QPair<int, int> coords, Tile
 
 Tile::~Tile()
 {
-    delete drawer_;
+
 }
 
 QString Tile::get_name()

@@ -15,7 +15,6 @@ Map::Map()
 
 Map::~Map()
 {
-    ammo_piles_.clear();
     tile_drawer_map_.clear();
     map_.clear();
     delete group_;
@@ -32,8 +31,6 @@ std::map<QString, Tile*> Map::initialize_matrix()
         int n, m;
         stream >> n >> m;
 
-        bool is_spawnpoint = false;
-        bool is_ammo = false;
         for (int i = 0; i < n; i++)
         {
             for (int j = 0; j < m; j++)
@@ -56,13 +53,11 @@ std::map<QString, Tile*> Map::initialize_matrix()
                     // spawnpoint
                     case 3:
                         path += "spawn_point.png";
-                        is_spawnpoint = true;
                         break;
                     // ammo
                     case 4:
                         path += "ammo_bucket.png";
                         type = Tile::TileType::AMMO_PILE;
-                        is_ammo = true;
                         break;
                     // default = ground
                     default:
@@ -73,16 +68,10 @@ std::map<QString, Tile*> Map::initialize_matrix()
                 Tile *tile = new Tile(name, path, QPair<int, int>(j, i), type);
                 TileDrawer *drawer = tile->getDrawer();
                 drawer->setPos(j*IMAGE_SIZE, i*IMAGE_SIZE);
-                if(is_ammo)
-                    ammo_piles_[name] = drawer;
-                else if(is_spawnpoint)
-                    spawnpoints_[name] = drawer;
 
                 (*map)[name] = tile;
                 tile_drawer_map_[name] = drawer;
                 group_->addToGroup(drawer);
-
-                is_ammo = is_spawnpoint = false;
             }
         }
 
@@ -96,21 +85,16 @@ void Map::remove_tile(QString name)
 {
     if(tile_drawer_map_.contains(name))
     {
-        if(ammo_piles_.contains(name))
-            ammo_piles_.erase(name);
-
         group_->removeFromGroup(tile_drawer_map_[name]);
         delete tile_drawer_map_[name];
         tile_drawer_map_.erase(name);
-
-        delete map_[name];
-        map_.erase(name);
     }
 }
 
-void Map::add_ground_tile(QString name, int x, int y)
+void Map::add_ground_tile_of_type_ammo(QString name, int x, int y)
 {
-    Tile *tile = new Tile(name, "../silent-edge/src/images/big_ground.png", QPair<int, int>(x, y), Tile::TileType::GROUND);
+    // tipa AMMO, zato što se tu stvara AMMO
+    Tile *tile = new Tile(name, "../silent-edge/src/images/big_ground.png", QPair<int, int>(x, y), Tile::TileType::AMMO_PILE);
     TileDrawer *drawer = tile->getDrawer();
     drawer->setPos(x*IMAGE_SIZE, y*IMAGE_SIZE);
 
@@ -121,24 +105,24 @@ void Map::add_ground_tile(QString name, int x, int y)
 
 void Map::restock_ammo_piles()
 {
-    ammo_piles_.clear();
-
-    for (auto tile : map_) {
+    std::vector<QString> tilesToRemove;
+    for (const auto& tile : map_) {
         if (tile.second->getTileType() == Tile::TileType::AMMO_PILE) {
-            remove_tile(tile.first);
-
-            QPair<int, int> coords = tile.second->get_coords();
-            QString name = QString("%1 %2").arg(coords.first).arg(coords.second);
-            Tile *tile = new Tile(name, "../silent-edge/src/images/ammo_bucket.png", QPair<int, int>(coords.second, coords.first), Tile::TileType::GROUND);
-            TileDrawer *drawer = tile->getDrawer();
-            drawer->setPos(coords.second*IMAGE_SIZE, coords.first*IMAGE_SIZE);
-
-            ammo_piles_[name] = drawer;
-
-            tile_drawer_map_[name] = drawer;
-            map_[name] = tile;
-            group_->addToGroup(drawer);
+            tilesToRemove.push_back(tile.first);
         }
+    }
+
+    for (const auto& name : tilesToRemove) {
+        QPair<int, int> coords = map_[name]->get_coords();
+        remove_tile(name);
+
+        Tile *tile = new Tile(name, "../silent-edge/src/images/ammo_bucket.png", coords, Tile::TileType::GROUND);
+        TileDrawer *drawer = tile->getDrawer();
+        drawer->setPos(coords.first * IMAGE_SIZE, coords.second * IMAGE_SIZE);
+
+        tile_drawer_map_[name] = drawer;
+        map_[name] = tile;
+        group_->addToGroup(drawer);
     }
 }
 
@@ -150,16 +134,6 @@ std::map<QString, Tile*> Map::get_matrix()
 QGraphicsItemGroup* Map::get_group()
 {
     return group_;
-}
-
-std::map<QString, TileDrawer *> Map::get_spawnpoints()
-{
-    return spawnpoints_;
-}
-
-std::map<QString, TileDrawer*> Map::get_ammo_piles()
-{
-    return ammo_piles_;
 }
 
 std::map<QString, TileDrawer*> Map::get_tile_drawer_map()

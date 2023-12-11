@@ -8,10 +8,10 @@ GameWindow::GameWindow(Map* map, EntityDrawer* player, quint32 width, quint32 he
     , window_width_(width)
     , window_height_(height)
     , controllable_player_(player)
-    , map_(map)
-    , matrix_(map->initialize_matrix())
+    , map_object_(map)
+    , map_(map->initialize_matrix())
 {
-    addItem(map_->get_group());
+    addItem(map_object_->get_group());
     addItem(controllable_player_);
 
     fight_phase_ = new QGraphicsView(this);
@@ -48,17 +48,6 @@ void GameWindow::addEntity(QString name, EntityDrawer* entity)
 {
     items_[name] = entity;
     addItem(entity);
-}
-
-void GameWindow::deleteTile(QString name)
-{
-    delete tile_drawer_map_[name];
-}
-
-void GameWindow::deleteAmmoTiles()
-{
-    for (auto& [_, tile] : tile_drawer_map_)
-        delete tile;
 }
 
 void GameWindow::updatePosition(QString name, std::pair<qreal, qreal> pos, qreal rot)
@@ -116,11 +105,13 @@ void GameWindow::updateMovement()
         for(int i = x1; i < x1 + 2; i++) {
             for(int j = y1; j < y1 + 2; j++) {
                 QString name = QString("%1 %2").arg(i).arg(j);
-                if (map_->get_ammo_piles().contains(name)) {
-                    map_->remove_tile(name);
-                    map_->add_ground_tile(name, i, j);
+                if (map_.contains(name)) {
+                    if(map_[name]->getTileType() == Tile::TileType::AMMO_PILE) {
+                        map_object_->remove_tile(name);
+                        map_object_->add_ground_tile_of_type_ammo(name, i, j);
 
-                    emit tileDeleted(name);
+                        emit tileDeleted(name);
+                    }
                 }
             }
         }
@@ -129,8 +120,7 @@ void GameWindow::updateMovement()
 
 void GameWindow::updateAmmo()
 {
-    deleteAmmoTiles();
-    map_->restock_ammo_piles();
+    map_object_->restock_ammo_piles();
 }
 
 bool GameWindow::canPlayerMove(int x, int y)
@@ -140,8 +130,8 @@ bool GameWindow::canPlayerMove(int x, int y)
     for(int i = x; i < x + 2; i++) {
         for(int j = y; j < y + 2; j++) {
             QString name = QString("%1 %2").arg(i).arg(j);
-            if(matrix_.contains(name)) {
-                Tile* tile = matrix_[name];
+            if(map_.contains(name)) {
+                Tile* tile = map_[name];
                 if(tile && tile->getTileType() == Tile::TileType::WALL) {
                     can_move = false;
                 }
@@ -160,4 +150,8 @@ void GameWindow::initializeTimers()
     movement_timer_.setInterval(16);  // Approximately 60 FPS
     connect(&movement_timer_, &QTimer::timeout, this, &GameWindow::updateMovement);
     movement_timer_.start();
+
+    ammo_timer_.setInterval(5000);
+    connect(&ammo_timer_, &QTimer::timeout, this, &GameWindow::updateAmmo);
+    ammo_timer_.start();
 }

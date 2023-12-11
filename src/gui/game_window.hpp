@@ -24,8 +24,6 @@ public:
 
     void show(GamePhase);
     void addEntity(QString, EntityDrawer*);
-    void deleteTile(QString);
-    void deleteAmmoTiles();
     void updatePosition(QString, std::pair<qreal, qreal>, qreal);
     void keyPressEvent(QKeyEvent*) override;
     void keyReleaseEvent(QKeyEvent*) override;
@@ -50,8 +48,8 @@ private:
     // ovo ce moci i da bude lista od 10ak bulova jer nemamo mnogo dugmica
     std::unordered_map<quint32, bool> keys_;
     EntityDrawer* controllable_player_;
-    Map* map_;
-    std::map<QString, Tile*> matrix_;
+    Map* map_object_;
+    std::map<QString, Tile*> map_;
     // --------------------------------------------------
     std::unordered_map<QString, EntityDrawer*> items_;
     std::unordered_map<QString, TileDrawer*> tile_drawer_map_;
