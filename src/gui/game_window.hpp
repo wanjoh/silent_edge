@@ -49,9 +49,8 @@ private:
     std::unordered_map<quint32, bool> keys_;
     EntityDrawer* controllable_player_;
     Map* map_object_;
-    std::map<QString, Tile*> map_;
+    std::unordered_map<QString, Tile*> map_;
     // --------------------------------------------------
     std::unordered_map<QString, EntityDrawer*> items_;
-    std::unordered_map<QString, TileDrawer*> tile_drawer_map_;
     QGraphicsView *fight_phase_;
 };

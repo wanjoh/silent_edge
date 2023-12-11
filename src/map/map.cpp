@@ -15,14 +15,14 @@ Map::Map()
 
 Map::~Map()
 {
-    tile_drawer_map_.clear();
+    active_ammo_buckets_.clear();
     map_.clear();
     delete group_;
 }
 
-std::map<QString, Tile*> Map::initialize_matrix()
+std::unordered_map<QString, Tile*> Map::initialize_matrix()
 {
-    std::map<QString, Tile*> *map = new std::map<QString, Tile*>;
+    std::unordered_map<QString, Tile*> *map = new std::unordered_map<QString, Tile*>;
 
     QFile file(map_path_);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -31,6 +31,7 @@ std::map<QString, Tile*> Map::initialize_matrix()
         int n, m;
         stream >> n >> m;
 
+        float is_ammo = false;
         for (int i = 0; i < n; i++)
         {
             for (int j = 0; j < m; j++)
@@ -58,6 +59,7 @@ std::map<QString, Tile*> Map::initialize_matrix()
                     case 4:
                         path += "ammo_bucket.png";
                         type = Tile::TileType::AMMO_PILE;
+                        is_ammo = true;
                         break;
                     // default = ground
                     default:
@@ -70,8 +72,12 @@ std::map<QString, Tile*> Map::initialize_matrix()
                 drawer->setPos(j*IMAGE_SIZE, i*IMAGE_SIZE);
 
                 (*map)[name] = tile;
-                tile_drawer_map_[name] = drawer;
                 group_->addToGroup(drawer);
+
+                if(is_ammo)
+                    active_ammo_buckets_[name] = tile;
+
+                is_ammo = false;
             }
         }
 
@@ -83,12 +89,8 @@ std::map<QString, Tile*> Map::initialize_matrix()
 
 void Map::remove_tile(QString name)
 {
-    if(tile_drawer_map_.contains(name))
-    {
-        group_->removeFromGroup(tile_drawer_map_[name]);
-        delete tile_drawer_map_[name];
-        tile_drawer_map_.erase(name);
-    }
+    if(active_ammo_buckets_.contains(name))
+        active_ammo_buckets_.erase(name);
 }
 
 void Map::add_ground_tile_of_type_ammo(QString name, int x, int y)
@@ -98,35 +100,31 @@ void Map::add_ground_tile_of_type_ammo(QString name, int x, int y)
     TileDrawer *drawer = tile->getDrawer();
     drawer->setPos(x*IMAGE_SIZE, y*IMAGE_SIZE);
 
-    tile_drawer_map_[name] = drawer;
+    inactive_ammo_buckets_[name] = tile;
     map_[name] = tile;
     group_->addToGroup(drawer);
 }
 
 void Map::restock_ammo_piles()
 {
-    std::vector<QString> tilesToRemove;
-    for (const auto& tile : map_) {
-        if (tile.second->getTileType() == Tile::TileType::AMMO_PILE) {
-            tilesToRemove.push_back(tile.first);
-        }
-    }
+    std::unordered_map<QString, Tile*> inactive_buckets = get_inactive_ammo_buckets();
+    for (const auto &bucket : inactive_buckets) {
+        QPair<int, int> coords = map_[bucket.first]->get_coords();
+        remove_tile(bucket.first);
 
-    for (const auto& name : tilesToRemove) {
-        QPair<int, int> coords = map_[name]->get_coords();
-        remove_tile(name);
-
-        Tile *tile = new Tile(name, "../silent-edge/src/images/ammo_bucket.png", coords, Tile::TileType::GROUND);
+        Tile *tile = new Tile(bucket.first, "../silent-edge/src/images/ammo_bucket.png", coords, Tile::TileType::GROUND);
         TileDrawer *drawer = tile->getDrawer();
         drawer->setPos(coords.first * IMAGE_SIZE, coords.second * IMAGE_SIZE);
 
-        tile_drawer_map_[name] = drawer;
-        map_[name] = tile;
+        active_ammo_buckets_[bucket.first] = tile;
+        map_[bucket.first] = tile;
         group_->addToGroup(drawer);
     }
+
+    inactive_buckets.clear();
 }
 
-std::map<QString, Tile*> Map::get_matrix()
+std::unordered_map<QString, Tile*> Map::get_matrix()
 {
     return map_;
 }
@@ -136,7 +134,12 @@ QGraphicsItemGroup* Map::get_group()
     return group_;
 }
 
-std::map<QString, TileDrawer*> Map::get_tile_drawer_map()
+std::unordered_map<QString, Tile *> Map::get_active_ammo_buckets()
 {
-    return tile_drawer_map_;
+    return active_ammo_buckets_;
+}
+
+std::unordered_map<QString, Tile *> Map::get_inactive_ammo_buckets()
+{
+    return inactive_ammo_buckets_;
 }

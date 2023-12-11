@@ -105,20 +105,21 @@ void GameWindow::updateMovement()
 
     // magicni broj IMAGE_SIZE = 64, samo za sada, pa da se kasnije dogovorimo kako cemo da cuvamo(koristi se na vise mesta)
     bool can_move = canPlayerMove(names);
+    std::unordered_map<QString, Tile*> active_buckets = map_object_->get_active_ammo_buckets();
 
     if (moved && can_move) {
         controllable_player_->setPos(x, y);
         emit playerMoved();
 
         for(QString &name : names) {
-            if (map_.contains(name)) {
-                if(map_[name]->getTileType() == Tile::TileType::AMMO_PILE) {
-                    QPair<int, int> coords = map_[name]->get_coords();
-                    map_object_->remove_tile(name);
-                    map_object_->add_ground_tile_of_type_ammo(name, coords.first, coords.second);
+            if(active_buckets.contains(name)) {
+                QPair<int, int> coords = map_[name]->get_coords();
+                map_object_->remove_tile(name);
+                map_object_->add_ground_tile_of_type_ammo(name, coords.first, coords.second);
 
-                    emit tileDeleted(name);
-                }
+                qDebug() << "tile " << name << " was deeleted";
+
+                emit tileDeleted(name);
             }
         }
     }
@@ -134,14 +135,10 @@ bool GameWindow::canPlayerMove(QVector<QString> names)
     bool can_move = true;
 
     for(QString &name : names) {
-        if(map_.contains(name)) {
-            Tile* tile = map_[name];
-            if(tile && tile->getTileType() == Tile::TileType::WALL) {
-                can_move = false;
-            }
+        Tile* tile = map_[name];
+        if(tile && tile->getTileType() == Tile::TileType::WALL) {
+            can_move = false;
         }
-        else
-            qDebug() << "this tile doesn't exist: " << name;
     }
 
     return can_move;
