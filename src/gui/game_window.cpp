@@ -109,7 +109,6 @@ void GameWindow::updateMovement()
 
     if (moved && can_move) {
         controllable_player_->setPos(x, y);
-        emit playerMoved();
 
         for(QString &name : names) {
             if(active_buckets.contains(name)) {
@@ -123,6 +122,8 @@ void GameWindow::updateMovement()
             }
         }
     }
+
+    emit playerMoved();
 }
 
 void GameWindow::updateAmmo()
