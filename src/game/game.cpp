@@ -10,7 +10,6 @@ Game::Game(QString name, QObject *parent)
     map_(new Map())
 {
     gui_ = new GameWindow(map_, player_->getDrawer());
-    addAllDynamicTiles();
     connect(client_, &Client::signalDataReceived,
             this, std::bind(&Game::updateEnemy, this, std::placeholders::_1), Qt::DirectConnection);
     connect(client_, &Client::signalTileNameReceived,
@@ -46,13 +45,6 @@ void Game::quit()
     QApplication::exit();
 }
 
-void Game::addAllDynamicTiles()
-{
-    gui_->deleteAmmoTiles();
-    for (auto& ammo_pile : map_->get_ammo_piles())
-        gui_->addTile(ammo_pile.first, ammo_pile.second);
-}
-
 void Game::updateEnemy(QVariant variant)
 {
     Player *enemy = new Player("enemy");
@@ -78,8 +70,7 @@ void Game::updateEnemy(QVariant variant)
 void Game::updateMap(QVariant variant)
 {
     QString name = variant.toString();
-    map_->remove_name_from_ammo_list(name);
-    gui_->deleteTile(name);
+    map_->remove_tile(name);
 }
 
 void Game::playerMoved()

@@ -16,7 +16,6 @@ public:
     ~Game();
     void startGame();
     void startServer();
-    void addAllDynamicTiles();
     void quit();
 public slots:
     void updateEnemy(QVariant);

@@ -30,7 +30,7 @@ public:
     void updatePosition(QString, std::pair<qreal, qreal>, qreal);
     void keyPressEvent(QKeyEvent*) override;
     void keyReleaseEvent(QKeyEvent*) override;
-    bool canPlayerMove(qreal, qreal);
+    bool canPlayerMove(int, int);
 public slots:
     void updateMovement();
     void updateAmmo();
@@ -52,9 +52,9 @@ private:
     std::unordered_map<quint32, bool> keys_;
     EntityDrawer* controllable_player_;
     Map* map_;
-    QSharedPointer<QVector<QVector<int>>> matrix_;
+    std::map<QString, Tile*> matrix_;
     // --------------------------------------------------
     std::unordered_map<QString, EntityDrawer*> items_;
-    std::unordered_map<QString, TileDrawer*> tiles_;
+    std::unordered_map<QString, TileDrawer*> tile_drawer_map_;
     QGraphicsView *fight_phase_;
 };

@@ -9,7 +9,7 @@ GameWindow::GameWindow(Map* map, EntityDrawer* player, quint32 width, quint32 he
     , window_height_(height)
     , controllable_player_(player)
     , map_(map)
-    , matrix_(map->get_matrix())
+    , matrix_(map->initialize_matrix())
 {
     addItem(map_->get_group());
     addItem(controllable_player_);
@@ -28,11 +28,7 @@ GameWindow::GameWindow(Map* map, EntityDrawer* player, quint32 width, quint32 he
 
 GameWindow::~GameWindow()
 {
-    for (auto& [_, item] : items_)
-        delete item;
 
-    for (auto& [_, tile] : tiles_)
-        delete tile;
 }
 
 void GameWindow::show(GamePhase phase)
@@ -56,19 +52,18 @@ void GameWindow::addEntity(QString name, EntityDrawer* entity)
 
 void GameWindow::addTile(QString name, TileDrawer* tile)
 {
-    tiles_[name] = tile;
+    tile_drawer_map_[name] = tile;
     addItem(tile);
 }
 
 void GameWindow::deleteTile(QString name)
 {
-    delete tiles_[name];
-    delete items_[name];
+    delete tile_drawer_map_[name];
 }
 
 void GameWindow::deleteAmmoTiles()
 {
-    for (auto& [_, tile] : tiles_)
+    for (auto& [_, tile] : tile_drawer_map_)
         delete tile;
 }
 
@@ -114,19 +109,25 @@ void GameWindow::updateMovement()
         moved = true;
     }
 
-    bool can_move = canPlayerMove(x, y);
+    int x1 = x/64;
+    int y1 = y/64;
+
+    // magicni broj IMAGE_SIZE = 64, samo za sada, pa da se kasnije dogovorimo kako cemo da cuvamo(koristi se na vise mesta)
+    bool can_move = canPlayerMove(x1, y1);
 
     if (moved && can_move) {
         controllable_player_->setPos(x, y);
         emit playerMoved();
 
-        QVector<QString> names = {map_->get_name(y/64, x/64), map_->get_name(1 + y/64, x/64), map_->get_name(y/64, 1 + x/64), map_->get_name(1 + y/64, 1 + x/64)};
-        for (QString name : names) {
-            if (map_->get_ammo_piles().contains(name)) {
-                map_->remove_name_from_ammo_list(name);
-                deleteTile(name);
+        for(int i = x1; i < x1 + 2; i++) {
+            for(int j = y1; j < y1 + 2; j++) {
+                QString name = QString("%1 %2").arg(x1).arg(y1);
+                if (map_->get_ammo_piles().contains(name)) {
+                    map_->remove_tile(name);
+                    map_->add_ground_tile(name, y1, x1);
 
-                emit tileDeleted(name);
+                    emit tileDeleted(name);
+                }
             }
         }
     }
@@ -138,17 +139,26 @@ void GameWindow::updateAmmo()
     map_->restock_ammo_piles();
 }
 
-bool GameWindow::canPlayerMove(qreal x, qreal y)
+bool GameWindow::canPlayerMove(int x, int y)
 {
     bool can_move = true;
 
-    // magicni broj IMAGE_SIZE = 64, samo za sada, pa da se kasnije dogovorimo kako cemo da cuvamo(koristi se na vise mesta)
-
-    int x1 = x / 64;
-    int y1 = y / 64;
-
-    if((*matrix_)[y1][x1] == 2 || (*matrix_)[y1+1][x1] == 2 || (*matrix_)[y1][x1+1] == 2 || (*matrix_)[y1+1][x1+1] == 2)
-        can_move = false;
+    QString name1 = QString("%1 %2").arg(x).arg(y);
+    QString name2 = QString("%1 %2").arg(1 + x).arg(y);
+    QString name3 = QString("%1 %2").arg(1 + x).arg(1 + y);
+    QString name4 = QString("%1 %2").arg(1 + x).arg(1 + y);
+    QVector<QString> names = {name1, name2, name3, name4};
+    for(QString name : names) {
+        if(matrix_.contains(name)) {
+            Tile* tile = matrix_[name];
+            if(tile && tile->getTileType() == Tile::TileType::WALL) {
+                can_move = false;
+            }
+        }
+        else {
+            qDebug() << "this tile doesn't exist: " << name;
+        }
+    }
 
     return can_move;
 }
