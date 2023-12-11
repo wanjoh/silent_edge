@@ -24,7 +24,6 @@ public:
 
     void show(GamePhase);
     void addEntity(QString, EntityDrawer*);
-    void addTile(QString, TileDrawer*);
     void deleteTile(QString);
     void deleteAmmoTiles();
     void updatePosition(QString, std::pair<qreal, qreal>, qreal);

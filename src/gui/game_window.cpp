@@ -50,12 +50,6 @@ void GameWindow::addEntity(QString name, EntityDrawer* entity)
     addItem(entity);
 }
 
-void GameWindow::addTile(QString name, TileDrawer* tile)
-{
-    tile_drawer_map_[name] = tile;
-    addItem(tile);
-}
-
 void GameWindow::deleteTile(QString name)
 {
     delete tile_drawer_map_[name];
@@ -121,10 +115,10 @@ void GameWindow::updateMovement()
 
         for(int i = x1; i < x1 + 2; i++) {
             for(int j = y1; j < y1 + 2; j++) {
-                QString name = QString("%1 %2").arg(x1).arg(y1);
+                QString name = QString("%1 %2").arg(i).arg(j);
                 if (map_->get_ammo_piles().contains(name)) {
                     map_->remove_tile(name);
-                    map_->add_ground_tile(name, y1, x1);
+                    map_->add_ground_tile(name, i, j);
 
                     emit tileDeleted(name);
                 }
@@ -143,20 +137,18 @@ bool GameWindow::canPlayerMove(int x, int y)
 {
     bool can_move = true;
 
-    QString name1 = QString("%1 %2").arg(x).arg(y);
-    QString name2 = QString("%1 %2").arg(1 + x).arg(y);
-    QString name3 = QString("%1 %2").arg(1 + x).arg(1 + y);
-    QString name4 = QString("%1 %2").arg(1 + x).arg(1 + y);
-    QVector<QString> names = {name1, name2, name3, name4};
-    for(QString name : names) {
-        if(matrix_.contains(name)) {
-            Tile* tile = matrix_[name];
-            if(tile && tile->getTileType() == Tile::TileType::WALL) {
-                can_move = false;
+    for(int i = x; i < x + 2; i++) {
+        for(int j = y; j < y + 2; j++) {
+            QString name = QString("%1 %2").arg(i).arg(j);
+            if(matrix_.contains(name)) {
+                Tile* tile = matrix_[name];
+                if(tile && tile->getTileType() == Tile::TileType::WALL) {
+                    can_move = false;
+                }
             }
-        }
-        else {
-            qDebug() << "this tile doesn't exist: " << name;
+            else {
+                qDebug() << "this tile doesn't exist: " << name;
+            }
         }
     }
 

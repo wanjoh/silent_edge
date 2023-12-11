@@ -110,9 +110,9 @@ void Map::remove_tile(QString name)
 
 void Map::add_ground_tile(QString name, int x, int y)
 {
-    Tile *tile = new Tile(name, "../silent-edge/src/images/big_ground.png", QPair<int, int>(y, x), Tile::TileType::GROUND);
+    Tile *tile = new Tile(name, "../silent-edge/src/images/big_ground.png", QPair<int, int>(x, y), Tile::TileType::GROUND);
     TileDrawer *drawer = tile->getDrawer();
-    drawer->setPos(y*IMAGE_SIZE, x*IMAGE_SIZE);
+    drawer->setPos(x*IMAGE_SIZE, y*IMAGE_SIZE);
 
     tile_drawer_map_[name] = drawer;
     map_[name] = tile;
