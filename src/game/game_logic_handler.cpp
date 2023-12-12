@@ -86,10 +86,8 @@ void GameLogicHandler::updateMovement()
 
 void GameLogicHandler::updateBullets()
 {
-
     if (keys_[Qt::LeftButton])
     {
-
         QVector2D aim_dir = QVector2D(aiming_point_-player_->getDrawer()->scenePos());
 
         aim_dir.normalize();
@@ -102,66 +100,103 @@ void GameLogicHandler::updateBullets()
 
         bullet->getDrawer()->setPos(player_->getDrawer()->scenePos().x(),player_->getDrawer()->scenePos().y()-1.1*BULLET_HEIGHT);
 
+        // emituj signal da se prikaze ostalima
+        emit bulletMoved(bullet->toVariant());
 
         //todo: naci nacin na koji se metak pravi
         //addBullet(player_->getName(), bullet);
     }
 
-    if(!(bullets_[player_->getName()].empty())) {
-
-
-
+    if(!(bullets_[player_->getName()].empty()))
+    {
         for (Bullet* bullet : bullets_[player_->getName()])
         {
             qreal x_pos = bullet->getDrawer()->scenePos().x() + 10 * bullet->aim_dir().x();
             qreal y_pos = bullet->getDrawer()->scenePos().y() + 10 * bullet->aim_dir().y();
 
+//            qDebug() << bullet->getDrawer()->scenePos().x();
+            //            qDebug() << x_pos << " " << y_pos;
+
             bullet->getDrawer()->setPos(x_pos, y_pos);
 
+            // ovo ako ubacim, pravi onaj 'rep'
+            //            emit bulletMoved(bullet->toVariant());
+
             emit bulletUpdating(bullet);
-
         }
-
-
     }
-
-
-
 }
 
-void GameLogicHandler::checkCollisions(Bullet* bullet){
-
+void GameLogicHandler::checkCollisions(Bullet* bullet)
+{
     QList<QGraphicsItem*> colidingItems = bullet->getDrawer()->collidingItems();
 
-    foreach(QGraphicsItem* item, colidingItems){
-
-        if(typeid(*item) == typeid(Player)){
-
-
+    foreach(QGraphicsItem* item, colidingItems)
+    {
+        if(typeid(*item) == typeid(Player))
+        {
             Player* player = dynamic_cast<Player*>(item);
 
             qDebug() << "bullet collision";
 
-           // player->decreaseHp(this);
+            // player->decreaseHp(this);
 
+            // emit destroyBullet(bullet->getName());
 
-           // emit destroyBullet(bullet->getName());
-
-           // if(player->getHp() == 0)
-           //     player->destroy();
-
-
+            // if(player->getHp() == 0)
+            //     player->destroy();
 
             break;
-
+        }
     }
-}
-
 }
 
 void GameLogicHandler::updateAimingPoint(QPointF point)
 {
     aiming_point_ = point;
+}
+
+void GameLogicHandler::update(QVariant variant)
+{
+    Bullet *bullet = new Bullet(player_->getName());
+    bullet->fromVariant(variant);
+
+    if (bullet->entityType_ == "bullet")
+    {
+        if(!(bullets_[player_->getName()].empty()))
+        {
+            for (Bullet* bullet_ : bullets_[player_->getName()])
+            {
+                bullet_->fromVariant(variant);
+                //                emit enemyUpdate(player_->getName(), bullet_->getDrawer());
+            }
+        }
+        else // prvi metak
+        {
+            bullets_[player_->getName()].push_back(bullet);
+
+            emit enemyUpdate(player_->getName(), bullet->getDrawer());
+        }
+
+        //        emit enemyUpdate(player_->getName(), bullet->getDrawer());
+    }
+    else
+    {
+        Player *enemy = new Player("enemy");
+        enemy->fromVariant(variant);
+        QString enemy_name = enemy->getName();
+
+        if (enemies_.find(enemy_name) == enemies_.end())
+        {
+            enemies_[enemy_name] = enemy;
+            emit enemyUpdate(enemy_name, enemy->getDrawer());
+        }
+        else
+        {
+            delete enemy;
+            enemies_[enemy_name]->fromVariant(variant);
+        }
+    }
 }
 
 void GameLogicHandler::initializeTimers()

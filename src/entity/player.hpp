@@ -19,6 +19,7 @@ public:
     qreal getScore();
     QVariant toVariant() const override;
     void fromVariant(const QVariant&) override;
+    QString entityType;
 private:
     qreal hp_;
     qreal energy_;

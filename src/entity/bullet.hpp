@@ -34,10 +34,10 @@ public:
     void setAim_dir(const QVector2D &newAim_dir);
 
     QVector2D aim_dir() const;
+    QString entityType_;
 
 private:
     BulletType type_;
     qreal damage_dealt_;
     QVector2D aim_dir_;
-
 };

@@ -24,6 +24,9 @@ public slots:
     void updateMouseClick(Qt::MouseButton, bool);
     void addBullet(QString, Bullet*);
     void updateAimingPoint(QPointF);
+    //    void bulletUpdate(QVariant);
+    void update(QVariant);
+
 private slots:
     void updateMovement();
     void updateBullets();
@@ -35,6 +38,9 @@ signals:
     void newBulletSignal(QString, EntityDrawer*);
     void destroyBullet(QString);
     void bulletUpdating(Bullet*);
+    void bulletMoved(QVariant);
+    //    void bulletSignal(QString, EntityDrawer*);
+    void enemyUpdate(QString, EntityDrawer*);
 private:
     void initializeTimers();
     bool updateRotation();
@@ -49,4 +55,3 @@ private:
     // ovo ce mozda moci i da bude lista od 10ak bulova jer nemamo mnogo dugmica
     std::unordered_map<quint32, bool> keys_;
 };
-
