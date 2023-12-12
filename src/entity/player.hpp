@@ -17,8 +17,10 @@ public:
     qreal getEnergy();
     qreal getDpp();
     qreal getScore();
+    void setHp(qreal);
     QVariant toVariant() const override;
     void fromVariant(const QVariant&) override;
+
 private:
     qreal hp_;
     qreal energy_;

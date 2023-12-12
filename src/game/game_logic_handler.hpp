@@ -34,8 +34,10 @@ signals:
     void playerShot();
     void newBulletSignal(QString, EntityDrawer*);
     void destroyBullet(QString);
+    void destroyPlayer(QString);
     void bulletUpdating(Bullet*);
 private:
+    void decreaseHp(Player*,Bullet*);
     void initializeTimers();
     bool updateRotation();
 

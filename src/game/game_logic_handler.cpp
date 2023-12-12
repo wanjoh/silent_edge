@@ -124,8 +124,6 @@ void GameLogicHandler::updateBullets()
             emit bulletUpdating(bullet);
 
 
-
-
             // if(bullet->getDrawer()->pos().y() + bullet->BULLET_HEIGHT < 0)
             // emit destroyBullet();
 
@@ -150,13 +148,13 @@ void GameLogicHandler::checkCollisions(Bullet* bullet){
 
             qDebug() << "bullet collision";
 
-           // player->decreaseHp(this);
+            decreaseHp(player,bullet);
 
 
-           // emit destroyBullet(bullet->getName());
+           //emit destroyBullet(bullet->getName());
 
-           // if(player->getHp() == 0)
-           //     player->destroy();
+            if(player->getHp() == 0)
+              emit destroyPlayer(player->getName());
 
 
 
@@ -164,6 +162,15 @@ void GameLogicHandler::checkCollisions(Bullet* bullet){
 
     }
 }
+
+}
+
+void GameLogicHandler::decreaseHp(Player* player, Bullet* bullet)
+{
+
+    qreal player_hp = player->getHp();
+    qreal bullet_damage = bullet->getDamageDealt();
+    player->setHp(player_hp - bullet_damage);
 
 }
 

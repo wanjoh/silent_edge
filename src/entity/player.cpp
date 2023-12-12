@@ -35,3 +35,13 @@ void Player::fromVariant(const QVariant& variant)
     name_ = name;
     //qDebug() << "from variant" << x << " " << y << " " << name;
 }
+
+qreal Player::getHp()
+{
+    return hp_;
+}
+
+void Player::setHp(qreal hp)
+{
+    hp_ = hp;
+}

@@ -26,6 +26,6 @@ private:
     Client *client_;
     GameWindow *gui_;
     GameLogicHandler* logic_handler_;
-
+    
     std::map<QString, Player*> enemies_;
 };
