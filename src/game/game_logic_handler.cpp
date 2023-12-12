@@ -47,6 +47,18 @@ void GameLogicHandler::addBullet(QString name, Bullet* bullet)
     player_bullet_count_[name]++;
     bullets_[name].push_back(bullet);
     emit newBulletSignal(bullet_name, bullet->getDrawer());
+
+
+
+    QVector2D aim_dir = QVector2D(aiming_point_-player_->getDrawer()->scenePos());
+
+    aim_dir.normalize();
+
+    bullet->setAim_dir(aim_dir);
+
+    bullet->getDrawer()->setPos(player_->getDrawer()->scenePos().x(),player_->getDrawer()->scenePos().y()-1.1*bullet->BULLET_HEIGHT);
+
+    qDebug() << bullet_name;
 }
 
 void GameLogicHandler::updateMovement()
@@ -90,29 +102,20 @@ void GameLogicHandler::updateBullets()
     if (keys_[Qt::LeftButton])
     {
 
-        QVector2D aim_dir = QVector2D(aiming_point_-player_->getDrawer()->scenePos());
-
-        aim_dir.normalize();
-
         Bullet *bullet = new Bullet(player_->getName());
-
-        bullet->setAim_dir(aim_dir);
 
         addBullet(player_->getName(),bullet);
 
-        bullet->getDrawer()->setPos(player_->getDrawer()->scenePos().x(),player_->getDrawer()->scenePos().y()-1.1*BULLET_HEIGHT);
 
-
-        //todo: naci nacin na koji se metak pravi
-        //addBullet(player_->getName(), bullet);
     }
 
-    if(!(bullets_[player_->getName()].empty())) {
 
+    for(auto& [_, bullets] : bullets_)
+    {
 
-
-        for (Bullet* bullet : bullets_[player_->getName()])
+        for(Bullet *bullet : bullets)
         {
+
             qreal x_pos = bullet->getDrawer()->scenePos().x() + 10 * bullet->aim_dir().x();
             qreal y_pos = bullet->getDrawer()->scenePos().y() + 10 * bullet->aim_dir().y();
 
@@ -120,8 +123,13 @@ void GameLogicHandler::updateBullets()
 
             emit bulletUpdating(bullet);
 
-        }
 
+
+
+            // if(bullet->getDrawer()->pos().y() + bullet->BULLET_HEIGHT < 0)
+            // emit destroyBullet();
+
+        }
 
     }
 
