@@ -1,8 +1,11 @@
 #include "game_logic_handler.hpp"
+
 #include <QtMath>
 
-GameLogicHandler::GameLogicHandler(QString name, QObject* parent)
+GameLogicHandler::GameLogicHandler(QString name, Map *map, QObject* parent)
     : QObject(parent)
+    , map_object_(map)
+    , map_(map->initialize_matrix())
     , player_(new Player(name, false))
 {
     initializeTimers();
@@ -49,7 +52,6 @@ void GameLogicHandler::addBullet(QString name, Bullet* bullet)
     emit newBulletSignal(bullet_name, bullet->getDrawer());
 
 
-
     QVector2D aim_dir = QVector2D(aiming_point_-player_->getDrawer()->scenePos());
 
     aim_dir.normalize();
@@ -87,35 +89,71 @@ void GameLogicHandler::updateMovement()
         moved = true;
     }
 
-    // moved |= updateRotation();
+    int x1 = x/64;
+    int y1 = y/64;
 
-    if (moved)
-    {
-        emit playerMoved(player_->toVariant());
-        player_->getDrawer()->setPos(x, y);
+    QVector<QString> names;
+    for(int i = x1; i < x1 + 2; i++) {
+        for(int j = y1; j < y1 + 2; j++) {
+            QString name = QString("%1 %2").arg(i).arg(j);
+            names.push_back(name);
+        }
     }
+
+    bool can_move = canPlayerMove(names);
+    std::unordered_map<QString, Tile*> active_buckets = map_object_->get_active_ammo_buckets();
+
+    if (moved && can_move) {
+        player_->getDrawer()->setPos(x, y);
+
+        for(QString &name : names) {
+            if(active_buckets.contains(name)) {
+                QPair<int, int> coords = map_[name]->get_coords();
+                map_object_->remove_tile(name);
+                map_object_->add_ground_tile_of_type_ammo(name, coords.first, coords.second);
+
+                emit tileDeleted(name);
+            }
+        }
+    }
+
+    emit playerMoved(player_->toVariant());
 }
+
+void GameLogicHandler::updateAmmo()
+{
+    map_object_->restock_ammo_piles();
+}
+
+bool GameLogicHandler::canPlayerMove(QVector<QString> names)
+{
+    bool can_move = true;
+
+    for(QString &name : names) {
+        Tile* tile = map_[name];
+        if(tile && tile->getTileType() == Tile::TileType::WALL) {
+            can_move = false;
+        }
+    }
+
+    return can_move;
+}
+
 
 void GameLogicHandler::updateBullets()
 {
-
     if (keys_[Qt::LeftButton])
     {
-
         Bullet *bullet = new Bullet(player_->getName());
 
         addBullet(player_->getName(),bullet);
-
-
     }
 
 
     for(auto& [_, bullets] : bullets_)
     {
-
         for(Bullet *bullet : bullets)
         {
-
             qreal x_pos = bullet->getDrawer()->scenePos().x() + 10 * bullet->aim_dir().x();
             qreal y_pos = bullet->getDrawer()->scenePos().y() + 10 * bullet->aim_dir().y();
 
@@ -124,54 +162,36 @@ void GameLogicHandler::updateBullets()
             emit bulletUpdating(bullet);
 
 
-            // if(bullet->getDrawer()->pos().y() + bullet->BULLET_HEIGHT < 0)
-            // emit destroyBullet();
-
+            if(bullet->getDrawer()->pos().y() + bullet->BULLET_HEIGHT < 0)
+                emit destroyBullet(bullet->getName());
         }
-
     }
-
-
-
 }
 
 void GameLogicHandler::checkCollisions(Bullet* bullet){
-
     QList<QGraphicsItem*> colidingItems = bullet->getDrawer()->collidingItems();
 
     foreach(QGraphicsItem* item, colidingItems){
-
         if(typeid(*item) == typeid(Player)){
-
-
             Player* player = dynamic_cast<Player*>(item);
 
             qDebug() << "bullet collision";
 
             decreaseHp(player,bullet);
 
-
-           //emit destroyBullet(bullet->getName());
-
             if(player->getHp() == 0)
-              emit destroyPlayer(player->getName());
-
-
-
+                emit destroyPlayer(player->getName());
             break;
-
+        }
+        //emit destroyBullet(bullet->getName());
     }
-}
-
 }
 
 void GameLogicHandler::decreaseHp(Player* player, Bullet* bullet)
 {
-
     qreal player_hp = player->getHp();
     qreal bullet_damage = bullet->getDamageDealt();
     player->setHp(player_hp - bullet_damage);
-
 }
 
 void GameLogicHandler::updateAimingPoint(QPointF point)
@@ -187,6 +207,10 @@ void GameLogicHandler::initializeTimers()
     connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updateBullets);
     connect(this,&GameLogicHandler::bulletUpdating,this,&GameLogicHandler::checkCollisions);
     movement_timer_.start();
+
+    ammo_respawn_timer_.setInterval(5000);
+    connect(&ammo_respawn_timer_, &QTimer::timeout, this, &GameLogicHandler::updateAmmo);
+    ammo_respawn_timer_.start();
 }
 
 bool GameLogicHandler::updateRotation()

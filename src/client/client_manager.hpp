@@ -27,6 +27,7 @@ private slots:
     void onReadyRead();
 signals:
     void signalDataReceived(QVariant);
+    void signalTileNameReceived(QVariant);
     void error(QAbstractSocket::SocketError socketError);
 private:
     QTcpSocket *client_socket_;

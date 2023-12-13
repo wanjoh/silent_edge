@@ -18,7 +18,6 @@ public:
 
     constexpr static quint32 BULLET_HEIGHT = 20;
     constexpr static quint32 BULLET_WIDTH = 10;
-    static constexpr QRect BULLET_RECT = QRect(0, 0,BULLET_WIDTH, BULLET_HEIGHT);
 
     Bullet(QString, QObject* = nullptr);
 
@@ -26,7 +25,6 @@ public:
     BulletType getBulletType();
 
     qreal getDamageDealt();
-
 
     QVariant toVariant() const override;
     void fromVariant(const QVariant&) override;

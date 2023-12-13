@@ -3,12 +3,20 @@
 #include <QKeyEvent>
 #include <QGraphicsSceneMouseEvent>
 
-GameWindow::GameWindow(quint32 width, quint32 height, QObject *parent)
+GameWindow::GameWindow(Map* map, EntityDrawer* player, quint32 width, quint32 height, QObject *parent)
     : QGraphicsScene(0, 0, width, height, parent)
     , window_width_(width)
     , window_height_(height)
+    , map_object_(map)
+    , map_(map->initialize_matrix())
 {
+    addItem(map_object_->get_group());
+
     fight_phase_ = new QGraphicsView(this);
+    fight_phase_->setFixedSize(width, height);
+    fight_phase_->setSceneRect(0, 0, width, height);
+    fight_phase_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    fight_phase_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     fight_phase_->setBackgroundBrush(Qt::gray);
     fight_phase_->setMouseTracking(true);
 
@@ -22,6 +30,7 @@ GameWindow::~GameWindow()
     {
         delete item;
     }
+
 }
 
 void GameWindow::show(GamePhase phase)
@@ -73,8 +82,6 @@ void GameWindow::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     emit mousePressedSignal(event->button(), false);
 }
-
-
 
 void GameWindow::focusOutEvent(QFocusEvent *event)
 {

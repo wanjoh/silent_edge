@@ -3,12 +3,8 @@
 Bullet::Bullet(QString name, QObject* parent)
     : Entity(name, parent)
 {
-
-    drawer_ = new EntityDrawer(Qt::black,BULLET_RECT);
-
+    drawer_ = new EntityDrawer("../silent-edge/src/images/bullet.png");
 }
-
-
 
 Bullet::BulletType Bullet::getBulletType()
 {

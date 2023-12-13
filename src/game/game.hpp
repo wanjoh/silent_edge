@@ -4,6 +4,8 @@
 #include "../gui/game_window.hpp"
 #include "../client/client_manager.hpp"
 #include "game_logic_handler.hpp"
+#include "../entity/player.hpp"
+#include "../map/map.hpp"
 
 class Game : public QObject
 {
@@ -19,13 +21,13 @@ public:
 public slots:
     void updateEnemy(QVariant);
     void playerMoved(QVariant);
+    void updateMap(QVariant variant);
+    void tileDeleted(QString name);
 private:
-    void initializeTimer();
     GameServer* server_;
-
     Client *client_;
     GameWindow *gui_;
     GameLogicHandler* logic_handler_;
-    
+    Map *map_;
     std::map<QString, Player*> enemies_;
 };
