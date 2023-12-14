@@ -42,5 +42,3 @@ void MainWindow::onPbQuit_clicked()
     this->close();
 }
 
-
-

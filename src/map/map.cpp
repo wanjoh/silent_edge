@@ -24,6 +24,11 @@ std::unordered_map<QString, Tile*> Map::initialize_matrix()
 {
     std::unordered_map<QString, Tile*> *map = new std::unordered_map<QString, Tile*>;
 
+    QVector<QString> wall_paths = {"wall.png", "wall1.png", "wall2.png", "wall3.png", "wall4.png", "wall5.png",
+                                    "wall6.png", "wall7.png", "wall8.png", "wall9.png", "wall10.png", "wall11.png",};
+    int rand_index;
+    srand(time(nullptr));
+
     QFile file(map_path_);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -39,21 +44,29 @@ std::unordered_map<QString, Tile*> Map::initialize_matrix()
                 int number;
                 stream >> number;
 
+                int rand_index = 0;//rand() % 12;
+
                 QString path = "../silent-edge/src/images/";
                 Tile::TileType type = Tile::TileType::GROUND;
                 switch(number) {
+                    // barrier
+                    case 0:
+                        path += "barrier.png";
+                        type = Tile::TileType::WALL;
+                        break;
                     // ground
                     case 1:
-                        path += "big_ground.png";
+                        path += "ground.png";
                         break;
-                    // wall
+                    // walls
                     case 2:
-                        path += "big_wall.png";
+                        path += "walls/";
+                        path += wall_paths[rand_index];
                         type = Tile::TileType::WALL;
                         break;
                     // spawnpoint
                     case 3:
-                        path += "spawn_point.png";
+                        path += "spawnpoint.png";
                         break;
                     // ammo
                     case 4:
@@ -63,7 +76,7 @@ std::unordered_map<QString, Tile*> Map::initialize_matrix()
                         break;
                     // default = ground
                     default:
-                        path += "big_ground.png";
+                        path += "ground.png";
                         break;
                 }
                 QString name = QString("%1 %2").arg(j).arg(i);
@@ -96,7 +109,7 @@ void Map::remove_tile(QString name)
 void Map::add_ground_tile_of_type_ammo(QString name, int x, int y)
 {
     // tipa AMMO, zato što se tu stvara AMMO
-    Tile *tile = new Tile(name, "../silent-edge/src/images/big_ground.png", QPair<int, int>(x, y), Tile::TileType::AMMO_PILE);
+    Tile *tile = new Tile(name, "../silent-edge/src/images/ground.png", QPair<int, int>(x, y), Tile::TileType::AMMO_PILE);
     TileDrawer *drawer = tile->getDrawer();
     drawer->setPos(x*IMAGE_SIZE, y*IMAGE_SIZE);
 

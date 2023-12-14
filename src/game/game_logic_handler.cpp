@@ -1,12 +1,15 @@
 #include "game_logic_handler.hpp"
-
 #include <QtMath>
+
+const int IMAGE_SIZE = 64;
+
 GameLogicHandler::GameLogicHandler(QString name, Map *map, QObject* parent)
     : QObject(parent)
     , map_object_(map)
     , map_(map->initialize_matrix())
     , player_(new Player(name, false))
 {
+    player_->getDrawer()->setPos(2*IMAGE_SIZE, 2*IMAGE_SIZE);
     initializeTimers();
 }
 
@@ -89,8 +92,8 @@ void GameLogicHandler::updateMovement()
         moved = true;
     }
 
-    int x1 = x/64;
-    int y1 = y/64;
+    int x1 = x/IMAGE_SIZE;
+    int y1 = y/IMAGE_SIZE;
 
     QVector<QString> names;
     for(int i = x1; i < x1 + 2; i++) {
