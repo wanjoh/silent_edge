@@ -32,6 +32,8 @@ public:
 
     QVector2D aim_dir() const;
 
+    void setName(const QString &newName);
+
 private:
     BulletType type_;
     qreal damage_dealt_;

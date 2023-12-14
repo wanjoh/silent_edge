@@ -1,7 +1,6 @@
 #include "game_logic_handler.hpp"
 
 #include <QtMath>
-
 GameLogicHandler::GameLogicHandler(QString name, Map *map, QObject* parent)
     : QObject(parent)
     , map_object_(map)
@@ -49,6 +48,7 @@ void GameLogicHandler::addBullet(QString name, Bullet* bullet)
     QString bullet_name = name + QString::number(player_bullet_count_[name]);
     player_bullet_count_[name]++;
     bullets_[name].push_back(bullet);
+    bullet->setName(bullet_name);
     emit newBulletSignal(bullet_name, bullet->getDrawer());
 
 
@@ -161,9 +161,11 @@ void GameLogicHandler::updateBullets()
 
             emit bulletUpdating(bullet);
 
-
-            if(bullet->getDrawer()->pos().y() + bullet->BULLET_HEIGHT < 0)
+            qDebug() << bullet->getName();
+            if(bullet->getDrawer()->pos().y() + bullet->BULLET_HEIGHT < 0) {
                 emit destroyBullet(bullet->getName());
+                //break;
+            }
         }
     }
 }

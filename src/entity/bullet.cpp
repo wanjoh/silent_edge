@@ -36,5 +36,10 @@ QVector2D Bullet::aim_dir() const
     return aim_dir_;
 }
 
+void Bullet::setName(const QString &name)
+{
+    name_ = name;
+}
+
 
 
