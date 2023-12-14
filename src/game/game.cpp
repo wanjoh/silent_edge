@@ -11,10 +11,8 @@ Game::Game(QString name, QObject *parent)
 {
     gui_->addEntity(name, logic_handler_->getPlayer()->getDrawer());
 
-    //    connect(client_, &Client::signalDataReceived, this, &Game::updateEnemy, Qt::DirectConnection);
-    connect(client_, &Client::signalDataReceived, logic_handler_, &GameLogicHandler::update, Qt::DirectConnection);
-    connect(logic_handler_, &GameLogicHandler::enemyUpdate, gui_, &GameWindow::addEntity);
-
+    connect(client_, &Client::signalDataReceived, logic_handler_, &GameLogicHandler::recognizeEntityType, Qt::DirectConnection);
+    connect(logic_handler_, &GameLogicHandler::update, gui_, &GameWindow::addEntity);
 
     connect(logic_handler_, &GameLogicHandler::playerMoved, this, &Game::playerMoved, Qt::DirectConnection);
     connect(logic_handler_, &GameLogicHandler::bulletMoved, this, &Game::bulletMoved, Qt::DirectConnection);
@@ -54,36 +52,14 @@ void Game::quit()
     QApplication::exit();
 }
 
-//void Game::updateEnemy(QVariant variant)
-//{
-//    Player *enemy = new Player("enemy");
-//    enemy->fromVariant(variant);
-//    QString enemy_name = enemy->getName();
-////    qDebug() << "primljeni podaci za: " << enemy->getName() << ": " << enemy->getDrawer()->pos();
-
-//    if (enemies_.find(enemy_name) == enemies_.end())
-//    {
-//        enemies_[enemy_name] = enemy;
-//        gui_->addEntity(enemy_name, enemy->getDrawer());
-//    }
-//    else
-//    {
-//        delete enemy;
-//        enemies_[enemy_name]->fromVariant(variant);
-//    }
-
-//}
-
 void Game::playerMoved(QVariant variant)
 {
     client_->sendMessage(variant);
-    //    qDebug() << "slanje iz gejma, pos : " << player_->getDrawer()->pos();
 }
 
 void Game::bulletMoved(QVariant variant)
 {
     client_->sendMessage(variant);
-    //    qDebug() << "bullet moved";
 }
 
 

@@ -17,7 +17,6 @@ public:
     void startServer();
     void quit();
 public slots:
-    //    void updateEnemy(QVariant);
     void playerMoved(QVariant);
     void bulletMoved(QVariant);
 private:

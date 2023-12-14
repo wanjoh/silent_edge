@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QVariantMap>
 #include "../entity/player.hpp"
 #include "../entity/bullet.hpp"
 
@@ -25,7 +26,9 @@ public slots:
     void addBullet(QString, Bullet*);
     void updateAimingPoint(QPointF);
     //    void bulletUpdate(QVariant);
-    void update(QVariant);
+    void handleEnemy(QVariant);
+    void handleBullet(QVariant);
+    void recognizeEntityType(QVariant);
 
 private slots:
     void updateMovement();
@@ -39,8 +42,7 @@ signals:
     void destroyBullet(QString);
     void bulletUpdating(Bullet*);
     void bulletMoved(QVariant);
-    //    void bulletSignal(QString, EntityDrawer*);
-    void enemyUpdate(QString, EntityDrawer*);
+    void update(QString, EntityDrawer*);
 private:
     void initializeTimers();
     bool updateRotation();

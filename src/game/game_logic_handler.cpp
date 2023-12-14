@@ -46,6 +46,7 @@ void GameLogicHandler::addBullet(QString name, Bullet* bullet)
     QString bullet_name = name + QString::number(player_bullet_count_[name]);
     player_bullet_count_[name]++;
     bullets_[name].push_back(bullet);
+
     emit newBulletSignal(bullet_name, bullet->getDrawer());
 }
 
@@ -100,7 +101,6 @@ void GameLogicHandler::updateBullets()
 
         bullet->getDrawer()->setPos(player_->getDrawer()->scenePos().x(),player_->getDrawer()->scenePos().y()-1.1*BULLET_HEIGHT);
 
-        // emituj signal da se prikaze ostalima
         emit bulletMoved(bullet->toVariant());
 
         //todo: naci nacin na koji se metak pravi
@@ -115,12 +115,11 @@ void GameLogicHandler::updateBullets()
             qreal y_pos = bullet->getDrawer()->scenePos().y() + 10 * bullet->aim_dir().y();
 
 //            qDebug() << bullet->getDrawer()->scenePos().x();
-            //            qDebug() << x_pos << " " << y_pos;
+//            qDebug() << x_pos << " " << y_pos;
 
             bullet->getDrawer()->setPos(x_pos, y_pos);
 
-            // ovo ako ubacim, pravi onaj 'rep'
-            //            emit bulletMoved(bullet->toVariant());
+//            emit bulletMoved(bullet->toVariant());
 
             emit bulletUpdating(bullet);
         }
@@ -156,45 +155,69 @@ void GameLogicHandler::updateAimingPoint(QPointF point)
     aiming_point_ = point;
 }
 
-void GameLogicHandler::update(QVariant variant)
+void GameLogicHandler::handleEnemy(QVariant variant)
+{
+    Player *enemy = new Player("enemy");
+    enemy->fromVariant(variant);
+    QString enemy_name = enemy->getName();
+
+    if (enemies_.find(enemy_name) == enemies_.end())
+    {
+        enemies_[enemy_name] = enemy;
+        emit update(enemy_name, enemy->getDrawer());
+    }
+    else
+    {
+        delete enemy;
+        enemies_[enemy_name]->fromVariant(variant);
+    }
+}
+
+void GameLogicHandler::handleBullet(QVariant variant)
 {
     Bullet *bullet = new Bullet(player_->getName());
     bullet->fromVariant(variant);
 
-    if (bullet->entityType_ == "bullet")
+    if(!(bullets_[player_->getName()].empty()))
     {
-        if(!(bullets_[player_->getName()].empty()))
+        for (Bullet* bullet_ : bullets_[player_->getName()])
         {
-            for (Bullet* bullet_ : bullets_[player_->getName()])
-            {
-                bullet_->fromVariant(variant);
-                //                emit enemyUpdate(player_->getName(), bullet_->getDrawer());
-            }
+            bullet_->fromVariant(variant);
+//          emit update(player_->getName(), bullet_->getDrawer());
         }
-        else // prvi metak
-        {
-            bullets_[player_->getName()].push_back(bullet);
-
-            emit enemyUpdate(player_->getName(), bullet->getDrawer());
-        }
-
-        //        emit enemyUpdate(player_->getName(), bullet->getDrawer());
     }
     else
     {
-        Player *enemy = new Player("enemy");
-        enemy->fromVariant(variant);
-        QString enemy_name = enemy->getName();
+        bullets_[player_->getName()].push_back(bullet);
 
-        if (enemies_.find(enemy_name) == enemies_.end())
+        emit update(player_->getName(), bullet->getDrawer());
+    }
+
+    //        emit update(player_->getName(), bullet->getDrawer());
+}
+
+void GameLogicHandler::recognizeEntityType(QVariant variant)
+{
+    if(variant.canConvert<QVariantMap>())
+    {
+        QVariantMap map = variant.toMap();
+
+        if(map.contains("type_entity"))
         {
-            enemies_[enemy_name] = enemy;
-            emit enemyUpdate(enemy_name, enemy->getDrawer());
-        }
-        else
-        {
-            delete enemy;
-            enemies_[enemy_name]->fromVariant(variant);
+            QString type = map.value("type_entity").toString();
+
+            if(type == "bullet")
+            {
+                handleBullet(variant);
+            }
+            else if(type == "player")
+            {
+                handleEnemy(variant);
+            }
+            else
+            {
+                qDebug() << "Greska.";
+            }
         }
     }
 }

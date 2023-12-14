@@ -25,16 +25,12 @@ public:
 
     ~Bullet() = default;
     BulletType getBulletType();
-
     qreal getDamageDealt();
-
-
     QVariant toVariant() const override;
     void fromVariant(const QVariant&) override;
     void setAim_dir(const QVector2D &newAim_dir);
 
     QVector2D aim_dir() const;
-    QString entityType_;
 
 private:
     BulletType type_;

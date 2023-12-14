@@ -9,13 +9,13 @@ Player::Player() : Entity()
 Player::Player(QString name, bool enemy, QObject* parent) : Entity(name, parent)
 {
     drawer_ = new EntityDrawer(enemy ? Qt::red : Qt::green);
-    entityType = "player";
+    entityType_ = "player";
 }
 
 QVariant Player::toVariant() const
 {
     QVariantMap map;
-    map.insert("type_entity", entityType);
+    map.insert("type_entity", entityType_);
     map.insert("name", name_);
     map.insert("position_x", drawer_->x());
     map.insert("position_y", drawer_->y());
@@ -29,7 +29,7 @@ QVariant Player::toVariant() const
 void Player::fromVariant(const QVariant& variant)
 {
     const auto map = variant.toMap();
-    entityType = map.value("type_entity").toString();
+    entityType_ = map.value("type_entity").toString();
     QString name = map.value("name").toString();
     qreal x = map.value("position_x").toReal();
     qreal y = map.value("position_y").toReal();
