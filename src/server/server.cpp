@@ -6,6 +6,7 @@
 
 GameServer::GameServer(QObject *parent)
     : QTcpServer(parent)
+    , logic_handler_(new GameLogicHandler)
 {
     available_threads_.reserve(MAX_USERS);
     threads_load_.reserve(MAX_USERS);
@@ -38,6 +39,12 @@ void GameServer::stopServer()
 {
     emit stopAllClients();
     close();
+}
+
+void GameServer::initializeTimers()
+{
+    server_timer_.setInterval(TICK_TIME);
+    connect(&server_timer_, &QTimer::timeout, this, &GameServer::tick);
 }
 
 void GameServer::error(QTcpSocket::SocketError error)
@@ -117,4 +124,17 @@ void GameServer::incomingConnection(qintptr socket_desc)
         users_.push_back(user);
         qDebug() << "thread created";
     }
+}
+
+void GameServer::tick()
+{
+    collectData();
+    //for player in players
+//        logic_handler_->updatePlayer(player, INFO)
+    logic_handler_->updateBullets();
+}
+
+void GameServer::collectData()
+{
+    // todo: prikpiti podatke od svih povezanih konekcija i sacuvati ih negde
 }

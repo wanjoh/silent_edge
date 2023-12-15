@@ -139,8 +139,9 @@ void Map::add_ground_tile_of_type_ammo(QString name, int x, int y)
 
 void Map::restock_ammo_piles()
 {
-    std::unordered_map<QString, Tile*> inactive_buckets = get_inactive_ammo_buckets();
-    for (const auto &bucket : inactive_buckets) {
+    // todo: popraviti ovu funkciju, jaaaako mi je sumnjiva
+    // takodje ne treba da se azurira na svakih X sekundi, nego da se tajmer pokrene nakon sto se municija pokupi
+    for (const auto &bucket : inactive_ammo_buckets_) {
         std::pair<int, int> coords = map_[bucket.first]->get_coords();
         remove_tile(bucket.first);
 
@@ -153,7 +154,7 @@ void Map::restock_ammo_piles()
         group_->addToGroup(drawer);
     }
 
-    inactive_buckets.clear();
+    inactive_ammo_buckets_.clear();
 }
 
 std::unordered_map<QString, Tile*> Map::get_matrix()

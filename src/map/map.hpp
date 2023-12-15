@@ -10,6 +10,7 @@ public:
     Map();
     ~Map();
     QGraphicsItemGroup *get_group();
+    //???? todo: srediti ovo, prenositi preko referenci
     std::unordered_map<QString, Tile*> initialize_matrix();
     std::unordered_map<QString, Tile*> get_matrix();
     std::unordered_map<QString, Tile*> get_active_ammo_buckets();

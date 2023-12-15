@@ -5,13 +5,14 @@
 
 const int IMAGE_SIZE = 64;
 
-GameWindow::GameWindow(Map* map, EntityDrawer* player, qreal width, qreal height, QObject *parent)
+GameWindow::GameWindow(Map* map, qreal width, qreal height, QObject *parent)
     : QGraphicsScene(0, 0, width, height, parent)
     , window_width_(width)
     , window_height_(height)
     , map_object_(map)
     , map_(map_object_->get_matrix())
-    , room_(map_object_->add_player_to_a_room(player))
+// todo: mrdunuti ovo gde treba
+//    , room_(map_object_->add_player_to_a_room(player))
 {
     addItem(map_object_->get_group());
 
