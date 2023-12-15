@@ -1,11 +1,12 @@
 #include "bullet.hpp"
 
 
-Bullet::Bullet(QString name, QObject* parent)
+Bullet::Bullet(QString name,qreal damage_dealt, QObject* parent)
     : Entity(name, parent)
 {
     drawer_ = new BulletDrawer(name,"../silent-edge/src/images/bullet.png");
     entityType_ = "bullet";
+    damage_dealt_ = damage_dealt;
 }
 
 Bullet::BulletType Bullet::getBulletType()

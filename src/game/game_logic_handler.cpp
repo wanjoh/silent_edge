@@ -191,20 +191,17 @@ void GameLogicHandler::checkCollisions(Bullet* bullet){
 
                 QString enemy_name = player_drawer->name();
 
-                qDebug() << "collision with " << enemies_[enemy_name]->getName();
-                //ovde kresuje
+                //qDebug() << "collision with " << enemies_[enemy_name]->getName();
 
+                Player *enemy = enemies_[enemy_name];
 
-                //qDebug() << "collision with " << enemy_name;
+                decreaseHp(enemy,bullet);
 
+                qDebug() << enemy_name << " has " << enemy->getHp() << "hp";
 
+                if(enemy->getHp() == 0)
+                   emit destroyPlayer(enemy->getName());
 
-
-                //decreaseHp(player,bullet);
-
-                //if(player->getHp() == 0)
-                //    emit destroyPlayer(player->getName());
-                //break;
             }
             if(typeid(*pixmap_item) == typeid(TileDrawer))
             {
