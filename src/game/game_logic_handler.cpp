@@ -150,7 +150,7 @@ void GameLogicHandler::updateBullets()
 {
     if (keys_[Qt::RightButton])
     {
-        qDebug() << "Cant shoot rn";
+
     }
     else if (keys_[Qt::LeftButton])
     {
@@ -185,11 +185,11 @@ void GameLogicHandler::swingMelee()
 {
     if(keys_[Qt::LeftButton])
     {
-        qDebug() << "Cant swing rn";
+        // ne moze da se swinguje
     }
     else if(keys_[Qt::RightButton])
     {
-        qDebug() << "Swinging Melee!";
+        // e ovde moze
     }
 
 }
