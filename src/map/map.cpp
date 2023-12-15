@@ -20,9 +20,9 @@ Map::~Map()
     delete group_;
 }
 
-std::unordered_map<QString, Tile*> Map::initialize_matrix()
+std::unordered_map<int, Tile*> Map::initialize_matrix()
 {
-    std::unordered_map<QString, Tile*> *map = new std::unordered_map<QString, Tile*>;
+    std::unordered_map<int, Tile*> *map = new std::unordered_map<int, Tile*>;
 
     QVector<QString> wall_paths = {"wall.png", "wall1.png", "wall2.png", "wall3.png", "wall4.png", "wall5.png",
                                     "wall6.png", "wall7.png", "wall8.png", "wall9.png", "wall10.png", "wall11.png",};
@@ -98,16 +98,16 @@ std::unordered_map<QString, Tile*> Map::initialize_matrix()
                         path += "ground.png";
                         break;
                 }
-                QString name = QString("%1 %2").arg(j).arg(i);
-                Tile *tile = new Tile(name, path, std::pair<int, int>(j, i), type);
+                int tile_id = j * n + i;
+                Tile *tile = new Tile(tile_id, path, std::pair<int, int>(j, i), type);
                 TileDrawer *drawer = tile->getDrawer();
                 drawer->setPos(j*IMAGE_SIZE, i*IMAGE_SIZE);
 
-                (*map)[name] = tile;
+                (*map)[tile_id] = tile;
                 group_->addToGroup(drawer);
 
                 if(is_ammo)
-                    active_ammo_buckets_[name] = tile;
+                    active_ammo_buckets_[tile_id] = tile;
 
                 is_ammo = false;
             }
@@ -119,27 +119,27 @@ std::unordered_map<QString, Tile*> Map::initialize_matrix()
     return *map;
 }
 
-void Map::remove_tile(QString name)
+void Map::remove_tile(int id)
 {
-    if(active_ammo_buckets_.contains(name))
-        active_ammo_buckets_.erase(name);
+    if(active_ammo_buckets_.contains(id))
+        active_ammo_buckets_.erase(id);
 }
 
-void Map::add_ground_tile_of_type_ammo(QString name, int x, int y)
+void Map::add_ground_tile_of_type_ammo(int id, int x, int y)
 {
     // tipa AMMO, zato što se tu stvara AMMO
-    Tile *tile = new Tile(name, "../silent-edge/src/images/ground.png", std::pair<int, int>(x, y), Tile::TileType::AMMO_PILE);
+    Tile *tile = new Tile(id, "../silent-edge/src/images/ground.png", std::pair<int, int>(x, y), Tile::TileType::AMMO_PILE);
     TileDrawer *drawer = tile->getDrawer();
     drawer->setPos(x*IMAGE_SIZE, y*IMAGE_SIZE);
 
-    inactive_ammo_buckets_[name] = tile;
-    map_[name] = tile;
+    inactive_ammo_buckets_[id] = tile;
+    map_[id] = tile;
     group_->addToGroup(drawer);
 }
 
 void Map::restock_ammo_piles()
 {
-    std::unordered_map<QString, Tile*> inactive_buckets = get_inactive_ammo_buckets();
+    std::unordered_map<int, Tile*> inactive_buckets = get_inactive_ammo_buckets();
     for (const auto &bucket : inactive_buckets) {
         std::pair<int, int> coords = map_[bucket.first]->get_coords();
         remove_tile(bucket.first);
@@ -156,7 +156,7 @@ void Map::restock_ammo_piles()
     inactive_buckets.clear();
 }
 
-std::unordered_map<QString, Tile*> Map::get_matrix()
+std::unordered_map<int, Tile*> Map::get_matrix()
 {
     return map_;
 }
@@ -166,12 +166,12 @@ QGraphicsItemGroup* Map::get_group()
     return group_;
 }
 
-std::unordered_map<QString, Tile *> Map::get_active_ammo_buckets()
+std::unordered_map<int, Tile *> Map::get_active_ammo_buckets()
 {
     return active_ammo_buckets_;
 }
 
-std::unordered_map<QString, Tile *> Map::get_inactive_ammo_buckets()
+std::unordered_map<int, Tile *> Map::get_inactive_ammo_buckets()
 {
     return inactive_ammo_buckets_;
 }

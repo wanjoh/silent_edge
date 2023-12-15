@@ -12,14 +12,14 @@ public:
         WALL,
         AMMO_PILE
     };
-    Tile(const QString name = "", const QString &path = "", QPair<int, int> coords = QPair<int, int>(0, 0), TileType type = Tile::TileType::GROUND ,QObject * = nullptr);
+    Tile(int id = 0, const QString &path = "", QPair<int, int> coords = QPair<int, int>(0, 0), TileType type = Tile::TileType::GROUND ,QObject * = nullptr);
     ~Tile();
     TileType getTileType();
     TileDrawer* getDrawer();
     QPair<int, int> get_coords();
-    QString get_name();
+    int get_id();
 private:
-    QString name_;
+    int id_;
     QPair<int, int> coords_;
     TileType type_;
     TileDrawer *drawer_;
