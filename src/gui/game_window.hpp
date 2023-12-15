@@ -45,7 +45,10 @@ private:
     GamePhase current_active_phase_;
 
     Map* map_object_;
+    Room* room_;
     std::unordered_map<QString, Tile*> map_;
     std::unordered_map<QString, EntityDrawer*> items_;
     QGraphicsView *fight_phase_;
+    qreal start_x_;
+    qreal start_y_;
 };

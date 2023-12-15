@@ -6,7 +6,7 @@ const int IMAGE_SIZE = 64;
 GameLogicHandler::GameLogicHandler(QString name, Map *map, QObject* parent)
     : QObject(parent)
     , map_object_(map)
-    , map_(map->initialize_matrix())
+    , map_(map_object_->get_matrix())
     , player_(new Player(name, false))
 {
     player_->getDrawer()->setPos(2*IMAGE_SIZE, 2*IMAGE_SIZE);
@@ -95,27 +95,27 @@ void GameLogicHandler::updateMovement()
     int x1 = x/IMAGE_SIZE;
     int y1 = y/IMAGE_SIZE;
 
-    QVector<QString> names;
+    QVector<QString> edges;
     for(int i = x1; i < x1 + 2; i++) {
         for(int j = y1; j < y1 + 2; j++) {
-            QString name = QString("%1 %2").arg(i).arg(j);
-            names.push_back(name);
+            QString edge = QString("%1 %2").arg(i).arg(j);
+            edges.push_back(edge);
         }
     }
 
-    bool can_move = canPlayerMove(names);
+    bool can_move = canPlayerMove(edges);
     std::unordered_map<QString, Tile*> active_buckets = map_object_->get_active_ammo_buckets();
 
     if (moved && can_move) {
         player_->getDrawer()->setPos(x, y);
 
-        for(QString &name : names) {
-            if(active_buckets.contains(name)) {
-                QPair<int, int> coords = map_[name]->get_coords();
-                map_object_->remove_tile(name);
-                map_object_->add_ground_tile_of_type_ammo(name, coords.first, coords.second);
+        for(QString edge : edges) {
+            if(active_buckets.contains(edge)) {
+                QPair<int, int> coords = map_[edge]->get_coords();
+                map_object_->remove_tile(edge);
+                map_object_->add_ground_tile_of_type_ammo(edge, coords.first, coords.second);
 
-                emit tileDeleted(name);
+                emit tileDeleted(edge);
             }
         }
     }
@@ -128,12 +128,12 @@ void GameLogicHandler::updateAmmo()
     map_object_->restock_ammo_piles();
 }
 
-bool GameLogicHandler::canPlayerMove(QVector<QString> names)
+bool GameLogicHandler::canPlayerMove(QVector<QString> &edges)
 {
     bool can_move = true;
 
-    for(QString &name : names) {
-        Tile* tile = map_[name];
+    for(QString edge : edges) {
+        Tile* tile = map_[edge];
         if(tile && tile->getTileType() == Tile::TileType::WALL) {
             can_move = false;
         }

@@ -3,17 +3,27 @@
 #include <QKeyEvent>
 #include <QGraphicsSceneMouseEvent>
 
+const int IMAGE_SIZE = 64;
+
 GameWindow::GameWindow(Map* map, EntityDrawer* player, qreal width, qreal height, QObject *parent)
     : QGraphicsScene(0, 0, width, height, parent)
     , window_width_(width)
     , window_height_(height)
     , map_object_(map)
-    , map_(map->initialize_matrix())
+    , map_(map_object_->get_matrix())
+    , room_(map_object_->add_player_to_a_room(player))
 {
     addItem(map_object_->get_group());
 
+    std::pair<int, int> start_coords = room_->get_start_coords();
+    window_width_ = room_->get_width()*IMAGE_SIZE;
+    window_height_ = room_->get_height()*IMAGE_SIZE;
+
+    start_x_ = start_coords.first*IMAGE_SIZE;
+    start_y_ = start_coords.second*IMAGE_SIZE;
+
     fight_phase_ = new QGraphicsView(this);
-    fight_phase_->setSceneRect(0, 0, width, height);
+    fight_phase_->setSceneRect(start_x_, start_y_, window_width_, window_height_);
     fight_phase_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     fight_phase_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     fight_phase_->setBackgroundBrush(Qt::gray);
@@ -100,8 +110,6 @@ bool GameWindow::eventFilter(QObject *obj, QEvent *event)
 
         window_width_ = resizeEvent->size().width();
         window_height_ = resizeEvent->size().height();
-
-        fight_phase_->setSceneRect(0, 0, resizeEvent->size().width(), resizeEvent->size().height());
 
         return QGraphicsScene::eventFilter(obj, event);
     }
