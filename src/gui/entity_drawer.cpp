@@ -11,3 +11,8 @@ QString EntityDrawer::name() const
 {
     return name_;
 }
+
+void EntityDrawer::setName(const QString &name)
+{
+    name_ = name;
+}

@@ -10,6 +10,8 @@ public:
 
     QString name() const;
 
+    void setName(const QString &name);
+
 private:
     QString name_;
 };

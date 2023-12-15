@@ -191,11 +191,11 @@ void GameLogicHandler::checkCollisions(Bullet* bullet){
 
                 QString enemy_name = player_drawer->name();
 
-                //qDebug() << "collision with " << enemies_[enemy_name]->getName();
+                qDebug() << "collision with " << enemies_[enemy_name]->getName();
                 //ovde kresuje
 
 
-                qDebug() << "collision with " << enemy_name;
+                //qDebug() << "collision with " << enemy_name;
 
 
 
@@ -253,6 +253,8 @@ void GameLogicHandler::handleEnemy(QVariant variant)
     Player *enemy = new Player("enemy");
     enemy->fromVariant(variant);
     QString enemy_name = enemy->getName();
+
+    enemy->getDrawer()->setName(enemy_name);
 
     if (enemies_.find(enemy_name) == enemies_.end())
     {
