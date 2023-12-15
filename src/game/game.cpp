@@ -85,4 +85,3 @@ void Game::tileDeleted(int id)
     client_->sendMessage(QVariant(id));
 }
 
-

@@ -169,10 +169,11 @@ void GameWindow::change_weapon(int id)
 void GameWindow::update_hp_overlay(qreal hp)
 {
     qreal percentage = hp/100;
+
     QList<QGraphicsItem*> childItems = overlay_group_->childItems();
     if (!childItems.isEmpty()) {
         qreal x_pos = childItems.last()->x();
         qreal y_pos = childItems.last()->y();
-        childItems.last()->setPos(x_pos, y_pos + percentage * IMAGE_SIZE);
+        childItems.last()->setPos(x_pos, y_pos + percentage);
     }
 }

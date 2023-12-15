@@ -55,5 +55,5 @@ private:
     QGraphicsView *fight_phase_;
     qreal start_x_;
     qreal start_y_;
-    QGraphicsItemGroup* overlay_group_;
+    QGraphicsItemGroup *overlay_group_;
 };

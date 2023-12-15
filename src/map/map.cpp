@@ -204,5 +204,5 @@ Room* Map::add_player_to_a_room(EntityDrawer *player)
         }
     }
 
-    //return Room();
+    return new Room();
 }

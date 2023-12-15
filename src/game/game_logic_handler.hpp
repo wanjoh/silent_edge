@@ -54,7 +54,7 @@ signals:
     void weapon_changed(int);
     void update_hp(qreal hp);
 private:
-    void decreaseHp(Player*,Bullet*);
+    void decreaseHp(Player*, Bullet*);
     void initializeTimers();
     bool updateRotation();
     bool canEntityMove(QVector<int> &names);

@@ -257,6 +257,8 @@ void GameLogicHandler::decreaseHp(Player* player, Bullet* bullet)
     player->setHp(player_hp - bullet_damage);
     if(player->getHp() == 0)
         emit destroyPlayer(player->getName());
+
+    emit update_hp(player->getHp());
 }
 
 void GameLogicHandler::updateAimingPoint(QPointF point)
