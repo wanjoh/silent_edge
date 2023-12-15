@@ -21,7 +21,7 @@ public:
     constexpr static quint32 BULLET_HEIGHT = 20;
     constexpr static quint32 BULLET_WIDTH = 10;
 
-    Bullet(QString, qreal damage_dealt = 25, QObject* = nullptr);
+    Bullet(QString, qreal damage_dealt = 5, QObject* = nullptr);
 
     ~Bullet() = default;
     BulletType getBulletType();

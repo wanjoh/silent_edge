@@ -32,6 +32,9 @@ Game::Game(QString name, QObject *parent)
     connect(gui_, &GameWindow::focusedOutSignal, logic_handler_, &GameLogicHandler::resetKeys);
     connect(gui_, &GameWindow::mousePressedSignal, logic_handler_, &GameLogicHandler::updateMouseClick);
     connect(gui_, &GameWindow::wheelScrollSignal, logic_handler_, &GameLogicHandler::updateMouseScroll);
+
+    connect(logic_handler_, &GameLogicHandler::weapon_changed, gui_, &GameWindow::change_weapon);
+    connect(logic_handler_, &GameLogicHandler::update_hp, gui_, &GameWindow::update_hp_overlay);
 }
 
 Game::~Game()
@@ -73,15 +76,15 @@ void Game::bulletMoved(QVariant variant)
 
 void Game::updateMap(QVariant variant)
 {
-    QString name = variant.toString();
-    QPair<int, int> coords = map_->get_matrix()[name]->get_coords();
-    map_->remove_tile(name);
-    map_->add_ground_tile_of_type_ammo(name, coords.first, coords.second);
+    int id = variant.toInt();
+    QPair<int, int> coords = map_->get_matrix()[id]->get_coords();
+    map_->remove_tile(id);
+    map_->add_ground_tile_of_type_ammo(id, coords.first, coords.second);
 }
 
-void Game::tileDeleted(QString name)
+void Game::tileDeleted(int id)
 {
-    client_->sendMessage(QVariant(name));
+    client_->sendMessage(QVariant(id));
 }
 
 

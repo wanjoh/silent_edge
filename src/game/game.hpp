@@ -21,7 +21,7 @@ public:
 public slots:
     void playerMoved(QVariant);
     void updateMap(QVariant variant);
-    void tileDeleted(QString name);
+    void tileDeleted(int id);
     void bulletMoved(QVariant);
 private:
     GameServer* server_;

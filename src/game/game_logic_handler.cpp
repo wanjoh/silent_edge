@@ -13,6 +13,7 @@ GameLogicHandler::GameLogicHandler(QString name, Map *map, QObject* parent)
 
     player_->getDrawer()->setPos(2*IMAGE_SIZE, 2*IMAGE_SIZE);
     initializeTimers();
+
 }
 
 GameLogicHandler::~GameLogicHandler()
@@ -109,31 +110,27 @@ void GameLogicHandler::updateMovement()
         moved = true;
     }
 
-
     int x1 = x/IMAGE_SIZE;
     int y1 = y/IMAGE_SIZE;
 
-    QVector<QString> edges;
-    for(int i = x1; i < x1 + 2; i++) {
-        for(int j = y1; j < y1 + 2; j++) {
-            QString edge = QString("%1 %2").arg(i).arg(j);
-            edges.push_back(edge);
-        }
-    }
+    QVector<int> ids;
+    for(int i = x1; i < x1 + 2; i++)
+        for(int j = y1; j < y1 + 2; j++)
+            ids.append(i * 12 + j);
 
-    bool can_move = canEntityMove(edges);
-    std::unordered_map<QString, Tile*> active_buckets = map_object_->get_active_ammo_buckets();
+    bool can_move = canEntityMove(ids);
+    std::unordered_map<int, Tile*> active_buckets = map_object_->get_active_ammo_buckets();
 
     if (moved && can_move) {
         player_->getDrawer()->setPos(x, y);
 
-        for(QString edge : edges) {
-            if(active_buckets.contains(edge)) {
-                QPair<int, int> coords = map_[edge]->get_coords();
-                map_object_->remove_tile(edge);
-                map_object_->add_ground_tile_of_type_ammo(edge, coords.first, coords.second);
+        for(int id : ids) {
+            if(active_buckets.contains(id)) {
+                QPair<int, int> coords = map_[id]->get_coords();
+                map_object_->remove_tile(id);
+                map_object_->add_ground_tile_of_type_ammo(id, coords.first, coords.second);
 
-                emit tileDeleted(edge);
+                emit tileDeleted(id);
             }
         }
     }
@@ -147,11 +144,11 @@ void GameLogicHandler::updateAmmo()
     map_object_->restock_ammo_piles();
 }
 
-bool GameLogicHandler::canEntityMove(QVector<QString> &edges)
+bool GameLogicHandler::canEntityMove(QVector<int> &edges)
 {
     bool can_move = true;
 
-    for(QString edge : edges) {
+    for(int edge : edges) {
         Tile* tile = map_[edge];
         if(tile && tile->getTileType() == Tile::TileType::WALL) {
             can_move = false;
@@ -187,8 +184,6 @@ void GameLogicHandler::updateBullets()
             emit bulletUpdating(bullet);
 
             emit checkCollisions(bullet);
-
-
         }
     }
 }
@@ -231,17 +226,12 @@ void GameLogicHandler::checkCollisions(Bullet* bullet){
                 int x1 = tile_drawer->x()/IMAGE_SIZE;
                 int y1 = tile_drawer->y()/IMAGE_SIZE;
 
+                QVector<int> ids = {x1 * 12 + y1};
 
-                QVector<QString> edges;
-
-                QString name = QString("%1 %2").arg(x1).arg(y1);
-
-                edges.push_back(name);
-
-                bool can_move = canEntityMove(edges);
+                bool can_move = canEntityMove(ids);
 
                 if(!can_move) {
-                    emit destroyBullet(bullet->getName());
+                    //emit destroyBullet(bullet->getName());
                     break;
                 }
 
@@ -257,6 +247,8 @@ void GameLogicHandler::decreaseHp(Player* player, Bullet* bullet)
     qreal player_hp = player->getHp();
     qreal bullet_damage = bullet->getDamageDealt();
     player->setHp(player_hp - bullet_damage);
+
+    emit update_hp(player->getHp());
 }
 
 void GameLogicHandler::updateAimingPoint(QPointF point)

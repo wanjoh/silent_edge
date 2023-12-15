@@ -1,11 +1,11 @@
 #include "tile.hpp"
 
-Tile::Tile(const QString name, const QString &path, QPair<int, int> coords, TileType type, QObject *parent)
+Tile::Tile(int id, const QString &path, QPair<int, int> coords, TileType type, QObject *parent)
 {
     drawer_ = new TileDrawer(path);
     coords_ = coords;
     type_ = type;
-    name_ = name;
+    id_ = id;
 }
 
 Tile::~Tile()
@@ -13,9 +13,9 @@ Tile::~Tile()
 
 }
 
-QString Tile::get_name()
+int Tile::get_id()
 {
-    return name_;
+    return id_;
 }
 
 QPair<int, int> Tile::get_coords()
