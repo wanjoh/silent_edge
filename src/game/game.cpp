@@ -14,11 +14,13 @@ Game::Game(QString name, QObject *parent)
     gui_ = new GameWindow(map_, logic_handler_->getPlayer()->getDrawer());
     gui_->addEntity(name, logic_handler_->getPlayer()->getDrawer());
 
-    connect(client_, &Client::signalDataReceived, this, &Game::updateEnemy, Qt::DirectConnection);
+    connect(client_, &Client::signalDataReceived, logic_handler_, &GameLogicHandler::recognizeEntityType, Qt::DirectConnection);
     connect(client_, &Client::signalTileNameReceived, this, &Game::updateMap, Qt::DirectConnection);
-
-    connect(logic_handler_, &GameLogicHandler::playerMoved, this, &Game::playerMoved, Qt::DirectConnection);
+    
     connect(logic_handler_, &GameLogicHandler::tileDeleted, this, &Game::tileDeleted, Qt::DirectConnection);
+    connect(logic_handler_, &GameLogicHandler::update, gui_, &GameWindow::addEntity);
+    connect(logic_handler_, &GameLogicHandler::playerMoved, this, &Game::playerMoved, Qt::DirectConnection);
+    connect(logic_handler_, &GameLogicHandler::bulletMoved, this, &Game::bulletMoved, Qt::DirectConnection);
 
     connect(logic_handler_, &GameLogicHandler::newBulletSignal, gui_, &GameWindow::addEntity);
     connect(logic_handler_, &GameLogicHandler::destroyBullet, gui_, &GameWindow::removeEntity);
@@ -56,28 +58,12 @@ void Game::quit()
     QApplication::exit();
 }
 
-void Game::updateEnemy(QVariant variant)
+void Game::playerMoved(QVariant variant)
 {
-    Player *enemy = new Player("enemy");
-    enemy->fromVariant(variant);
-    QString enemy_name = enemy->getName();
-//    qDebug() << "primljeni podaci za: " << enemy->getName() << ": " << enemy->getDrawer()->pos();
-
-    // ŠTA JE OVO? Da li mi brišemo neprijatelja svaki put kada se pozove ova funkcija?
-    if (enemies_.find(enemy_name) == enemies_.end())
-    {
-        enemies_[enemy_name] = enemy;
-        gui_->addEntity(enemy_name, enemy->getDrawer());
-    }
-    else
-    {
-        delete enemy;
-        enemies_[enemy_name]->fromVariant(variant);
-    }
-
+    client_->sendMessage(variant);
 }
 
-void Game::playerMoved(QVariant variant)
+void Game::bulletMoved(QVariant variant)
 {
     client_->sendMessage(variant);
 }
@@ -94,4 +80,5 @@ void Game::tileDeleted(QString name)
 {
     client_->sendMessage(QVariant(name));
 }
+
 

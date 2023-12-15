@@ -13,9 +13,11 @@ public:
     ~Entity() = default;
     QString getName();
     EntityDrawer* getDrawer();
+    QString getEtityType();
     virtual QVariant toVariant() const = 0;
     virtual void fromVariant(const QVariant&) = 0;
 protected:
     EntityDrawer* drawer_;
     QString name_;
+    QString entityType_;
 };

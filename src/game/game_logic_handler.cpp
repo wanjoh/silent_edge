@@ -54,7 +54,6 @@ void GameLogicHandler::addBullet(QString name, Bullet* bullet)
     bullet->setName(bullet_name);
     emit newBulletSignal(bullet_name, bullet->getDrawer());
 
-
     QVector2D aim_dir = QVector2D(aiming_point_-player_->getDrawer()->scenePos());
 
     aim_dir.normalize();
@@ -62,6 +61,8 @@ void GameLogicHandler::addBullet(QString name, Bullet* bullet)
     bullet->setAim_dir(aim_dir);
 
     bullet->getDrawer()->setPos(player_->getDrawer()->scenePos().x(),player_->getDrawer()->scenePos().y()-1.1*bullet->BULLET_HEIGHT);
+
+    emit bulletMoved(bullet->toVariant());
 
     qDebug() << bullet_name;
 }
@@ -142,7 +143,6 @@ bool GameLogicHandler::canEntityMove(QVector<QString> &edges)
     return can_move;
 }
 
-
 void GameLogicHandler::updateBullets()
 {
     if (keys_[Qt::LeftButton])
@@ -152,7 +152,6 @@ void GameLogicHandler::updateBullets()
         addBullet(player_->getName(),bullet);
     }
 
-
     for(auto& [_, bullets] : bullets_)
     {
         for(Bullet *bullet : bullets)
@@ -160,12 +159,16 @@ void GameLogicHandler::updateBullets()
             qreal x_pos = bullet->getDrawer()->scenePos().x() + 10 * bullet->aim_dir().x();
             qreal y_pos = bullet->getDrawer()->scenePos().y() + 10 * bullet->aim_dir().y();
 
+
             bullet->getDrawer()->setPos(x_pos, y_pos);
+
+            //qDebug() << bullet->getDrawer()->scenePos().x();
+//            qDebug() << x_pos << " " << y_pos;
+//            emit bulletMoved(bullet->toVariant());
 
             emit bulletUpdating(bullet);
 
             emit checkCollisions(bullet);
-
 
             if(bullet->getDrawer()->pos().y() + bullet->BULLET_HEIGHT < 0) {
                 emit destroyBullet(bullet->getName());
@@ -204,12 +207,12 @@ void GameLogicHandler::checkCollisions(Bullet* bullet){
                 int x1 = tile_drawer->x()/IMAGE_SIZE;
                 int y1 = tile_drawer->y()/IMAGE_SIZE;
 
+
                 QVector<QString> edges;
 
                 QString name = QString("%1 %2").arg(x1).arg(y1);
 
                 edges.push_back(name);
-
 
                 bool can_move = canEntityMove(edges);
 
@@ -217,7 +220,6 @@ void GameLogicHandler::checkCollisions(Bullet* bullet){
                     emit destroyBullet(bullet->getName());
                     break;
                 }
-
 
             }
 
@@ -236,6 +238,74 @@ void GameLogicHandler::decreaseHp(Player* player, Bullet* bullet)
 void GameLogicHandler::updateAimingPoint(QPointF point)
 {
     aiming_point_ = point;
+}
+
+void GameLogicHandler::handleEnemy(QVariant variant)
+{
+    Player *enemy = new Player("enemy");
+    enemy->fromVariant(variant);
+    QString enemy_name = enemy->getName();
+
+    if (enemies_.find(enemy_name) == enemies_.end())
+    {
+        enemies_[enemy_name] = enemy;
+        emit update(enemy_name, enemy->getDrawer());
+    }
+    else
+    {
+        delete enemy;
+        enemies_[enemy_name]->fromVariant(variant);
+    }
+}
+
+void GameLogicHandler::handleBullet(QVariant variant)
+{
+    Bullet *bullet = new Bullet(player_->getName());
+    bullet->fromVariant(variant);
+
+    if(!(bullets_[player_->getName()].empty()))
+    {
+        for (Bullet* bullet_ : bullets_[player_->getName()])
+        {
+            bullet_->fromVariant(variant);
+//          emit update(player_->getName(), bullet_->getDrawer());
+        }
+    }
+    else
+    {
+        bullets_[player_->getName()].push_back(bullet);
+
+        emit update(player_->getName(), bullet->getDrawer());
+    }
+
+    //        emit update(player_->getName(), bullet->getDrawer());
+
+}
+
+void GameLogicHandler::recognizeEntityType(QVariant variant)
+{
+    if(variant.canConvert<QVariantMap>())
+    {
+        QVariantMap map = variant.toMap();
+
+        if(map.contains("type_entity"))
+        {
+            QString type = map.value("type_entity").toString();
+
+            if(type == "bullet")
+            {
+                handleBullet(variant);
+            }
+            else if(type == "player")
+            {
+                handleEnemy(variant);
+            }
+            else
+            {
+                qDebug() << "Greska.";
+            }
+        }
+    }
 }
 
 void GameLogicHandler::initializeTimers()

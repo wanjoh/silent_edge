@@ -17,6 +17,11 @@ EntityDrawer* Entity::getDrawer()
     return drawer_;
 }
 
+QString Entity::getEtityType()
+{
+    return entityType_;
+}
+
 QString Entity::getName()
 {
     return name_;

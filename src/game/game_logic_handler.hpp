@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QVariantMap>
 #include "../entity/player.hpp"
 #include "../entity/bullet.hpp"
 #include "../gui/entity_drawer.hpp"
@@ -26,6 +27,11 @@ public slots:
     void updateMouseClick(Qt::MouseButton, bool);
     void addBullet(QString, Bullet*);
     void updateAimingPoint(QPointF);
+    //    void bulletUpdate(QVariant);
+    void handleEnemy(QVariant);
+    void handleBullet(QVariant);
+    void recognizeEntityType(QVariant);
+
 private slots:
     void updateMovement();
     void updateAmmo();
@@ -40,6 +46,8 @@ signals:
     void destroyBullet(QString);
     void destroyPlayer(QString);
     void bulletUpdating(Bullet*);
+    void bulletMoved(QVariant);
+    void update(QString, EntityDrawer*);
 private:
     void decreaseHp(Player*,Bullet*);
     void initializeTimers();
@@ -60,4 +68,3 @@ private:
     Map* map_object_;
     std::unordered_map<QString, Tile*> map_;
 };
-

@@ -19,10 +19,10 @@ public:
     void startServer();
     void quit();
 public slots:
-    void updateEnemy(QVariant);
     void playerMoved(QVariant);
     void updateMap(QVariant variant);
     void tileDeleted(QString name);
+    void bulletMoved(QVariant);
 private:
     GameServer* server_;
     Client *client_;
