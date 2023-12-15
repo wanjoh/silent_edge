@@ -170,12 +170,9 @@ void GameLogicHandler::updateBullets()
 
             emit checkCollisions(bullet);
 
-            if(bullet->getDrawer()->pos().y() + bullet->BULLET_HEIGHT < 0) {
-                emit destroyBullet(bullet->getName());
-                //break;
+
             }
         }
-    }
 }
 
 void GameLogicHandler::checkCollisions(Bullet* bullet){
@@ -190,7 +187,18 @@ void GameLogicHandler::checkCollisions(Bullet* bullet){
             {
                 //Player* player = dynamic_cast<Player>(item);
 
-                qDebug() << "player collision";
+                PlayerDrawer *player_drawer = dynamic_cast<PlayerDrawer*>(pixmap_item);
+
+                QString enemy_name = player_drawer->name();
+
+                //qDebug() << "collision with " << enemies_[enemy_name]->getName();
+                //ovde kresuje
+
+
+                qDebug() << "collision with " << enemy_name;
+
+
+
 
                 //decreaseHp(player,bullet);
 

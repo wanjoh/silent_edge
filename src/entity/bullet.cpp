@@ -4,7 +4,7 @@
 Bullet::Bullet(QString name, QObject* parent)
     : Entity(name, parent)
 {
-    drawer_ = new BulletDrawer("../silent-edge/src/images/bullet.png");
+    drawer_ = new BulletDrawer(name,"../silent-edge/src/images/bullet.png");
     entityType_ = "bullet";
 }
 

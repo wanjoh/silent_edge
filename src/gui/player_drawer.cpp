@@ -1,8 +1,8 @@
 #include "player_drawer.hpp"
 
-PlayerDrawer::PlayerDrawer(const QString &pixmap_path,
+PlayerDrawer::PlayerDrawer(QString name,const QString &pixmap_path,
                            QGraphicsItem *parent):
-    EntityDrawer(pixmap_path, parent)
+    EntityDrawer(name,pixmap_path, parent)
 {
 
 }
