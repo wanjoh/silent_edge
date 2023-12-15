@@ -2,7 +2,8 @@
 
 #include "../gui/player_drawer.hpp"
 #include "entity.hpp"
-#include "weapon.hpp"
+#include "melee_weapon.hpp"
+#include "ranged_weapon.hpp"
 #include<QMap>
 
 class Player : public Entity
@@ -18,15 +19,12 @@ public:
     qreal getEnergy();
     qreal getDpp();
     qreal getScore();
+    MeleeWeapon* getMeleeWeapon() const;
+    RangedWeapon* getRangedWeapon() const;
 
     void setHp(qreal);
     QVariant toVariant() const override;
     void fromVariant(const QVariant&) override;
-
-    void addWeapon(Weapon*);
-    Weapon* currentWeapon();
-    Weapon* nextWeapon();
-    Weapon* previousWeapon();
 
 
 private:
@@ -35,6 +33,6 @@ private:
     qreal dpp_;
     qreal score_;
 
-    std::vector<Weapon*> weapon_list_;
-    qint32 weapon_index_;
+    MeleeWeapon* meleeWeapon_;
+    RangedWeapon* rangedWeapon_;
 };

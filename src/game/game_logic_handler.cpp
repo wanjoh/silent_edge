@@ -9,7 +9,6 @@ GameLogicHandler::GameLogicHandler(QString name, Map *map, QObject* parent)
     , map_(map_object_->get_matrix())
     , player_(new Player(name, false))
 {
-    current_weapon_ = player_->currentWeapon();
 
     player_->getDrawer()->setPos(2*IMAGE_SIZE, 2*IMAGE_SIZE);
     initializeTimers();
@@ -44,20 +43,6 @@ void GameLogicHandler::updateKeys(quint32 key, bool pressed)
 void GameLogicHandler::updateMouseClick(Qt::MouseButton button, bool pressed)
 {
     keys_[button] = pressed;
-}
-
-void GameLogicHandler::updateMouseScroll(qint32 delta)
-{
-    if(delta > 0)
-    {
-        current_weapon_ = player_->nextWeapon();
-        shooting_timer_.setInterval(1000 / current_weapon_->getFireRate());
-    }
-    else if(delta < 0)
-    {
-        current_weapon_ = player_->previousWeapon();
-        shooting_timer_.setInterval(1000 / current_weapon_->getFireRate());
-    }
 }
 
 
@@ -163,10 +148,13 @@ bool GameLogicHandler::canEntityMove(QVector<QString> &edges)
 
 void GameLogicHandler::updateBullets()
 {
-    if (keys_[Qt::LeftButton])
+    if (keys_[Qt::RightButton])
+    {
+        qDebug() << "Cant shoot rn";
+    }
+    else if (keys_[Qt::LeftButton])
     {
         Bullet *bullet = new Bullet(player_->getName());
-
         addBullet(player_->getName(),bullet);
     }
 
@@ -193,6 +181,18 @@ void GameLogicHandler::updateBullets()
     }
 }
 
+void GameLogicHandler::swingMelee()
+{
+    if(keys_[Qt::LeftButton])
+    {
+        qDebug() << "Cant swing rn";
+    }
+    else if(keys_[Qt::RightButton])
+    {
+        qDebug() << "Swinging Melee!";
+    }
+
+}
 
 void GameLogicHandler::checkCollisions(Bullet* bullet){
     QList<QGraphicsItem*> colidingItems = bullet->getDrawer()->collidingItems();
@@ -337,10 +337,11 @@ void GameLogicHandler::recognizeEntityType(QVariant variant)
 void GameLogicHandler::initializeTimers()
 {
     movement_timer_.setInterval(1000 / TARGET_FPS);
-    shooting_timer_.setInterval(1000 / current_weapon_->getFireRate());
+    shooting_timer_.setInterval(1000 / player_->getRangedWeapon()->getRateOfFire());
     connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updateMovement);
     // za sad se koristi isti tajmer
     connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updateBullets);
+    connect(&shooting_timer_, &QTimer::timeout, this, &GameLogicHandler::swingMelee);
 
     connect(this,&GameLogicHandler::bulletUpdating,this,&GameLogicHandler::checkCollisions);
     movement_timer_.start();

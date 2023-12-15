@@ -94,11 +94,6 @@ void GameWindow::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     emit mousePressedSignal(event->button(), false);
 }
 
-void GameWindow::wheelEvent(QGraphicsSceneWheelEvent *event)
-{
-    emit wheelScrollSignal(event->delta());
-}
-
 
 void GameWindow::focusOutEvent(QFocusEvent *event)
 {

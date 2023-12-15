@@ -27,7 +27,6 @@ public slots:
     void resetKeys();
     void updateKeys(quint32, bool);
     void updateMouseClick(Qt::MouseButton, bool);
-    void updateMouseScroll(qint32);
     void addBullet(QString, Bullet*);
     void updateAimingPoint(QPointF);
     //    void bulletUpdate(QVariant);
@@ -39,6 +38,7 @@ private slots:
     void updateMovement();
     void updateAmmo();
     void updateBullets();
+    void swingMelee();
     void checkCollisions(Bullet*);
 signals:
     void playerMoved(QVariant);
@@ -46,7 +46,6 @@ signals:
     // todo: connect sa klijentom
     void playerShot();
     void newBulletSignal(QString, EntityDrawer*);
-    void weaponDrawSignal(QString, EntityDrawer*);
     void destroyBullet(QString);
     void destroyPlayer(QString);
     void bulletUpdating(Bullet*);
@@ -62,7 +61,6 @@ private:
     QTimer ammo_respawn_timer_;
     QTimer shooting_timer_;
     Player* player_;
-    Weapon* current_weapon_;
     QPointF aiming_point_;
     // todo: izbaciti enemies iz game klase
     std::map<QString, Player*> enemies_;
