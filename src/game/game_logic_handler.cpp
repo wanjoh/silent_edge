@@ -209,7 +209,13 @@ bool GameLogicHandler::checkCollisions(Bullet* bullet)
                 PlayerDrawer *player_drawer = dynamic_cast<PlayerDrawer*>(pixmap_item);
 
                 QString enemy_name = player_drawer->name();
-
+                // ako je igrac nas, on nece biti u enemies_
+                // todo: OVO CE SE SVE IZMENITI KAD PREBACIMO NA SERVER, TRENUTNO JE VELIKO MEGA SPAGETI KOD
+                if (enemy_name == player_->getName())
+                {
+                    decreaseHp(player_, bullet);
+                    return true;
+                }
                 //qDebug() << "collision with " << enemies_[enemy_name]->getName();
 
                 Player *enemy = enemies_[enemy_name];
@@ -217,9 +223,6 @@ bool GameLogicHandler::checkCollisions(Bullet* bullet)
                 decreaseHp(enemy,bullet);
 
                 qDebug() << enemy_name << " has " << enemy->getHp() << "hp";
-
-                if(enemy->getHp() == 0)
-                    emit destroyPlayer(enemy->getName());
 
             }
             if(typeid(*pixmap_item) == typeid(TileDrawer))
@@ -261,6 +264,8 @@ void GameLogicHandler::decreaseHp(Player* player, Bullet* bullet)
     qreal player_hp = player->getHp();
     qreal bullet_damage = bullet->getDamageDealt();
     player->setHp(player_hp - bullet_damage);
+    if(player->getHp() == 0)
+        emit destroyPlayer(player->getName());
 }
 
 void GameLogicHandler::updateAimingPoint(QPointF point)
