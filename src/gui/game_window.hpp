@@ -29,10 +29,12 @@ public:
     void mouseMoveEvent(QGraphicsSceneMouseEvent*) override;
     void mousePressEvent(QGraphicsSceneMouseEvent*) override;
     void mouseReleaseEvent(QGraphicsSceneMouseEvent*) override;
+    void wheelEvent(QGraphicsSceneWheelEvent*) override;
     void focusOutEvent(QFocusEvent*) override;
 signals:
     void keyPressedSignal(quint32, bool);
     void mousePressedSignal(Qt::MouseButton, bool);
+    void wheelScrollSignal(qint32);
     void focusedOutSignal();
     void mousePos(QPointF);
 private:

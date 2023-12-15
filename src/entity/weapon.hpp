@@ -1,7 +1,7 @@
 #pragma once
 
 #include "entity.hpp"
-
+#include "../gui/weapon_drawer.hpp"
 #include <QVector2D>
 
 class Weapon : public Entity
@@ -16,19 +16,27 @@ public:
         EPIC,
         LEGENDARY
     };
+
+
     Weapon();
-    Weapon(QString, RarenessType = Weapon::RarenessType::COMMON, qreal = 0.0, qreal = 10.0, qreal = 3.3, QObject* = nullptr);
+    Weapon(QString, RarenessType = Weapon::RarenessType::COMMON, qreal = 200.0, qreal = 10.0, qreal = 3.3, qint32 = 30, qreal = 700.0, QObject* = nullptr);
 
     qreal getPrice();
     qreal getDamageDealt();
     qreal getFireRate();
-    void setFireRate(qreal);
-    RarenessType getRarenessClass();    
+    qreal getReloadTime();
+    RarenessType getRarenessClass();
+    WeaponDrawer* getDrawer() override;
     QVariant toVariant() const override;
     void fromVariant(const QVariant&) override;
+protected:
+    WeaponDrawer* drawer_;
+
 private:
     RarenessType type_;
     qreal price_;
     qreal damage_dealt_;
     qreal fire_rate_;
+    qint32 ammo_capacity_;
+    qreal reload_time_;
 };

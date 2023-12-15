@@ -1,11 +1,9 @@
 #pragma once
 
 #include "entity.hpp"
-
+#include "../gui/bullet_drawer.hpp"
 #include <QVector2D>
 
-#define BULLET_HEIGHT (20)
-#define BULLET_WIDTH (10)
 
 
 class Bullet : public Entity
@@ -19,7 +17,6 @@ public:
         HEAVY
     };
 
-    static constexpr QRect BULLET_RECT = QRect(0, 0,BULLET_WIDTH, BULLET_HEIGHT);
 
     Bullet(QString, QObject* = nullptr);
 
@@ -28,12 +25,15 @@ public:
 
     qreal getDamageDealt();
 
-
+    BulletDrawer *getDrawer() override;
     QVariant toVariant() const override;
     void fromVariant(const QVariant&) override;
     void setAim_dir(const QVector2D &newAim_dir);
 
     QVector2D aim_dir() const;
+
+protected:
+    BulletDrawer* drawer_;
 
 private:
     BulletType type_;

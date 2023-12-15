@@ -1,10 +1,11 @@
 #include "bullet.hpp"
+#include "../gui/bullet_drawer.hpp"
 
 Bullet::Bullet(QString name, QObject* parent)
     : Entity(name, parent)
 {
 
-    drawer_ = new EntityDrawer(Qt::black,BULLET_RECT);
+    drawer_ = new BulletDrawer(Qt::black,BulletDrawer::DEFAULT_BULLET_RECT);
 
 }
 
@@ -18,6 +19,11 @@ Bullet::BulletType Bullet::getBulletType()
 qreal Bullet::getDamageDealt()
 {
     return damage_dealt_;
+}
+
+BulletDrawer *Bullet::getDrawer()
+{
+    return drawer_;
 }
 
 QVariant Bullet::toVariant() const

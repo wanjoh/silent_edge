@@ -12,7 +12,7 @@ public:
     Entity(QString, QObject* = nullptr);
     ~Entity() = default;
     QString getName();
-    EntityDrawer* getDrawer();
+    virtual EntityDrawer* getDrawer();
     virtual QVariant toVariant() const = 0;
     virtual void fromVariant(const QVariant&) = 0;
 protected:

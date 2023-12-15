@@ -4,6 +4,8 @@
 #include <QTimer>
 #include "../entity/player.hpp"
 #include "../entity/bullet.hpp"
+#include "../gui/bullet_drawer.hpp"
+#include "../gui/weapon_drawer.hpp"
 #include <QMutex>
 
 class GameLogicHandler : public QObject
@@ -23,6 +25,7 @@ public slots:
     void resetKeys();
     void updateKeys(quint32, bool);
     void updateMouseClick(Qt::MouseButton, bool);
+    void updateMouseScroll(qint32);
     void addBullet(QString, Bullet*);
     void updateAimingPoint(QPointF);
 private slots:
@@ -34,7 +37,8 @@ signals:
     void playerMoved(QVariant);
     // todo: connect sa klijentom
     void playerShot();
-    void newBulletSignal(QString, EntityDrawer*);
+    void newBulletSignal(QString, BulletDrawer*);
+    void weaponDrawSignal(QString, WeaponDrawer*);
     void destroyBullet(QString);
     void bulletUpdating(Bullet*);
 private:
@@ -44,7 +48,7 @@ private:
     QTimer movement_timer_;
     QTimer shooting_timer_;
     Player* player_;
-    Weapon* weapon_;
+    Weapon* current_weapon_;
     QPointF aiming_point_;
     // todo: izbaciti enemies iz game klase
     std::map<QString, Player*> enemies_;
@@ -54,4 +58,3 @@ private:
     std::unordered_map<quint32, bool> keys_;
     QMutex mutex_;
 };
-

@@ -4,8 +4,12 @@
 GameLogicHandler::GameLogicHandler(QString name, QObject* parent)
     : QObject(parent)
     , player_(new Player(name, false))
-    , weapon_(new Weapon(name, Weapon::RarenessType::COMMON, 0.0, 10.0, 6.6))
 {
+    player_->getDrawer()->rect().translate(QPointF(25, 25));
+    player_->addWeapon(new Weapon("Gun", Weapon::RarenessType::COMMON, 220.0, 10.0, 6.6));
+    player_->addWeapon(new Weapon("Gun2", Weapon::RarenessType::COMMON, 220.0, 10.0, 8.6));
+    current_weapon_ = player_->currentWeapon();
+    emit weaponDrawSignal(current_weapon_->getName(), current_weapon_->getDrawer());
     initializeTimers();
 }
 
@@ -38,6 +42,20 @@ void GameLogicHandler::updateKeys(quint32 key, bool pressed)
 void GameLogicHandler::updateMouseClick(Qt::MouseButton button, bool pressed)
 {
     keys_[button] = pressed;
+}
+
+void GameLogicHandler::updateMouseScroll(qint32 delta)
+{
+    if(delta > 0)
+    {
+        current_weapon_ = player_->nextWeapon();
+        shooting_timer_.setInterval(1000 / current_weapon_->getFireRate());
+    }
+    else if(delta < 0)
+    {
+        current_weapon_ = player_->previousWeapon();
+        shooting_timer_.setInterval(1000 / current_weapon_->getFireRate());
+    }
 }
 
 
@@ -90,20 +108,26 @@ void GameLogicHandler::shoot()
 
     if (keys_[Qt::LeftButton])
     {
-
-        QVector2D aim_dir = QVector2D(aiming_point_-player_->getDrawer()->scenePos());
-
-        aim_dir.normalize();
-
         Bullet *bullet = new Bullet(player_->getName());
+        QPointF top_left = player_->getDrawer()->mapToScene(player_->getDrawer()->rect().topLeft());
+        QPointF top_right = player_->getDrawer()->mapToScene(player_->getDrawer()->rect().topRight());
+        QPointF top_center = QPointF((top_left.x() + top_right.x()) / 2, (top_left.y() + top_right.y()) / 2);
 
-        bullet->setAim_dir(aim_dir);
+        QLineF line(top_center, aiming_point_);
 
 
+        QVector2D vectorFromLine(line.dx(), line.dy());
+        vectorFromLine.normalize();
+
+        qreal angle = player_->getDrawer()->rotation() - 90;
+
+        QTransform transform;
+        transform.rotate(angle);
+        bullet->getDrawer()->setTransform(transform);
+        bullet->getDrawer()->setPos(top_center + QPointF(0, bullet->getDrawer()->rect().height()));
+
+        bullet->setAim_dir(vectorFromLine);
         addBullet(player_->getName(),bullet);
-
-        bullet->getDrawer()->setPos(player_->getDrawer()->scenePos().x(),player_->getDrawer()->scenePos().y()-1.1*BULLET_HEIGHT);
-
     }
 
 }
@@ -116,7 +140,6 @@ void GameLogicHandler::updateBullets()
 
         for (Bullet* bullet : bullets_[player_->getName()])
         {
-
             qreal x_pos = bullet->getDrawer()->scenePos().x() + 10 * bullet->aim_dir().x();
             qreal y_pos = bullet->getDrawer()->scenePos().y() + 10 * bullet->aim_dir().y();
 
@@ -142,20 +165,20 @@ void GameLogicHandler::checkCollisions(Bullet* bullet){
             qDebug() << "bullet collision";
 
 
-           // player->decreaseHp(this);
+            // player->decreaseHp(this);
 
 
-           // emit destroyBullet(bullet->getName());
+            // emit destroyBullet(bullet->getName());
 
-           // if(player->getHp() == 0)
-           //     player->destroy();
+            // if(player->getHp() == 0)
+            //     player->destroy();
 
 
 
             break;
 
+        }
     }
-}
 
 }
 
@@ -167,7 +190,7 @@ void GameLogicHandler::updateAimingPoint(QPointF point)
 void GameLogicHandler::initializeTimers()
 {
     movement_timer_.setInterval(1000 / TARGET_FPS);
-    shooting_timer_.setInterval(1000 / weapon_->getFireRate());
+    shooting_timer_.setInterval(1000 / current_weapon_->getFireRate());
     connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updateMovement);
     // za sad se koristi isti tajmer
     connect(&shooting_timer_, &QTimer::timeout, this, &GameLogicHandler::shoot);
@@ -180,8 +203,12 @@ void GameLogicHandler::initializeTimers()
 
 bool GameLogicHandler::updateRotation()
 {
-    qreal angle = qRadiansToDegrees(atan2(aiming_point_.y() - player_->getDrawer()->scenePos().y(),
-                                          aiming_point_.x() - player_->getDrawer()->scenePos().x()));
+    QPointF top_left = player_->getDrawer()->mapToScene(player_->getDrawer()->rect().topLeft());
+    QPointF top_right = player_->getDrawer()->mapToScene(player_->getDrawer()->rect().topRight());
+    QPointF top_center = QPointF((top_left.x() + top_right.x()) / 2, (top_left.y() + top_right.y()) / 2);
+
+    QLineF line(top_center, aiming_point_);
+    qreal angle = -line.angle();
     bool rotated = qFabs(angle - player_->getDrawer()->rotation()) > EPSILON;
     player_->getDrawer()->setRotation(angle);
     return rotated;
