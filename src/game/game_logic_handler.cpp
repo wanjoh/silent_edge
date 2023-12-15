@@ -1,16 +1,17 @@
 #include "game_logic_handler.hpp"
-
 #include <QtMath>
+
+const int IMAGE_SIZE = 64;
+
 GameLogicHandler::GameLogicHandler(QString name, Map *map, QObject* parent)
     : QObject(parent)
     , map_object_(map)
-    , map_(map->initialize_matrix())
+    , map_(map_object_->get_matrix())
     , player_(new Player(name, false))
 {
-    player_->addWeapon(new Weapon("Gun", Weapon::RarenessType::COMMON, 220.0, 10.0, 6.6));
-    player_->addWeapon(new Weapon("Gun2", Weapon::RarenessType::COMMON, 220.0, 10.0, 8.6));
     current_weapon_ = player_->currentWeapon();
 
+    player_->getDrawer()->setPos(2*IMAGE_SIZE, 2*IMAGE_SIZE);
     initializeTimers();
 }
 
@@ -69,7 +70,6 @@ void GameLogicHandler::addBullet(QString name, Bullet* bullet)
     bullet->setName(bullet_name);
     emit newBulletSignal(bullet_name, bullet->getDrawer());
 
-
     QVector2D aim_dir = QVector2D(aiming_point_-player_->getDrawer()->scenePos());
 
     aim_dir.normalize();
@@ -77,6 +77,8 @@ void GameLogicHandler::addBullet(QString name, Bullet* bullet)
     bullet->setAim_dir(aim_dir);
 
     bullet->getDrawer()->setPos(player_->getDrawer()->scenePos().x(),player_->getDrawer()->scenePos().y()-1.1*bullet->BULLET_HEIGHT);
+
+    emit bulletMoved(bullet->toVariant());
 
     qDebug() << bullet_name;
 }
@@ -108,31 +110,30 @@ void GameLogicHandler::updateMovement()
     }
 
 
-    int x1 = x/64;
-    int y1 = y/64;
+    int x1 = x/IMAGE_SIZE;
+    int y1 = y/IMAGE_SIZE;
 
-
-    QVector<QString> names;
+    QVector<QString> edges;
     for(int i = x1; i < x1 + 2; i++) {
         for(int j = y1; j < y1 + 2; j++) {
-            QString name = QString("%1 %2").arg(i).arg(j);
-            names.push_back(name);
+            QString edge = QString("%1 %2").arg(i).arg(j);
+            edges.push_back(edge);
         }
     }
 
-    bool can_move = canPlayerMove(names);
+    bool can_move = canEntityMove(edges);
     std::unordered_map<QString, Tile*> active_buckets = map_object_->get_active_ammo_buckets();
 
     if (moved && can_move) {
         player_->getDrawer()->setPos(x, y);
 
-        for(QString &name : names) {
-            if(active_buckets.contains(name)) {
-                QPair<int, int> coords = map_[name]->get_coords();
-                map_object_->remove_tile(name);
-                map_object_->add_ground_tile_of_type_ammo(name, coords.first, coords.second);
+        for(QString edge : edges) {
+            if(active_buckets.contains(edge)) {
+                QPair<int, int> coords = map_[edge]->get_coords();
+                map_object_->remove_tile(edge);
+                map_object_->add_ground_tile_of_type_ammo(edge, coords.first, coords.second);
 
-                emit tileDeleted(name);
+                emit tileDeleted(edge);
             }
         }
     }
@@ -146,12 +147,12 @@ void GameLogicHandler::updateAmmo()
     map_object_->restock_ammo_piles();
 }
 
-bool GameLogicHandler::canPlayerMove(QVector<QString> names)
+bool GameLogicHandler::canEntityMove(QVector<QString> &edges)
 {
     bool can_move = true;
 
-    for(QString &name : names) {
-        Tile* tile = map_[name];
+    for(QString edge : edges) {
+        Tile* tile = map_[edge];
         if(tile && tile->getTileType() == Tile::TileType::WALL) {
             can_move = false;
         }
@@ -159,7 +160,6 @@ bool GameLogicHandler::canPlayerMove(QVector<QString> names)
 
     return can_move;
 }
-
 
 void GameLogicHandler::updateBullets()
 {
@@ -197,36 +197,60 @@ void GameLogicHandler::updateBullets()
 void GameLogicHandler::checkCollisions(Bullet* bullet){
     QList<QGraphicsItem*> colidingItems = bullet->getDrawer()->collidingItems();
 
-    foreach(QGraphicsItem* item, colidingItems){
-        if(typeid(*item) == typeid(Player)){
-            Player* player = dynamic_cast<Player*>(item);
+    foreach(QGraphicsItem *item, colidingItems)
+    {
+        QGraphicsPixmapItem* pixmap_item = dynamic_cast<QGraphicsPixmapItem*>(item);
+        if(pixmap_item)
+        {
+            if(typeid(*pixmap_item) == typeid(PlayerDrawer))
+            {
+                //Player* player = dynamic_cast<Player>(item);
 
-            qDebug() << "bullet collision";
+                PlayerDrawer *player_drawer = dynamic_cast<PlayerDrawer*>(pixmap_item);
 
-            decreaseHp(player,bullet);
+                QString enemy_name = player_drawer->name();
+
+                //qDebug() << "collision with " << enemies_[enemy_name]->getName();
+
+                Player *enemy = enemies_[enemy_name];
+
+                decreaseHp(enemy,bullet);
+
+                qDebug() << enemy_name << " has " << enemy->getHp() << "hp";
+
+                if(enemy->getHp() == 0)
+                    emit destroyPlayer(enemy->getName());
+
+            }
+            if(typeid(*pixmap_item) == typeid(TileDrawer))
+            {
+
+                TileDrawer *tile_drawer = dynamic_cast<TileDrawer*>(pixmap_item);
 
 
-            // player->decreaseHp(this);
+                int x1 = tile_drawer->x()/IMAGE_SIZE;
+                int y1 = tile_drawer->y()/IMAGE_SIZE;
 
 
-            // emit destroyBullet(bullet->getName());
+                QVector<QString> edges;
 
-            // if(player->getHp() == 0)
-            //     player->destroy();
+                QString name = QString("%1 %2").arg(x1).arg(y1);
 
+                edges.push_back(name);
 
+                bool can_move = canEntityMove(edges);
 
-            if(player->getHp() == 0)
-                emit destroyPlayer(player->getName());
-            break;
+                if(!can_move) {
+                    emit destroyBullet(bullet->getName());
+                    break;
+                }
 
+            }
+
+            //emit destroyBullet(bullet->getName());
         }
-        //emit destroyBullet(bullet->getName());
-
-
-        }
-
     }
+}
 
 void GameLogicHandler::decreaseHp(Player* player, Bullet* bullet)
 {
@@ -238,6 +262,76 @@ void GameLogicHandler::decreaseHp(Player* player, Bullet* bullet)
 void GameLogicHandler::updateAimingPoint(QPointF point)
 {
     aiming_point_ = point;
+}
+
+void GameLogicHandler::handleEnemy(QVariant variant)
+{
+    Player *enemy = new Player("enemy");
+    enemy->fromVariant(variant);
+    QString enemy_name = enemy->getName();
+
+    enemy->getDrawer()->setName(enemy_name);
+
+    if (enemies_.find(enemy_name) == enemies_.end())
+    {
+        enemies_[enemy_name] = enemy;
+        emit update(enemy_name, enemy->getDrawer());
+    }
+    else
+    {
+        delete enemy;
+        enemies_[enemy_name]->fromVariant(variant);
+    }
+}
+
+void GameLogicHandler::handleBullet(QVariant variant)
+{
+    Bullet *bullet = new Bullet(player_->getName());
+    bullet->fromVariant(variant);
+
+    if(!(bullets_[player_->getName()].empty()))
+    {
+        for (Bullet* bullet_ : bullets_[player_->getName()])
+        {
+            bullet_->fromVariant(variant);
+//          emit update(player_->getName(), bullet_->getDrawer());
+        }
+    }
+    else
+    {
+        bullets_[player_->getName()].push_back(bullet);
+
+        emit update(player_->getName(), bullet->getDrawer());
+    }
+
+    //        emit update(player_->getName(), bullet->getDrawer());
+
+}
+
+void GameLogicHandler::recognizeEntityType(QVariant variant)
+{
+    if(variant.canConvert<QVariantMap>())
+    {
+        QVariantMap map = variant.toMap();
+
+        if(map.contains("type_entity"))
+        {
+            QString type = map.value("type_entity").toString();
+
+            if(type == "bullet")
+            {
+                handleBullet(variant);
+            }
+            else if(type == "player")
+            {
+                handleEnemy(variant);
+            }
+            else
+            {
+                qDebug() << "Greska.";
+            }
+        }
+    }
 }
 
 void GameLogicHandler::initializeTimers()

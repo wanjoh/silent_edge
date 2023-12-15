@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../gui/player_drawer.hpp"
 #include "entity.hpp"
 #include "weapon.hpp"
 #include<QMap>
@@ -11,7 +12,7 @@ public:
     // ovo ce leteti odavde
     constexpr static qint32 VELOCITY = 3;
     Player();
-    Player(QString, bool = true, int x = 64, int y = 64, QObject* = nullptr);
+    Player(QString, bool = true,qreal hp = 100, int x = 64, int y = 64, QObject* = nullptr);
 
     qreal getHp();
     qreal getEnergy();

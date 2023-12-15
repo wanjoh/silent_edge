@@ -9,9 +9,9 @@ class GameWindow : public QGraphicsScene
 {
     Q_OBJECT
 public:
-    static constexpr quint32 WINDOW_WIDTH = 1920u;
-    static constexpr quint32 WINDOW_HEIGHT = 1024u;
-    GameWindow(Map*, EntityDrawer*, quint32 = WINDOW_WIDTH, quint32 = WINDOW_HEIGHT, QObject* = nullptr);
+    qreal WINDOW_WIDTH = 1200;
+    qreal WINDOW_HEIGHT = 800;
+    GameWindow(Map*, EntityDrawer*, qreal = 1280, qreal = 720, QObject* = nullptr);
     ~GameWindow();
 
     enum class GamePhase : quint32
@@ -32,6 +32,7 @@ public:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent*) override;
     void wheelEvent(QGraphicsSceneWheelEvent*) override;
     void focusOutEvent(QFocusEvent*) override;
+    bool eventFilter(QObject *obj, QEvent *event) override;
 signals:
     void keyPressedSignal(quint32, bool);
     void mousePressedSignal(Qt::MouseButton, bool);
@@ -39,12 +40,17 @@ signals:
     void focusedOutSignal();
     void mousePos(QPointF);
 private:
+    qreal width_zoom_level_ = 1.0;
+    qreal height_zoom_level_ = 1.0;
     quint32 window_width_;
     quint32 window_height_;
     GamePhase current_active_phase_;
 
     Map* map_object_;
+    Room* room_;
     std::unordered_map<QString, Tile*> map_;
     std::unordered_map<QString, EntityDrawer*> items_;
     QGraphicsView *fight_phase_;
+    qreal start_x_;
+    qreal start_y_;
 };

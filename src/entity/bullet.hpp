@@ -1,6 +1,9 @@
 #pragma once
 
+#include "../gui/bullet_drawer.hpp"
+
 #include "entity.hpp"
+
 #include <QVector2D>
 
 
@@ -18,14 +21,11 @@ public:
     constexpr static quint32 BULLET_HEIGHT = 20;
     constexpr static quint32 BULLET_WIDTH = 10;
 
-
-    Bullet(QString, QObject* = nullptr);
+    Bullet(QString, qreal damage_dealt = 25, QObject* = nullptr);
 
     ~Bullet() = default;
     BulletType getBulletType();
-
     qreal getDamageDealt();
-
     QVariant toVariant() const override;
     void fromVariant(const QVariant&) override;
     void setAim_dir(const QVector2D &newAim_dir);
@@ -34,10 +34,8 @@ public:
 
     void setName(const QString &newName);
 
-
 private:
     BulletType type_;
     qreal damage_dealt_;
     QVector2D aim_dir_;
-
 };

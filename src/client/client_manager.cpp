@@ -13,7 +13,6 @@ Client::Client(QObject *parent)
     connect(client_socket_, &QTcpSocket::readyRead, this, &Client::onReadyRead);
     connect(client_socket_, &QAbstractSocket::errorOccurred, this, &Client::error);
     connect(client_socket_, &QTcpSocket::disconnected, this, [this]()->void{logged_in_ = false;});
-
 }
 
 Client::~Client()
@@ -76,4 +75,3 @@ void Client::updatePosition(QVariant variant)
 {
     sendMessage(variant);
 }
-

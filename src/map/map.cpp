@@ -24,6 +24,11 @@ std::unordered_map<QString, Tile*> Map::initialize_matrix()
 {
     std::unordered_map<QString, Tile*> *map = new std::unordered_map<QString, Tile*>;
 
+    QVector<QString> wall_paths = {"wall.png", "wall1.png", "wall2.png", "wall3.png", "wall4.png", "wall5.png",
+                                    "wall6.png", "wall7.png", "wall8.png", "wall9.png", "wall10.png", "wall11.png",};
+    int rand_index;
+    srand(time(nullptr));
+
     QFile file(map_path_);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -36,24 +41,51 @@ std::unordered_map<QString, Tile*> Map::initialize_matrix()
         {
             for (int j = 0; j < m; j++)
             {
+                QString symbols;
+                stream >> symbols;
+
                 int number;
-                stream >> number;
+                if(symbols.contains("^")) {
+                    number = 2;
+                    int room_id = symbols.remove(0, 1).toInt();
+                    std::pair<int, int> start_coords = {j, i};
+                    Room room = *new Room(room_id, start_coords, start_coords);
+                    rooms_[room_id] = room;
+                }
+                else if(symbols.contains("$")) {
+                    number = 2;
+                    int room_id = symbols.remove(0, 1).toInt();
+                    std::pair<int, int> end_coords = {j+1, i+1};
+                    rooms_[room_id].set_end_coords(end_coords);
+                    rooms_[room_id].set_width_and_height();
+                }
+                else {
+                    number = symbols.toInt();
+                }
+
+                int rand_index = 0;//rand() % 12;
 
                 QString path = "../silent-edge/src/images/";
                 Tile::TileType type = Tile::TileType::GROUND;
                 switch(number) {
+                    // barrier
+                    case 0:
+                        path += "barrier.png";
+                        type = Tile::TileType::WALL;
+                        break;
                     // ground
                     case 1:
-                        path += "big_ground.png";
+                        path += "ground.png";
                         break;
-                    // wall
+                    // walls
                     case 2:
-                        path += "big_wall.png";
+                        path += "walls/";
+                        path += wall_paths[rand_index];
                         type = Tile::TileType::WALL;
                         break;
                     // spawnpoint
                     case 3:
-                        path += "spawn_point.png";
+                        path += "spawnpoint.png";
                         break;
                     // ammo
                     case 4:
@@ -63,11 +95,11 @@ std::unordered_map<QString, Tile*> Map::initialize_matrix()
                         break;
                     // default = ground
                     default:
-                        path += "big_ground.png";
+                        path += "ground.png";
                         break;
                 }
                 QString name = QString("%1 %2").arg(j).arg(i);
-                Tile *tile = new Tile(name, path, QPair<int, int>(j, i), type);
+                Tile *tile = new Tile(name, path, std::pair<int, int>(j, i), type);
                 TileDrawer *drawer = tile->getDrawer();
                 drawer->setPos(j*IMAGE_SIZE, i*IMAGE_SIZE);
 
@@ -96,7 +128,7 @@ void Map::remove_tile(QString name)
 void Map::add_ground_tile_of_type_ammo(QString name, int x, int y)
 {
     // tipa AMMO, zato što se tu stvara AMMO
-    Tile *tile = new Tile(name, "../silent-edge/src/images/big_ground.png", QPair<int, int>(x, y), Tile::TileType::AMMO_PILE);
+    Tile *tile = new Tile(name, "../silent-edge/src/images/ground.png", std::pair<int, int>(x, y), Tile::TileType::AMMO_PILE);
     TileDrawer *drawer = tile->getDrawer();
     drawer->setPos(x*IMAGE_SIZE, y*IMAGE_SIZE);
 
@@ -109,7 +141,7 @@ void Map::restock_ammo_piles()
 {
     std::unordered_map<QString, Tile*> inactive_buckets = get_inactive_ammo_buckets();
     for (const auto &bucket : inactive_buckets) {
-        QPair<int, int> coords = map_[bucket.first]->get_coords();
+        std::pair<int, int> coords = map_[bucket.first]->get_coords();
         remove_tile(bucket.first);
 
         Tile *tile = new Tile(bucket.first, "../silent-edge/src/images/ammo_bucket.png", coords, Tile::TileType::GROUND);
@@ -142,4 +174,35 @@ std::unordered_map<QString, Tile *> Map::get_active_ammo_buckets()
 std::unordered_map<QString, Tile *> Map::get_inactive_ammo_buckets()
 {
     return inactive_ammo_buckets_;
+}
+
+std::unordered_map<int, Room> Map::get_rooms()
+{
+    return rooms_;
+}
+
+Room Map::get_room_by_id(int id)
+{
+    return rooms_[id];
+}
+
+Room* Map::add_player_to_a_room(EntityDrawer *player)
+{
+    qreal player_x = player->x();
+    qreal player_y = player->y();
+
+    for(auto &[_, room] : rooms_) {
+        int start_x, start_y, end_x, end_y;
+        std::tie(start_x, start_y) = room.get_start_coords();
+        std::tie(end_x, end_y) = room.get_end_coords();
+
+        if(player_x >= start_x*IMAGE_SIZE && player_x <= end_x*IMAGE_SIZE &&
+           player_y >= start_y*IMAGE_SIZE && player_y <= end_y*IMAGE_SIZE) {
+            if (!room.get_players_in_room().contains(player))
+                room.add_player_to_room(player);
+            return &room;
+        }
+    }
+
+    //return Room();
 }

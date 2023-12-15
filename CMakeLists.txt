@@ -62,17 +62,28 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/gui/game_window.hpp
         src/gui/game_window.cpp
 
+        src/images/walls/wall.png
+        src/images/walls/wall1.png
+        src/images/walls/wall2.png
+        src/images/walls/wall3.png
+        src/images/walls/wall4.png
+        src/images/walls/wall5.png
+        src/images/walls/wall6.png
+        src/images/walls/wall7.png
+        src/images/walls/wall8.png
+        src/images/walls/wall9.png
+        src/images/walls/wall10.png
+        src/images/walls/wall11.png
+        src/images/walls/wall12.png
+        src/images/walls/wall13.png
+        src/images/walls/wall14.png
+        src/images/walls/wall15.png
 
-
-
-
-
-
-        src/images/big_wall.png
-        src/images/big_ground.png
+        src/images/barrier.png
+        src/images/ground.png
         src/images/samurai.png
         src/images/enemy.png
-        src/images/spawn_point.png
+        src/images/spawnpoint.png
         src/images/ammo_bucket.png
         src/images/katana.png
         src/images/bullet.png
@@ -80,6 +91,11 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/map/map_matrix.txt
         src/gui/tile_drawer.hpp
         src/gui/tile_drawer.cpp
+        src/gui/player_drawer.hpp
+        src/gui/player_drawer.cpp
+        src/gui/bullet_drawer.hpp
+        src/gui/bullet_drawer.cpp
+
 
     )
     # qt_add_executable(ServerMain src/server/server_main.cpp)
