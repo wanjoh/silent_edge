@@ -27,7 +27,7 @@ public slots:
     void resetKeys();
     void updateKeys(quint32, bool);
     void updateMouseClick(Qt::MouseButton, bool);
-    void addBullet(QString, Bullet*);
+    void addBullet(QString);
     void updateAimingPoint(QPointF);
     //    void bulletUpdate(QVariant);
     void handleEnemy(QVariant);
@@ -39,7 +39,8 @@ private slots:
     void updateAmmo();
     void updateBullets();
     void swingMelee();
-    void checkCollisions(Bullet*);
+    // privremeni fix: vraca true ako je metak unisten
+    bool checkCollisions(Bullet*);
 signals:
     void playerMoved(QVariant);
     void tileDeleted(QString);
@@ -48,7 +49,6 @@ signals:
     void newBulletSignal(QString, EntityDrawer*);
     void destroyBullet(QString);
     void destroyPlayer(QString);
-    void bulletUpdating(Bullet*);
     void bulletMoved(QVariant);
     void update(QString, EntityDrawer*);
 private:
