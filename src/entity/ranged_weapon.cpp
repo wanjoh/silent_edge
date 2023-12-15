@@ -6,12 +6,12 @@ RangedWeapon::RangedWeapon()
 }
 
 RangedWeapon::RangedWeapon(QString name, RarenessType rtype, qreal price, qreal dmg_dealt, qreal fire_rate, qint32 capacity, qreal rel_time, QObject* parent)
-    : Weapon(name, rtype, price, dmg_dealt, parent), rate_of_fire_(fire_rate), reload_time_(rel_time)
+    : Weapon(name, rtype, price, dmg_dealt, parent), rate_of_fire_(fire_rate), reload_time_(rel_time), capacity_(capacity)
 {
 
 }
 
-qreal RangedWeapon::getRateOfFire()
+qreal RangedWeapon::getRateOfFire() const
 {
     return rate_of_fire_;
 }
@@ -28,6 +28,11 @@ QVariant RangedWeapon::toVariant() const
     weaponData.insert("reload_time", reload_time_);
 
     return weaponData;
+}
+
+qint32 RangedWeapon::getCapacity() const
+{
+    return capacity_;
 }
 
 void RangedWeapon::fromVariant(const QVariant& variant)

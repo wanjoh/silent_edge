@@ -9,6 +9,12 @@ Bullet::Bullet(QString name,qreal damage_dealt, QObject* parent)
     damage_dealt_ = damage_dealt;
 }
 
+Bullet::~Bullet()
+{
+    qDebug() << "metak " << name_ << "unisten" << drawer_->name();
+}
+
+
 Bullet::BulletType Bullet::getBulletType()
 {
     return type_;

@@ -65,7 +65,7 @@ void GameWindow::addEntity(QString name, EntityDrawer* entity)
 
 void GameWindow::removeEntity(QString name)
 {
-    delete items_[name];
+    removeItem(items_[name]);
     items_.erase(name);
 }
 

@@ -46,15 +46,14 @@ void GameLogicHandler::updateMouseClick(Qt::MouseButton button, bool pressed)
 }
 
 
-void GameLogicHandler::addBullet(QString name, Bullet* bullet)
+void GameLogicHandler::addBullet(QString name)
 {
     QMutexLocker locker(&mutex_);
     QString bullet_name = name + QString::number(player_bullet_count_[name]);
+    Bullet* bullet = new Bullet(bullet_name);
     player_bullet_count_[name]++;
     bullets_[name].push_back(bullet);
-    bullet->setName(bullet_name);
     emit newBulletSignal(bullet_name, bullet->getDrawer());
-
     QVector2D aim_dir = QVector2D(aiming_point_-player_->getDrawer()->scenePos());
 
     aim_dir.normalize();
@@ -65,11 +64,18 @@ void GameLogicHandler::addBullet(QString name, Bullet* bullet)
 
     emit bulletMoved(bullet->toVariant());
 
-    qDebug() << bullet_name;
+    qDebug() << "bullet added " << bullet_name << "Bullets fired: " << player_bullet_count_[name];
+
+
 }
 
 void GameLogicHandler::updateMovement()
 {
+    if(keys_[Qt::Key_R])
+    {
+        reload_timer_.start();
+    }
+
     qreal x = player_->getDrawer()->x();
     qreal y = player_->getDrawer()->y();
 
@@ -112,7 +118,7 @@ void GameLogicHandler::updateMovement()
     if (moved && can_move) {
         player_->getDrawer()->setPos(x, y);
 
-        for(QString edge : edges) {
+        for(QString& edge : edges) {
             if(active_buckets.contains(edge)) {
                 QPair<int, int> coords = map_[edge]->get_coords();
                 map_object_->remove_tile(edge);
@@ -136,7 +142,7 @@ bool GameLogicHandler::canEntityMove(QVector<QString> &edges)
 {
     bool can_move = true;
 
-    for(QString edge : edges) {
+    for(QString& edge : edges) {
         Tile* tile = map_[edge];
         if(tile && tile->getTileType() == Tile::TileType::WALL) {
             can_move = false;
@@ -154,28 +160,34 @@ void GameLogicHandler::updateBullets()
     }
     else if (keys_[Qt::LeftButton])
     {
-        Bullet *bullet = new Bullet(player_->getName());
-        addBullet(player_->getName(),bullet);
+        if(player_bullet_count_[player_->getName()] < player_->getRangedWeapon()->getCapacity())
+            addBullet(player_->getName());
+        else
+        {
+            qDebug() << "I need more bullets!";
+        }
     }
 
+    QMutexLocker locker(&mutex_);
     for(auto& [_, bullets] : bullets_)
     {
-        for(Bullet *bullet : bullets)
+        for(int i = bullets.size() - 1; i >= 0; i--)
         {
-            qreal x_pos = bullet->getDrawer()->scenePos().x() + 10 * bullet->aim_dir().x();
-            qreal y_pos = bullet->getDrawer()->scenePos().y() + 10 * bullet->aim_dir().y();
+            qreal x_pos = bullets[i]->getDrawer()->scenePos().x() + 10 * bullets[i]->aim_dir().x();
+            qreal y_pos = bullets[i]->getDrawer()->scenePos().y() + 10 * bullets[i]->aim_dir().y();
 
 
-            bullet->getDrawer()->setPos(x_pos, y_pos);
+
+            bullets[i]->getDrawer()->setPos(x_pos, y_pos);
 
             //qDebug() << bullet->getDrawer()->scenePos().x();
             //            qDebug() << x_pos << " " << y_pos;
             //            emit bulletMoved(bullet->toVariant());
 
-            emit bulletUpdating(bullet);
-
-            emit checkCollisions(bullet);
-
+            if (checkCollisions(bullets[i]))
+            {
+                bullets.erase(bullets.begin() + i);
+            }
 
         }
     }
@@ -194,10 +206,10 @@ void GameLogicHandler::swingMelee()
 
 }
 
-void GameLogicHandler::checkCollisions(Bullet* bullet){
-    QList<QGraphicsItem*> colidingItems = bullet->getDrawer()->collidingItems();
+bool GameLogicHandler::checkCollisions(Bullet* bullet){
+    QList<QGraphicsItem*> coliding_items = bullet->getDrawer()->collidingItems();
 
-    foreach(QGraphicsItem *item, colidingItems)
+    foreach(QGraphicsItem *item, coliding_items)
     {
         QGraphicsPixmapItem* pixmap_item = dynamic_cast<QGraphicsPixmapItem*>(item);
         if(pixmap_item)
@@ -241,8 +253,12 @@ void GameLogicHandler::checkCollisions(Bullet* bullet){
                 bool can_move = canEntityMove(edges);
 
                 if(!can_move) {
-                    emit destroyBullet(bullet->getName());
-                    break;
+                    QString bullet_name = bullet->getName();
+                    delete bullet;
+                    bullet = nullptr;
+                    emit destroyBullet(bullet_name);
+                    return true;
+
                 }
 
             }
@@ -250,6 +266,7 @@ void GameLogicHandler::checkCollisions(Bullet* bullet){
             //emit destroyBullet(bullet->getName());
         }
     }
+    return false;
 }
 
 void GameLogicHandler::decreaseHp(Player* player, Bullet* bullet)
@@ -338,12 +355,18 @@ void GameLogicHandler::initializeTimers()
 {
     movement_timer_.setInterval(1000 / TARGET_FPS);
     shooting_timer_.setInterval(1000 / player_->getRangedWeapon()->getRateOfFire());
+    reload_timer_.setInterval(700);
+    reload_timer_.setSingleShot(true);
+    connect(&reload_timer_, &QTimer::timeout, this, [this]()
+    {
+        player_bullet_count_[player_->getName()] = 0;
+        qDebug() << "Reloading complete!";
+    });
     connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updateMovement);
     // za sad se koristi isti tajmer
     connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updateBullets);
     connect(&shooting_timer_, &QTimer::timeout, this, &GameLogicHandler::swingMelee);
 
-    connect(this,&GameLogicHandler::bulletUpdating,this,&GameLogicHandler::checkCollisions);
     movement_timer_.start();
 
     ammo_respawn_timer_.setInterval(5000);

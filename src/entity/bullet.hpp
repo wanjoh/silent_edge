@@ -23,7 +23,7 @@ public:
 
     Bullet(QString, qreal damage_dealt = 25, QObject* = nullptr);
 
-    ~Bullet() = default;
+    ~Bullet();
     BulletType getBulletType();
     qreal getDamageDealt();
     QVariant toVariant() const override;
