@@ -44,7 +44,7 @@ private:
     void decreaseHp(Player*,Bullet*);
     void initializeTimers();
     bool updateRotation();
-    bool canPlayerMove(QVector<QString> &names);
+    bool canEntityMove(QVector<QString> &names);
 
     QTimer movement_timer_;
     QTimer ammo_respawn_timer_;

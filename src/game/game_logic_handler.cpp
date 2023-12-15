@@ -103,7 +103,7 @@ void GameLogicHandler::updateMovement()
         }
     }
 
-    bool can_move = canPlayerMove(edges);
+    bool can_move = canEntityMove(edges);
     std::unordered_map<QString, Tile*> active_buckets = map_object_->get_active_ammo_buckets();
 
     if (moved && can_move) {
@@ -128,7 +128,7 @@ void GameLogicHandler::updateAmmo()
     map_object_->restock_ammo_piles();
 }
 
-bool GameLogicHandler::canPlayerMove(QVector<QString> &edges)
+bool GameLogicHandler::canEntityMove(QVector<QString> &edges)
 {
     bool can_move = true;
 
@@ -164,7 +164,9 @@ void GameLogicHandler::updateBullets()
 
             emit bulletUpdating(bullet);
 
-            qDebug() << bullet->getName();
+            emit checkCollisions(bullet);
+
+
             if(bullet->getDrawer()->pos().y() + bullet->BULLET_HEIGHT < 0) {
                 emit destroyBullet(bullet->getName());
                 //break;
@@ -176,19 +178,51 @@ void GameLogicHandler::updateBullets()
 void GameLogicHandler::checkCollisions(Bullet* bullet){
     QList<QGraphicsItem*> colidingItems = bullet->getDrawer()->collidingItems();
 
-    foreach(QGraphicsItem* item, colidingItems){
-        if(typeid(*item) == typeid(Player)){
-            Player* player = dynamic_cast<Player*>(item);
+    foreach(QGraphicsItem *item, colidingItems)
+    {
+        QGraphicsPixmapItem* pixmap_item = dynamic_cast<QGraphicsPixmapItem*>(item);
+        if(pixmap_item)
+        {
+            if(typeid(*pixmap_item) == typeid(EntityDrawer))
+            {
+                //Player* player = dynamic_cast<Player>(item);
 
-            qDebug() << "bullet collision";
+                //qDebug() << "bullet collision";
 
-            decreaseHp(player,bullet);
+                //decreaseHp(player,bullet);
 
-            if(player->getHp() == 0)
-                emit destroyPlayer(player->getName());
-            break;
+                //if(player->getHp() == 0)
+                //    emit destroyPlayer(player->getName());
+                //break;
+            }
+            if(typeid(*pixmap_item) == typeid(TileDrawer))
+            {
+
+                TileDrawer *tile_drawer = dynamic_cast<TileDrawer*>(pixmap_item);
+
+
+                int x1 = tile_drawer->x()/IMAGE_SIZE;
+                int y1 = tile_drawer->y()/IMAGE_SIZE;
+
+                QVector<QString> edges;
+
+                QString name = QString("%1 %2").arg(x1).arg(y1);
+
+                edges.push_back(name);
+
+
+                bool can_move = canEntityMove(edges);
+
+                if(!can_move) {
+                    emit destroyBullet(bullet->getName());
+                    break;
+                }
+
+
+            }
+
+            //emit destroyBullet(bullet->getName());
         }
-        //emit destroyBullet(bullet->getName());
     }
 }
 

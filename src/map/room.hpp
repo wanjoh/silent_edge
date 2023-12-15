@@ -1,7 +1,7 @@
 #pragma once
 
 #include "qcontainerfwd.h"
-#include "qtypes.h"
+//#include "qtypes.h"
 #include "tile.hpp"
 #include "../gui/entity_drawer.hpp"
 
