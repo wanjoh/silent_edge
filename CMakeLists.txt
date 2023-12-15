@@ -62,6 +62,12 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/gui/game_window.hpp
         src/gui/game_window.cpp
 
+
+
+
+
+
+
         src/images/big_wall.png
         src/images/big_ground.png
         src/images/samurai.png

@@ -6,6 +6,8 @@
 #include "../entity/bullet.hpp"
 #include "../gui/entity_drawer.hpp"
 #include "../map/map.hpp"
+#include <QMutex>
+
 
 class GameLogicHandler : public QObject
 {
@@ -24,6 +26,7 @@ public slots:
     void resetKeys();
     void updateKeys(quint32, bool);
     void updateMouseClick(Qt::MouseButton, bool);
+    void updateMouseScroll(qint32);
     void addBullet(QString, Bullet*);
     void updateAimingPoint(QPointF);
 private slots:
@@ -37,6 +40,7 @@ signals:
     // todo: connect sa klijentom
     void playerShot();
     void newBulletSignal(QString, EntityDrawer*);
+    void weaponDrawSignal(QString, EntityDrawer*);
     void destroyBullet(QString);
     void destroyPlayer(QString);
     void bulletUpdating(Bullet*);
@@ -48,7 +52,9 @@ private:
 
     QTimer movement_timer_;
     QTimer ammo_respawn_timer_;
+    QTimer shooting_timer_;
     Player* player_;
+    Weapon* current_weapon_;
     QPointF aiming_point_;
     // todo: izbaciti enemies iz game klase
     std::map<QString, Player*> enemies_;
@@ -59,5 +65,5 @@ private:
 
     Map* map_object_;
     std::unordered_map<QString, Tile*> map_;
+    QMutex mutex_;
 };
-

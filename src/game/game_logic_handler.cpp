@@ -7,6 +7,10 @@ GameLogicHandler::GameLogicHandler(QString name, Map *map, QObject* parent)
     , map_(map->initialize_matrix())
     , player_(new Player(name, false))
 {
+    player_->addWeapon(new Weapon("Gun", Weapon::RarenessType::COMMON, 220.0, 10.0, 6.6));
+    player_->addWeapon(new Weapon("Gun2", Weapon::RarenessType::COMMON, 220.0, 10.0, 8.6));
+    current_weapon_ = player_->currentWeapon();
+
     initializeTimers();
 }
 
@@ -41,10 +45,24 @@ void GameLogicHandler::updateMouseClick(Qt::MouseButton button, bool pressed)
     keys_[button] = pressed;
 }
 
+void GameLogicHandler::updateMouseScroll(qint32 delta)
+{
+    if(delta > 0)
+    {
+        current_weapon_ = player_->nextWeapon();
+        shooting_timer_.setInterval(1000 / current_weapon_->getFireRate());
+    }
+    else if(delta < 0)
+    {
+        current_weapon_ = player_->previousWeapon();
+        shooting_timer_.setInterval(1000 / current_weapon_->getFireRate());
+    }
+}
+
 
 void GameLogicHandler::addBullet(QString name, Bullet* bullet)
 {
-    // thread safe?
+    QMutexLocker locker(&mutex_);
     QString bullet_name = name + QString::number(player_bullet_count_[name]);
     player_bullet_count_[name]++;
     bullets_[name].push_back(bullet);
@@ -89,8 +107,10 @@ void GameLogicHandler::updateMovement()
         moved = true;
     }
 
+
     int x1 = x/64;
     int y1 = y/64;
+
 
     QVector<QString> names;
     for(int i = x1; i < x1 + 2; i++) {
@@ -119,6 +139,7 @@ void GameLogicHandler::updateMovement()
 
     emit playerMoved(player_->toVariant());
 }
+
 
 void GameLogicHandler::updateAmmo()
 {
@@ -149,7 +170,6 @@ void GameLogicHandler::updateBullets()
         addBullet(player_->getName(),bullet);
     }
 
-
     for(auto& [_, bullets] : bullets_)
     {
         for(Bullet *bullet : bullets)
@@ -157,18 +177,22 @@ void GameLogicHandler::updateBullets()
             qreal x_pos = bullet->getDrawer()->scenePos().x() + 10 * bullet->aim_dir().x();
             qreal y_pos = bullet->getDrawer()->scenePos().y() + 10 * bullet->aim_dir().y();
 
+
             bullet->getDrawer()->setPos(x_pos, y_pos);
+
+            //qDebug() << bullet->getDrawer()->scenePos().x();
+            //            qDebug() << x_pos << " " << y_pos;
+            //            emit bulletMoved(bullet->toVariant());
 
             emit bulletUpdating(bullet);
 
-            qDebug() << bullet->getName();
-            if(bullet->getDrawer()->pos().y() + bullet->BULLET_HEIGHT < 0) {
-                emit destroyBullet(bullet->getName());
-                //break;
-            }
+            emit checkCollisions(bullet);
+
+
         }
     }
 }
+
 
 void GameLogicHandler::checkCollisions(Bullet* bullet){
     QList<QGraphicsItem*> colidingItems = bullet->getDrawer()->collidingItems();
@@ -181,13 +205,28 @@ void GameLogicHandler::checkCollisions(Bullet* bullet){
 
             decreaseHp(player,bullet);
 
+
+            // player->decreaseHp(this);
+
+
+            // emit destroyBullet(bullet->getName());
+
+            // if(player->getHp() == 0)
+            //     player->destroy();
+
+
+
             if(player->getHp() == 0)
                 emit destroyPlayer(player->getName());
             break;
+
         }
         //emit destroyBullet(bullet->getName());
+
+
+        }
+
     }
-}
 
 void GameLogicHandler::decreaseHp(Player* player, Bullet* bullet)
 {
@@ -204,15 +243,18 @@ void GameLogicHandler::updateAimingPoint(QPointF point)
 void GameLogicHandler::initializeTimers()
 {
     movement_timer_.setInterval(1000 / TARGET_FPS);
+    shooting_timer_.setInterval(1000 / current_weapon_->getFireRate());
     connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updateMovement);
     // za sad se koristi isti tajmer
     connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updateBullets);
+
     connect(this,&GameLogicHandler::bulletUpdating,this,&GameLogicHandler::checkCollisions);
     movement_timer_.start();
 
     ammo_respawn_timer_.setInterval(5000);
     connect(&ammo_respawn_timer_, &QTimer::timeout, this, &GameLogicHandler::updateAmmo);
     ammo_respawn_timer_.start();
+    shooting_timer_.start();
 }
 
 bool GameLogicHandler::updateRotation()
@@ -223,3 +265,4 @@ bool GameLogicHandler::updateRotation()
     player_->getDrawer()->setRotation(qRadiansToDegrees(angle));
     return rotated;
 }
+

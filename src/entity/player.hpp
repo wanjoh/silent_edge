@@ -17,9 +17,16 @@ public:
     qreal getEnergy();
     qreal getDpp();
     qreal getScore();
+
     void setHp(qreal);
     QVariant toVariant() const override;
     void fromVariant(const QVariant&) override;
+
+    void addWeapon(Weapon*);
+    Weapon* currentWeapon();
+    Weapon* nextWeapon();
+    Weapon* previousWeapon();
+
 
 private:
     qreal hp_;
@@ -28,4 +35,5 @@ private:
     qreal score_;
 
     std::vector<Weapon*> weapon_list_;
+    qint32 weapon_index_;
 };

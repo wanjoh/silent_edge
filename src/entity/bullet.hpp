@@ -1,7 +1,6 @@
 #pragma once
 
 #include "entity.hpp"
-
 #include <QVector2D>
 
 
@@ -19,6 +18,7 @@ public:
     constexpr static quint32 BULLET_HEIGHT = 20;
     constexpr static quint32 BULLET_WIDTH = 10;
 
+
     Bullet(QString, QObject* = nullptr);
 
     ~Bullet() = default;
@@ -33,6 +33,7 @@ public:
     QVector2D aim_dir() const;
 
     void setName(const QString &newName);
+
 
 private:
     BulletType type_;

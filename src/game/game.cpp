@@ -14,6 +14,7 @@ Game::Game(QString name, QObject *parent)
     gui_ = new GameWindow(map_, logic_handler_->getPlayer()->getDrawer());
     gui_->addEntity(name, logic_handler_->getPlayer()->getDrawer());
 
+
     connect(client_, &Client::signalDataReceived, this, &Game::updateEnemy, Qt::DirectConnection);
     connect(client_, &Client::signalTileNameReceived, this, &Game::updateMap, Qt::DirectConnection);
 
@@ -21,12 +22,14 @@ Game::Game(QString name, QObject *parent)
     connect(logic_handler_, &GameLogicHandler::tileDeleted, this, &Game::tileDeleted, Qt::DirectConnection);
 
     connect(logic_handler_, &GameLogicHandler::newBulletSignal, gui_, &GameWindow::addEntity);
+    connect(logic_handler_, &GameLogicHandler::weaponDrawSignal, gui_, &GameWindow::addEntity);
     connect(logic_handler_, &GameLogicHandler::destroyBullet, gui_, &GameWindow::removeEntity);
     connect(logic_handler_, &GameLogicHandler::destroyPlayer, gui_, &GameWindow::removeEntity);
     connect(gui_, &GameWindow::mousePos, logic_handler_, &GameLogicHandler::updateAimingPoint);
     connect(gui_, &GameWindow::keyPressedSignal, logic_handler_, &GameLogicHandler::updateKeys);
     connect(gui_, &GameWindow::focusedOutSignal, logic_handler_, &GameLogicHandler::resetKeys);
     connect(gui_, &GameWindow::mousePressedSignal, logic_handler_, &GameLogicHandler::updateMouseClick);
+    connect(gui_, &GameWindow::wheelScrollSignal, logic_handler_, &GameLogicHandler::updateMouseScroll);
 }
 
 Game::~Game()
