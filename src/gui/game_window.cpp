@@ -2,6 +2,7 @@
 
 #include <QKeyEvent>
 #include <QGraphicsSceneMouseEvent>
+#include "../map/overlay.hpp"
 
 const int IMAGE_SIZE = 64;
 
@@ -28,8 +29,11 @@ GameWindow::GameWindow(Map* map, EntityDrawer* player, qreal width, qreal height
     fight_phase_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     fight_phase_->setBackgroundBrush(Qt::gray);
     fight_phase_->setMouseTracking(true);
-
     fight_phase_->installEventFilter(this);
+
+    overlay_group_ = new QGraphicsItemGroup();
+    make_overlay();
+    addItem(overlay_group_);
 
     // todo: promeniti
     current_active_phase_ = GamePhase::FIGHT_PHASE;
@@ -115,4 +119,60 @@ bool GameWindow::eventFilter(QObject *obj, QEvent *event)
         return QGraphicsScene::eventFilter(obj, event);
     }
     return false;
+}
+
+void GameWindow::make_overlay()
+{
+    QString base_path = "../silent-edge/src/images/";
+    QVector<QString> weapon_overlay_paths = {base_path + "pistol_overlay.png", base_path + "pistol_overlay_2.png"};
+
+    int x_pos = 0;
+    int y_pos = start_y_ + window_height_ - 3 * IMAGE_SIZE;
+
+    int n = weapon_overlay_paths.size();
+    for(int i = 0; i < n; i++) {
+        Overlay *overlay = new Overlay(i, weapon_overlay_paths[i], {start_x_/IMAGE_SIZE + x_pos/IMAGE_SIZE, start_y_/IMAGE_SIZE + y_pos/IMAGE_SIZE});
+        OverlayDrawer *drawer = overlay->getDrawer();
+        drawer->setPos(start_x_+ x_pos, start_y_ + y_pos);
+
+        if(i != 0)
+            drawer->setVisible(false);
+        overlay_group_->addToGroup(drawer);
+    }
+
+    int hp_x_pos = start_x_ + window_width_ - 1 * IMAGE_SIZE;
+    int hp_y_pos = start_y_ + window_height_ - 1 * IMAGE_SIZE;
+    QGraphicsRectItem *hp_overlay = new QGraphicsRectItem(hp_x_pos, hp_y_pos, IMAGE_SIZE, IMAGE_SIZE);
+    hp_overlay->setBrush(Qt::green);
+
+    overlay_group_->addToGroup(hp_overlay);
+    overlay_group_->setZValue(0);
+}
+
+void GameWindow::change_weapon(int id)
+{
+    QList<QGraphicsItem*> child_items = overlay_group_->childItems();
+
+    int i = 0;
+    for (auto it = child_items.begin(); it != child_items.end(); it++) {
+        QGraphicsItem* current_item = *it;
+        if (current_item) {
+            if (i != id)
+                current_item->setVisible(false);
+            else
+                current_item->setVisible(true);
+        }
+        i++;
+    }
+}
+
+void GameWindow::update_hp_overlay(qreal hp)
+{
+    qreal percentage = hp/100;
+    QList<QGraphicsItem*> childItems = overlay_group_->childItems();
+    if (!childItems.isEmpty()) {
+        qreal x_pos = childItems.last()->x();
+        qreal y_pos = childItems.last()->y();
+        childItems.last()->setPos(x_pos, y_pos + percentage * IMAGE_SIZE);
+    }
 }

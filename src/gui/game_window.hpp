@@ -32,11 +32,15 @@ public:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent*) override;
     void focusOutEvent(QFocusEvent*) override;
     bool eventFilter(QObject *obj, QEvent *event) override;
+    void make_overlay();
 signals:
     void keyPressedSignal(quint32, bool);
     void mousePressedSignal(Qt::MouseButton, bool);
     void focusedOutSignal();
     void mousePos(QPointF);
+public slots:
+    void change_weapon(int id);
+    void update_hp_overlay(qreal hp);
 private:
     qreal width_zoom_level_ = 1.0;
     qreal height_zoom_level_ = 1.0;
@@ -46,9 +50,10 @@ private:
 
     Map* map_object_;
     Room* room_;
-    std::unordered_map<QString, Tile*> map_;
+    std::unordered_map<int, Tile*> map_;
     std::unordered_map<QString, EntityDrawer*> items_;
     QGraphicsView *fight_phase_;
     qreal start_x_;
     qreal start_y_;
+    QGraphicsItemGroup* overlay_group_;
 };

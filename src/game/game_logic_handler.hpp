@@ -43,7 +43,7 @@ private slots:
     bool checkCollisions(Bullet*);
 signals:
     void playerMoved(QVariant);
-    void tileDeleted(QString);
+    void tileDeleted(int);
     // todo: connect sa klijentom
     void playerShot();
     void newBulletSignal(QString, EntityDrawer*);
@@ -51,11 +51,13 @@ signals:
     void destroyPlayer(QString);
     void bulletMoved(QVariant);
     void update(QString, EntityDrawer*);
+    void weapon_changed(int);
+    void update_hp(qreal hp);
 private:
     void decreaseHp(Player*,Bullet*);
     void initializeTimers();
     bool updateRotation();
-    bool canEntityMove(QVector<QString> &names);
+    bool canEntityMove(QVector<int> &names);
 
     QTimer movement_timer_;
     QTimer ammo_respawn_timer_;
@@ -70,6 +72,6 @@ private:
     std::unordered_map<quint32, bool> keys_;
 
     Map* map_object_;
-    std::unordered_map<QString, Tile*> map_;
+    std::unordered_map<int, Tile*> map_;
     QMutex mutex_;
 };
