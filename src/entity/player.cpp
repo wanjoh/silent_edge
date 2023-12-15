@@ -8,7 +8,7 @@ Player::Player() : Entity()
 }
 Player::Player(QString name, bool enemy, int x, int y, QObject* parent) : Entity(name, parent)
 {
-    drawer_ = new EntityDrawer(enemy ? "../silent-edge/src/images/enemy.png" : "../silent-edge/src/images/samurai.png");
+    drawer_ = new PlayerDrawer(enemy ? "../silent-edge/src/images/enemy.png" : "../silent-edge/src/images/samurai.png");
     drawer_->setPos(x, y);
     drawer_->setZValue(2);
 }

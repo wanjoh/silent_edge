@@ -91,6 +91,11 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/map/map_matrix.txt
         src/gui/tile_drawer.hpp
         src/gui/tile_drawer.cpp
+        src/gui/player_drawer.hpp
+        src/gui/player_drawer.cpp
+        src/gui/bullet_drawer.hpp
+        src/gui/bullet_drawer.cpp
+
 
     )
     # qt_add_executable(ServerMain src/server/server_main.cpp)

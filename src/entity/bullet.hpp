@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../gui/bullet_drawer.hpp"
+
 #include "entity.hpp"
 
 #include <QVector2D>

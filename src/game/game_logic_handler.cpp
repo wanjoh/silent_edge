@@ -183,11 +183,11 @@ void GameLogicHandler::checkCollisions(Bullet* bullet){
         QGraphicsPixmapItem* pixmap_item = dynamic_cast<QGraphicsPixmapItem*>(item);
         if(pixmap_item)
         {
-            if(typeid(*pixmap_item) == typeid(EntityDrawer))
+            if(typeid(*pixmap_item) == typeid(PlayerDrawer))
             {
                 //Player* player = dynamic_cast<Player>(item);
 
-                //qDebug() << "bullet collision";
+                qDebug() << "player collision";
 
                 //decreaseHp(player,bullet);
 

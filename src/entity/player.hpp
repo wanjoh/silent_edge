@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../gui/player_drawer.hpp"
 #include "entity.hpp"
 #include "weapon.hpp"
 #include<QMap>
