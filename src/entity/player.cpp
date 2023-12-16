@@ -1,13 +1,13 @@
 #include "player.hpp"
 
-
 #include <QKeyEvent>
-//TODO: OCISTITI DJUBRE
+
 Player::Player() : Entity()
 {
     weapon_list_.push_back(new Weapon("Katana", Weapon::RarenessType::COMMON, 50.0, 20.0, 1.0));
     weapon_index_ = 0;
 }
+
 Player::Player(QString name, bool enemy,qreal hp, int x, int y, QObject* parent) : Entity(name, parent)
 {
     weapon_list_.push_back(new Weapon("Katana", Weapon::RarenessType::COMMON, 50.0, 20.0, 1.0));
@@ -21,8 +21,6 @@ Player::Player(QString name, bool enemy,qreal hp, int x, int y, QObject* parent)
     hp_ = hp;
 
 }
-
-
 
 void Player::addWeapon(Weapon *weapon)
 {

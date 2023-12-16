@@ -8,16 +8,16 @@ GameServer::GameServer(QObject *parent)
     : QTcpServer(parent)
     , logic_handler_(new GameLogicHandler)
 {
-    available_threads_.reserve(MAX_USERS);
-    threads_load_.reserve(MAX_USERS);
+    available_threads_.reserve(ServerConfig::MAX_USERS);
+    threads_load_.reserve(ServerConfig::MAX_USERS);
 
-    if (!this->listen(HOST, PORT))
+    if (!this->listen(ServerConfig::getHost(), ServerConfig::PORT))
     {
         qDebug() << "Could not start the server";
     }
     else
     {
-        qDebug() << "Server started on " << HOST <<  ", port" << PORT;
+        qDebug() << "Server started on " << ServerConfig::getHost() <<  ", port" << ServerConfig::PORT;
     }
 }
 
@@ -43,7 +43,7 @@ void GameServer::stopServer()
 
 void GameServer::initializeTimers()
 {
-    server_timer_.setInterval(TICK_TIME);
+    server_timer_.setInterval(ServerConfig::TICK_TIME);
     connect(&server_timer_, &QTimer::timeout, this, &GameServer::tick);
 }
 
@@ -59,6 +59,7 @@ void GameServer::dataReceived(Connection* sender, const QByteArray& msg)
     emit logMessage(QLatin1String("object received"));
 
     // todo: check if data is valid
+    // limun: važi
 
     broadcast(msg, sender);
 }
@@ -92,14 +93,14 @@ void GameServer::sendData(Connection *user, const QByteArray& msg)
 
 void GameServer::incomingConnection(qintptr socket_desc)
 {
-    if (users_.size() < MAX_USERS)
+    if (users_.size() < ServerConfig::MAX_USERS)
     {
         // ovo treba da se razmotri, nismo sigurni da li će ovo praviti siročiće
         Connection *user = new Connection(socket_desc, nullptr);
 
         int thread_idx = available_threads_.size();
 
-        if (thread_idx < MAX_USERS)
+        if (thread_idx < ServerConfig::MAX_USERS)
         {
             available_threads_.append(new QThread(this));
             available_threads_.last()->start();
@@ -107,6 +108,7 @@ void GameServer::incomingConnection(qintptr socket_desc)
         else
         {
             // TODO: handle
+            // limun: važi
         }
 
         user->moveToThread(available_threads_.at(thread_idx));
@@ -137,4 +139,5 @@ void GameServer::tick()
 void GameServer::collectData()
 {
     // todo: prikpiti podatke od svih povezanih konekcija i sacuvati ih negde
+    // limun: niko sem pisca ne zna o čemu se ovde radi, ova f-ja ne postoji nigde sem u f-ji iznad
 }

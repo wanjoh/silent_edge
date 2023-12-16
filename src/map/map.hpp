@@ -2,7 +2,7 @@
 
 #include "room.hpp"
 #include "tile.hpp"
-#include "../gui/entity_drawer.hpp"
+#include "../gui/map_drawer.hpp"
 
 class Map
 {
@@ -11,23 +11,24 @@ public:
     ~Map();
     QGraphicsItemGroup *get_group();
     //???? todo: srediti ovo, prenositi preko referenci
-    // limun: pokusao
-    void initialize_matrix(std::unordered_map<QString, Tile*>& matrix);
-    const std::unordered_map<QString, Tile*>& get_matrix() const;
-    const std::unordered_map<QString, Tile*>& get_active_ammo_buckets() const;
-    const std::unordered_map<QString, Tile*>& get_inactive_ammo_buckets() const;
-    const std::unordered_map<int, Room*>& get_rooms() const;
-    void remove_tile(const QString &name);
-    void add_ground_tile_of_type_ammo(const QString &name, int x, int y);
+    // limun: pokusao, verovatno uspeo
+    void initialize_matrix();
+    void remove_tile(int id);
+    void remove_from_active(int id);
+    void add_to_active(int id);
     void restock_ammo_piles();
     const Room& get_room_by_id(int id) const;
     Room *add_player_to_a_room(EntityDrawer *player);
-    void remove_from_active(const QString& name);
+    const std::unordered_map<int, Tile*>& get_matrix() const;
+    const std::unordered_map<int, Tile*>& get_active_ammo_buckets() const;
+    const std::unordered_map<int, Tile*>& get_inactive_ammo_buckets() const;
+    const std::unordered_map<int, Room*>& get_rooms() const;
+    MapDrawer* get_drawer();
 private:
-    std::unordered_map<QString, Tile*> map_;
-    QGraphicsItemGroup* group_;
     QString map_path_;
-    std::unordered_map<QString, Tile*> active_ammo_buckets_;
-    std::unordered_map<QString, Tile*> inactive_ammo_buckets_;
+    std::unordered_map<int, Tile*> matrix_;
+    std::unordered_map<int, Tile*> active_ammo_buckets_;
+    std::unordered_map<int, Tile*> inactive_ammo_buckets_;
     std::unordered_map<int, Room*> rooms_;
+    MapDrawer* drawer_;
 };

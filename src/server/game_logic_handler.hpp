@@ -30,24 +30,26 @@ private slots:
     void updateAmmo();
 signals:
     // todo:dodati slanje specijalnih tile-ova (npr municija)
-    void tileDeleted(QString);
+    // limun: rešio sam nešto što ovo rešava
+    void tile_changed(int, const QString& path);
 private:
     void destroyBullet(Bullet*);
     void checkCollisions(Bullet*);
     void decreaseHp(Player*,Bullet*);
     void initializeTimers();
     void updatePlayer(QByteArray);
-    bool canEntityMove(QVector<QString> &names);
+    bool canEntityMove(QVector<int> ids);
 
     QTimer movement_timer_;
     QTimer ammo_respawn_timer_;
     QTimer shooting_timer_;
     std::map<QString, Player*> players_;
     // todo: naci pogodniju strukturu podataka, trenutno je par [vlasnik metka, metak]
+    // limun: veoma nedorečeno, ok
     std::vector<std::pair<QString, Bullet*>> bullets_;
     std::map<QString, quint32> player_bullet_count_;
 
-    Map* map_object_;
-    std::unordered_map<QString, Tile*> map_;
+    Map* map_;
+    std::unordered_map<int, Tile*> matrix_;
     QMutex mutex_;
 };

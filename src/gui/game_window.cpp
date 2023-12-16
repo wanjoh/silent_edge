@@ -3,18 +3,16 @@
 #include <QKeyEvent>
 #include <QGraphicsSceneMouseEvent>
 
-const int IMAGE_SIZE = 64;
-
-GameWindow::GameWindow(Map* map, qreal width, qreal height, QObject *parent)
+GameWindow::GameWindow(MapDrawer* map_drawer, Room* room, qreal width, qreal height, QObject *parent)
     : QGraphicsScene(0, 0, width, height, parent)
     , window_width_(width)
     , window_height_(height)
-    , map_object_(map)
-    , map_(map_object_->get_matrix())
+    , map_group_(map_drawer->get_group())
+    , room_(room)
 // todo: mrdunuti ovo gde treba
-//    , room_(map_object_->add_player_to_a_room(player))
+// limun: delim mapu na map i mapDrawer onda, urađeno
 {
-    addItem(map_object_->get_group());
+    addItem(map_group_);
 
     std::pair<int, int> start_coords = room_->get_start_coords();
     window_width_ = room_->get_width()*IMAGE_SIZE;
@@ -33,6 +31,7 @@ GameWindow::GameWindow(Map* map, qreal width, qreal height, QObject *parent)
     fight_phase_->installEventFilter(this);
 
     // todo: promeniti
+    // limun: stvarno treba, ali to ću kada bude postojao globalni tajmer
     current_active_phase_ = GamePhase::FIGHT_PHASE;
 }
 

@@ -4,7 +4,7 @@
 
 Connection::Connection(qintptr socket_desc, QObject * parent)
     :QObject(parent),
-    username_("TODO"),
+    username_("player"),
     socket_descriptor_(socket_desc)
 {
     if (!(socket_ = new QTcpSocket()))

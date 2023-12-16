@@ -11,7 +11,7 @@ class GameWindow : public QGraphicsScene
 public:
     qreal WINDOW_WIDTH = 1200;
     qreal WINDOW_HEIGHT = 800;
-    GameWindow(Map*, qreal = 1280, qreal = 720, QObject* = nullptr);
+    GameWindow(MapDrawer*, Room*, qreal = 1280, qreal = 720, QObject* = nullptr);
     ~GameWindow();
 
     enum class GamePhase : quint32
@@ -46,9 +46,8 @@ private:
     quint32 window_height_;
     GamePhase current_active_phase_;
 
-    Map* map_object_;
+    QGraphicsItemGroup *map_group_;
     Room* room_;
-    std::unordered_map<QString, Tile*> map_;
     std::unordered_map<QString, EntityDrawer*> items_;
     QGraphicsView *fight_phase_;
     qreal start_x_;

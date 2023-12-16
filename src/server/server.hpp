@@ -7,22 +7,13 @@
 #include <QVector>
 #include <QTimer>
 
+#include "server_config.hpp"
+
 class QByteArray;
 
 class GameServer : public QTcpServer {
   Q_OBJECT
 public:
-    // za testiranje sa vise racunara
-    static constexpr bool remoteServer = false;
-    inline static const QHostAddress remoteIP = QHostAddress("192.168.0.23");
-    //
-    //todo: ubaciti ovo u neki server config
-    static constexpr qint32 PORT = 6969;
-    static constexpr qint32 MAX_USERS = 8;
-    static constexpr qint32 MAX_ROOMS = MAX_USERS / 2;
-    inline static const QHostAddress HOST = remoteServer ? remoteIP : QHostAddress::LocalHost;
-    static constexpr quint32 TICK_TIME = 1000 / 30;
-
     GameServer(QObject* = nullptr);
     GameServer(const GameServer&) = delete;
     ~GameServer();

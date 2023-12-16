@@ -1,12 +1,10 @@
 #include "game_logic_handler.hpp"
 #include <QtMath>
 
-const int IMAGE_SIZE = 64;
-
 GameLogicHandler::GameLogicHandler(Map *map, QObject* parent)
     : QObject(parent)
-    , map_object_(map)
-    , map_(map_object_->get_matrix())
+    , map_(map)
+    , matrix_(map_->get_matrix())
 {
     initializeTimers();
 }
@@ -24,6 +22,7 @@ void GameLogicHandler::addBullet(QString name, Bullet* bullet)
     QMutexLocker locker(&mutex_);
     bullets_.push_back({name, bullet});
    // todo: add bullet rotation
+   // limun: verovatno ću pitati nekoga ko zna više o ovome
 }
 
 void GameLogicHandler::updateMovement()
@@ -37,6 +36,7 @@ void GameLogicHandler::updateMovement()
         bool moved = false;
 
         // todo: apdejtovati pomeraj na osnovu poslate komande od strane igraca
+        // limun: važi
         qreal dx = 0.0;
         qreal dy = 0.0;
 
@@ -60,27 +60,28 @@ void GameLogicHandler::updateMovement()
         int x1 = x/IMAGE_SIZE;
         int y1 = y/IMAGE_SIZE;
 
-        QVector<QString> edges;
+        QVector<int> ids;
         for(int i = x1; i < x1 + 2; i++) {
             for(int j = y1; j < y1 + 2; j++) {
-                QString edge = QString("%1 %2").arg(i).arg(j);
-                edges.push_back(edge);
+                // limun: trenutno 18 (širina matrice)
+                ids.push_back(i * 18 + i);
             }
         }
 
-        bool can_move = canEntityMove(edges);
-        std::unordered_map<QString, Tile*> active_buckets = map_object_->get_active_ammo_buckets();
+        bool can_move = canEntityMove(ids);
+        std::unordered_map<int, Tile*> active_buckets = map_->get_active_ammo_buckets();
 
         if (moved && can_move) {
             player->getDrawer()->setPos(x, y);
 
-            for(QString& edge : edges) {
-                if(active_buckets.contains(edge)) {
-                    QPair<int, int> coords = map_[edge]->get_coords();
-                    map_object_->remove_tile(edge);
-                    map_object_->add_ground_tile_of_type_ammo(edge, coords.first, coords.second);
+            for(int id : ids) {
+                if(active_buckets.contains(id)) {
+                    QString path ="../silent-edge/src/images/ground.png";
+                    map_->get_drawer()->change_picture(active_buckets[id], path);
+                    map_->remove_from_active(id);
 
-                    emit tileDeleted(edge);
+
+                    emit tile_changed(id, path);
                 }
             }
         }
@@ -90,16 +91,15 @@ void GameLogicHandler::updateMovement()
 
 void GameLogicHandler::updateAmmo()
 {
-    map_object_->restock_ammo_piles();
+    map_->restock_ammo_piles();
 }
 
-bool GameLogicHandler::canEntityMove(QVector<QString> &edges)
+bool GameLogicHandler::canEntityMove(QVector<int> ids)
 {
     bool can_move = true;
 
-    for(QString& edge : edges) {
-        Tile* tile = map_[edge];
-        if(tile && tile->getTileType() == Tile::TileType::WALL) {
+    for(int id : ids) {
+        if(matrix_[id]->getTileType() == Tile::TileType::WALL) {
             can_move = false;
         }
     }
@@ -112,9 +112,10 @@ void GameLogicHandler::updateBullets()
     QMutexLocker locker(&mutex_);
     quint32 i = 0;
     // ovo ide od nazad jer se elementi brisu
-    for(int i = bullets_.size(); i >= 0; i--)
+    for(int i = bullets_.size()-1; i >= 0; i--)
     {
         // todo: ovo ce se se skloniti kad se uvede bolja struktura podataka, jako je lose
+        // limun: nmp šta bi to podrazumevalo
         if (bullets_[i].second == nullptr)
         {
             bullets_.erase(bullets_.begin() + i);
@@ -126,6 +127,8 @@ void GameLogicHandler::updateBullets()
 
         bullets_[i].second->getDrawer()->setPos(x_pos, y_pos);
         // todo: proveriti kolizije na optimalniji nacin
+        // limun: važi
+
         checkCollisions(bullets_[i].second);
     }
 }
@@ -139,6 +142,7 @@ void GameLogicHandler::destroyBullet(Bullet* bullet)
 void GameLogicHandler::checkCollisions(Bullet* bullet)
 {
     // todo: deluje sumnjicavo, verovatno se moze optimizovati
+    // limun: pitaću ljude odgovorne za ovo
     QList<QGraphicsItem*> colidingItems = bullet->getDrawer()->collidingItems();
 
     foreach(QGraphicsItem *item, colidingItems)
@@ -165,7 +169,8 @@ void GameLogicHandler::checkCollisions(Bullet* bullet)
                 if(enemy->getHp() == 0)
                 {
                     qDebug() << "igrac unisten";
-                    //todo: hendlovati ovo
+                    // todo: hendlovati ovo
+                    // limun: užas, dobro
                 }
             }
             if(typeid(*pixmap_item) == typeid(TileDrawer))
@@ -178,19 +183,19 @@ void GameLogicHandler::checkCollisions(Bullet* bullet)
                 int y1 = tile_drawer->y()/IMAGE_SIZE;
 
 
-                QVector<QString> edges;
+                QVector<int> ids;
 
-                QString name = QString("%1 %2").arg(x1).arg(y1);
+                // limun: totalno glupo, ali ima važnijih stvari
+                int id = y1 * 12 + x1;
 
-                edges.push_back(name);
+                ids.push_back(id);
 
-                bool can_move = canEntityMove(edges);
+                bool can_move = canEntityMove(ids);
 
                 if(!can_move) {
                     destroyBullet(bullet);
                     break;
                 }
-
             }
         }
     }
@@ -222,5 +227,6 @@ void GameLogicHandler::initializeTimers()
 void GameLogicHandler::updatePlayer(QByteArray player_info)
 {
     //todo: deserijalizovati BEZ KLOSARSKOG QVARIANT MOLIM VAS
+    //limun: smešno, ignorisaću caps deo za sada
 }
 

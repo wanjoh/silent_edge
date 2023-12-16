@@ -96,6 +96,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/server/game_logic_handler.hpp
         src/server/game_logic_handler.cpp
 
+        src/server/server_config.hpp
+        src/gui/map_drawer.hpp src/gui/map_drawer.cpp
+
 
     )
     # qt_add_executable(ServerMain src/server/server_main.cpp)
