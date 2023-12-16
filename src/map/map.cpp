@@ -3,14 +3,10 @@
 #include <QFile>
 #include <QTextStream>
 
-constexpr static qint32 IMAGE_SIZE = 64;
-
 Map::Map()
+: map_path_("../silent-edge/src/map/map_matrix.txt"), group_(new QGraphicsItemGroup), map_()
 {
-    // uvek isti
-    map_path_ = "../silent-edge/src/map/map_matrix.txt";
-    group_ = new QGraphicsItemGroup;
-    map_ = initialize_matrix();
+    initialize_matrix(map_);
 }
 
 Map::~Map()
@@ -20,7 +16,7 @@ Map::~Map()
     delete group_;
 }
 
-std::unordered_map<QString, Tile*> Map::initialize_matrix()
+void Map::initialize_matrix(std::unordered_map<QString, Tile*>& matrix)
 {
     std::unordered_map<QString, Tile*> *map = new std::unordered_map<QString, Tile*>;
 
@@ -49,15 +45,15 @@ std::unordered_map<QString, Tile*> Map::initialize_matrix()
                     number = 2;
                     int room_id = symbols.remove(0, 1).toInt();
                     std::pair<int, int> start_coords = {j, i};
-                    Room room = *new Room(room_id, start_coords, start_coords);
+                    Room *room = new Room(room_id, start_coords, start_coords);
                     rooms_[room_id] = room;
                 }
                 else if(symbols.contains("$")) {
                     number = 2;
                     int room_id = symbols.remove(0, 1).toInt();
                     std::pair<int, int> end_coords = {j+1, i+1};
-                    rooms_[room_id].set_end_coords(end_coords);
-                    rooms_[room_id].set_width_and_height();
+                    rooms_[room_id]->set_end_coords(end_coords);
+                    rooms_[room_id]->set_width_and_height();
                 }
                 else {
                     number = symbols.toInt();
@@ -115,49 +111,25 @@ std::unordered_map<QString, Tile*> Map::initialize_matrix()
 
         file.close();
     }
-
-    return *map;
 }
 
-void Map::remove_tile(QString name)
+void Map::remove_from_active(const QString& name)
 {
-    if(active_ammo_buckets_.contains(name))
-        active_ammo_buckets_.erase(name);
-}
-
-void Map::add_ground_tile_of_type_ammo(QString name, int x, int y)
-{
-    // tipa AMMO, zato što se tu stvara AMMO
-    Tile *tile = new Tile(name, "../silent-edge/src/images/ground.png", std::pair<int, int>(x, y), Tile::TileType::AMMO_PILE);
-    TileDrawer *drawer = tile->getDrawer();
-    drawer->setPos(x*IMAGE_SIZE, y*IMAGE_SIZE);
-
-    inactive_ammo_buckets_[name] = tile;
-    map_[name] = tile;
-    group_->addToGroup(drawer);
+    inactive_ammo_buckets_[name] = active_ammo_buckets_[name];
+    active_ammo_buckets_.erase(name);
 }
 
 void Map::restock_ammo_piles()
 {
-    // todo: popraviti ovu funkciju, jaaaako mi je sumnjiva
-    // takodje ne treba da se azurira na svakih X sekundi, nego da se tajmer pokrene nakon sto se municija pokupi
     for (const auto &bucket : inactive_ammo_buckets_) {
-        std::pair<int, int> coords = map_[bucket.first]->get_coords();
-        remove_tile(bucket.first);
-
-        Tile *tile = new Tile(bucket.first, "../silent-edge/src/images/ammo_bucket.png", coords, Tile::TileType::GROUND);
-        TileDrawer *drawer = tile->getDrawer();
-        drawer->setPos(coords.first * IMAGE_SIZE, coords.second * IMAGE_SIZE);
-
-        active_ammo_buckets_[bucket.first] = tile;
-        map_[bucket.first] = tile;
-        group_->addToGroup(drawer);
+        bucket.second->setDrawer("../silent-edge/src/images/ammo_bucket.png");
+        active_ammo_buckets_[bucket.first] = bucket.second;
     }
 
     inactive_ammo_buckets_.clear();
 }
 
-std::unordered_map<QString, Tile*> Map::get_matrix()
+const std::unordered_map<QString, Tile*>& Map::get_matrix() const
 {
     return map_;
 }
@@ -167,24 +139,24 @@ QGraphicsItemGroup* Map::get_group()
     return group_;
 }
 
-std::unordered_map<QString, Tile *> Map::get_active_ammo_buckets()
+const std::unordered_map<QString, Tile*>& Map::get_active_ammo_buckets() const
 {
     return active_ammo_buckets_;
 }
 
-std::unordered_map<QString, Tile *> Map::get_inactive_ammo_buckets()
+const std::unordered_map<QString, Tile*>& Map::get_inactive_ammo_buckets() const
 {
     return inactive_ammo_buckets_;
 }
 
-std::unordered_map<int, Room> Map::get_rooms()
+const std::unordered_map<int, Room*>& Map::get_rooms() const
 {
     return rooms_;
 }
 
-Room Map::get_room_by_id(int id)
+const Room& Map::get_room_by_id(int id) const
 {
-    return rooms_[id];
+    return *rooms_.at(id);
 }
 
 Room* Map::add_player_to_a_room(EntityDrawer *player)
@@ -194,16 +166,16 @@ Room* Map::add_player_to_a_room(EntityDrawer *player)
 
     for(auto &[_, room] : rooms_) {
         int start_x, start_y, end_x, end_y;
-        std::tie(start_x, start_y) = room.get_start_coords();
-        std::tie(end_x, end_y) = room.get_end_coords();
+        std::tie(start_x, start_y) = room->get_start_coords();
+        std::tie(end_x, end_y) = room->get_end_coords();
 
         if(player_x >= start_x*IMAGE_SIZE && player_x <= end_x*IMAGE_SIZE &&
            player_y >= start_y*IMAGE_SIZE && player_y <= end_y*IMAGE_SIZE) {
-            if (!room.get_players_in_room().contains(player))
-                room.add_player_to_room(player);
-            return &room;
+            if (!room->get_players_in_room().contains(player))
+                room->add_player_to_room(player);
+            return room;
         }
     }
 
-    //return Room();
+    return new Room();
 }

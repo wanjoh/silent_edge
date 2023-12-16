@@ -3,6 +3,8 @@
 
 #include <QGraphicsPixmapItem>
 
+const int IMAGE_SIZE = 64;
+
 class Tile : QObject
 {
 public:
@@ -18,6 +20,7 @@ public:
     TileDrawer* getDrawer();
     QPair<int, int> get_coords();
     QString get_name();
+    void setDrawer(QString path);
 private:
     QString name_;
     QPair<int, int> coords_;
