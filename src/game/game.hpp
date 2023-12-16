@@ -36,4 +36,5 @@ private:
     GameWindow *gui_;
     Map *map_;
     std::map<QString, Player*> enemies_;
+    Player *player_;
 };

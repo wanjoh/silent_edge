@@ -107,7 +107,7 @@ void GameWindow::focusOutEvent(QFocusEvent *event)
 
 bool GameWindow::eventFilter(QObject *obj, QEvent *event)
 {
-    if (obj == fight_phase_ && event->type() == QEvent::Resize) {
+    if (event->type() == QEvent::Resize) {
         QResizeEvent *resizeEvent = static_cast<QResizeEvent*>(event);
 
         width_zoom_level_ *= (qreal)resizeEvent->size().width() / window_width_;

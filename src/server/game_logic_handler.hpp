@@ -29,7 +29,7 @@ private slots:
     void updateMovement();
     void updateAmmo();
 signals:
-    // todo:dodati slanje specijalnih tile-ova (npr municija)
+    // todo: dodati slanje specijalnih tile-ova (npr municija)
     // limun: rešio sam nešto što ovo rešava
     void tile_changed(int, const QString& path);
 private:

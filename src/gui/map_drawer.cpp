@@ -17,7 +17,7 @@ void MapDrawer::initialize_group(std::unordered_map<int, Tile*>& matrix)
     {
         QPair<int, int> coords = it->second->get_coords();
         TileDrawer *drawer = it->second->getDrawer();
-        drawer->setPos(coords.second*IMAGE_SIZE, coords.first*IMAGE_SIZE);
+        drawer->setPos(coords.first*IMAGE_SIZE, coords.second*IMAGE_SIZE);
 
         group_->addToGroup(drawer);
     }
