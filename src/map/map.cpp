@@ -3,8 +3,6 @@
 #include <QFile>
 #include <QTextStream>
 
-constexpr static qint32 IMAGE_SIZE = 64;
-
 Map::Map()
 {
     // uvek isti
@@ -119,38 +117,18 @@ std::unordered_map<int, Tile*> Map::initialize_matrix()
     return *map;
 }
 
-void Map::remove_tile(int id)
+void Map::remove_from_active(int id)
 {
-    if(active_ammo_buckets_.contains(id))
-        active_ammo_buckets_.erase(id);
-}
-
-void Map::add_ground_tile_of_type_ammo(int id, int x, int y)
-{
-    // tipa AMMO, zato što se tu stvara AMMO
-    Tile *tile = new Tile(id, "../silent-edge/src/images/ground.png", std::pair<int, int>(x, y), Tile::TileType::AMMO_PILE);
-    TileDrawer *drawer = tile->getDrawer();
-    drawer->setPos(x*IMAGE_SIZE, y*IMAGE_SIZE);
-
-    inactive_ammo_buckets_[id] = tile;
-    map_[id] = tile;
-    group_->addToGroup(drawer);
+    inactive_ammo_buckets_[id] = active_ammo_buckets_[id];
+    active_ammo_buckets_.erase(id);
 }
 
 void Map::restock_ammo_piles()
 {
     std::unordered_map<int, Tile*> inactive_buckets = get_inactive_ammo_buckets();
     for (const auto &bucket : inactive_buckets) {
-        std::pair<int, int> coords = map_[bucket.first]->get_coords();
-        remove_tile(bucket.first);
-
-        Tile *tile = new Tile(bucket.first, "../silent-edge/src/images/ammo_bucket.png", coords, Tile::TileType::GROUND);
-        TileDrawer *drawer = tile->getDrawer();
-        drawer->setPos(coords.first * IMAGE_SIZE, coords.second * IMAGE_SIZE);
-
-        active_ammo_buckets_[bucket.first] = tile;
-        map_[bucket.first] = tile;
-        group_->addToGroup(drawer);
+        bucket.second->setDrawer("../silent-edge/src/images/ammo_bucket.png");
+        active_ammo_buckets_[bucket.first] = bucket.second;
     }
 
     inactive_buckets.clear();

@@ -75,9 +75,8 @@ void Game::bulletMoved(QVariant variant)
 void Game::updateMap(QVariant variant)
 {
     int id = variant.toInt();
-    QPair<int, int> coords = map_->get_matrix()[id]->get_coords();
-    map_->remove_tile(id);
-    map_->add_ground_tile_of_type_ammo(id, coords.first, coords.second);
+    map_->remove_from_active(id);
+    map_->get_matrix()[id]->setDrawer("../silent-edge/src/images/ground.png");
 }
 
 void Game::tileDeleted(int id)

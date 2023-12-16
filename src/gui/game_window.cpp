@@ -4,8 +4,6 @@
 #include <QGraphicsSceneMouseEvent>
 #include "../map/overlay.hpp"
 
-const int IMAGE_SIZE = 64;
-
 GameWindow::GameWindow(Map* map, EntityDrawer* player, qreal width, qreal height, QObject *parent)
     : QGraphicsScene(0, 0, width, height, parent)
     , window_width_(width)

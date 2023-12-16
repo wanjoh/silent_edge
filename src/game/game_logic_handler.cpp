@@ -1,8 +1,6 @@
 #include "game_logic_handler.hpp"
 #include <QtMath>
 
-const int IMAGE_SIZE = 64;
-
 GameLogicHandler::GameLogicHandler(QString name, Map *map, QObject* parent)
     : QObject(parent)
     , map_object_(map)
@@ -111,9 +109,8 @@ void GameLogicHandler::updateMovement()
 
         for(int id : ids) {
             if(active_buckets.contains(id)) {
-                QPair<int, int> coords = map_[id]->get_coords();
-                map_object_->remove_tile(id);
-                map_object_->add_ground_tile_of_type_ammo(id, coords.first, coords.second);
+                map_[id]->setDrawer("../silent-edge/src/images/ground.png");
+                map_object_->remove_from_active(id);
 
                 emit tileDeleted(id);
             }

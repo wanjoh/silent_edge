@@ -5,3 +5,9 @@ TileDrawer::TileDrawer(const QString& pixmap_path, QGraphicsItem* parent):
 {
 
 }
+
+void TileDrawer::setImagePath(const QString& imagePath)
+{
+    QPixmap pixmap(imagePath);
+    setPixmap(pixmap);
+}
