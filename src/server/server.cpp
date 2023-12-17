@@ -59,7 +59,7 @@ void GameServer::dataReceived(Connection* sender, const QByteArray& msg)
     emit logMessage(QLatin1String("object received"));
 
     // todo: check if data is valid
-    // limun: važi
+    // limun: uhh
 
     broadcast(msg, sender);
 }
@@ -109,6 +109,7 @@ void GameServer::incomingConnection(qintptr socket_desc)
         {
             // TODO: handle
             // limun: važi
+            return;
         }
 
         user->moveToThread(available_threads_.at(thread_idx));
@@ -131,8 +132,7 @@ void GameServer::incomingConnection(qintptr socket_desc)
 void GameServer::tick()
 {
     collectData();
-    //for player in players
-//        logic_handler_->updatePlayer(player, INFO)
+    logic_handler_->updatePlayers();
     logic_handler_->updateBullets();
 }
 

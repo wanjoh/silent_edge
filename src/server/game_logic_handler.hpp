@@ -22,11 +22,15 @@ public:
     GameLogicHandler(const GameLogicHandler&) = delete;
     ~GameLogicHandler();
     void updateBullets();
+    void updateMovement();
+    void updatePlayers();
+    void updateRotation();
+
+    void put_players_into_rooms();
 
 public slots:
     void addBullet(QString, Bullet*);
 private slots:
-    void updateMovement();
     void updateAmmo();
 signals:
     // todo: dodati slanje specijalnih tile-ova (npr municija)
@@ -35,7 +39,7 @@ signals:
 private:
     void destroyBullet(Bullet*);
     void checkCollisions(Bullet*);
-    void decreaseHp(Player*,Bullet*);
+    void decreaseHp(Player*, Bullet*);
     void initializeTimers();
     void updatePlayer(QByteArray);
     bool canEntityMove(QVector<int> ids);
@@ -45,11 +49,11 @@ private:
     QTimer shooting_timer_;
     std::map<QString, Player*> players_;
     // todo: naci pogodniju strukturu podataka, trenutno je par [vlasnik metka, metak]
-    // limun: veoma nedorečeno, ok
-    std::vector<std::pair<QString, Bullet*>> bullets_;
-    std::map<QString, quint32> player_bullet_count_;
-
+    // limun: što je to loše, svejedno se server stara o svim mecima
+    QVector<QPair<QString, Bullet*>> bullets_;
     Map* map_;
+    std::unordered_map<int, Room*> rooms_;
     std::unordered_map<int, Tile*> matrix_;
     QMutex mutex_;
+    std::map<QString, int> commands;
 };

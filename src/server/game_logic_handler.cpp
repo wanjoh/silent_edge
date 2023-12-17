@@ -5,8 +5,10 @@ GameLogicHandler::GameLogicHandler(Map *map, QObject* parent)
     : QObject(parent)
     , map_(map)
     , matrix_(map_->get_matrix())
+    , rooms_(map_->get_rooms())
 {
     initializeTimers();
+    put_players_into_rooms();
 }
 
 GameLogicHandler::~GameLogicHandler()
@@ -17,28 +19,43 @@ GameLogicHandler::~GameLogicHandler()
     }
 }
 
+void GameLogicHandler::put_players_into_rooms()
+{
+    auto player_it = players_.begin();
+    for(auto it = rooms_.begin(); it != rooms_.end(); it++) {
+        std::unordered_map<int, QPair<int, int>> spawnpoints = it->second->get_unused_spawnpoints();
+        int n = spawnpoints.size();
+        for(int i = 0; i < n; i++) {
+            it->second->add_player_to_room(player_it->second);
+            player_it++;
+        }
+    }
+}
+
 void GameLogicHandler::addBullet(QString name, Bullet* bullet)
 {
     QMutexLocker locker(&mutex_);
     bullets_.push_back({name, bullet});
    // todo: add bullet rotation
-   // limun: verovatno ću pitati nekoga ko zna više o ovome
+   // limun: oni na tome rade, ne diram za sada
 }
 
 void GameLogicHandler::updateMovement()
 {
-    for (auto& [_, player] : players_)
+    for (auto& [name, player] : players_)
     {
-
-        qreal x = player->getDrawer()->x();
-        qreal y = player->getDrawer()->y();
+        qreal x = players_[name]->getDrawer()->x();
+        qreal y = players_[name]->getDrawer()->y();
 
         bool moved = false;
 
         // todo: apdejtovati pomeraj na osnovu poslate komande od strane igraca
-        // limun: važi
-        qreal dx = 0.0;
-        qreal dy = 0.0;
+        // limun: važi, urađeno
+        qreal dx = -commands[name] & 1 + commands[name] & (1 << 3);
+        qreal dy = -commands[name] & (1 << 4) + commands[name] & (1 << 2);
+
+        if(dx == 0 && dy == 0)
+            break;
 
         if (qFabs(dx) > EPSILON && qFabs(dy) > EPSILON)
         {
@@ -47,89 +64,72 @@ void GameLogicHandler::updateMovement()
             dy /= length;
         }
 
-
         x += dx * DEFAULT_PLAYER_VELOCITY;
         y += dy * DEFAULT_PLAYER_VELOCITY;
 
-        if (qFabs(dx) > EPSILON || qFabs(dy) > EPSILON)
-        {
-            moved = true;
-        }
-
-
-        int x1 = x/IMAGE_SIZE;
-        int y1 = y/IMAGE_SIZE;
-
-        QVector<int> ids;
-        for(int i = x1; i < x1 + 2; i++) {
-            for(int j = y1; j < y1 + 2; j++) {
-                // limun: trenutno 18 (širina matrice)
-                ids.push_back(i * 18 + i);
-            }
-        }
-
-        bool can_move = canEntityMove(ids);
         std::unordered_map<int, Tile*> active_buckets = map_->get_active_ammo_buckets();
 
-        if (moved && can_move) {
-            player->getDrawer()->setPos(x, y);
+        QList<QGraphicsItem*> collidingItems = player->getDrawer()->collidingItems();
+        for(auto item : collidingItems) {
+            QGraphicsPixmapItem* pixmap_item = dynamic_cast<QGraphicsPixmapItem*>(item);
+            if(pixmap_item) {
+                if(typeid(*pixmap_item) == typeid(TileDrawer))
+                {
+                    TileDrawer *tile_drawer = dynamic_cast<TileDrawer*>(pixmap_item);
+                    int tile_id = tile_drawer->y()/IMAGE_SIZE * map_->get_m() + tile_drawer->x()/IMAGE_SIZE;
+                    if(matrix_[tile_id]->getTileType() == Tile::TileType::WALL) {
+                        return;
+                    }
 
-            for(int id : ids) {
-                if(active_buckets.contains(id)) {
-                    QString path ="../silent-edge/src/images/ground.png";
-                    map_->get_drawer()->change_picture(active_buckets[id], path);
-                    map_->remove_from_active(id);
+                    if(matrix_[tile_id]->getTileType() == Tile::TileType::AMMO_PILE) {
+                        // limun: treba i povecati municiju player-u, to je na drugoj grani
+
+                        QString path ="../silent-edge/src/images/ground.png";
+                        map_->get_drawer()->change_picture(active_buckets[tile_id], path);
+                        map_->remove_from_active(tile_id);
 
 
-                    emit tile_changed(id, path);
+                        emit tile_changed(tile_id, path);
+                    }
                 }
             }
         }
+
+        player->getDrawer()->setPos(x, y);
     }
 }
-
 
 void GameLogicHandler::updateAmmo()
 {
     map_->restock_ammo_piles();
 }
 
-bool GameLogicHandler::canEntityMove(QVector<int> ids)
-{
-    bool can_move = true;
-
-    for(int id : ids) {
-        if(matrix_[id]->getTileType() == Tile::TileType::WALL) {
-            can_move = false;
-        }
-    }
-
-    return can_move;
-}
-
 void GameLogicHandler::updateBullets()
 {
     QMutexLocker locker(&mutex_);
-    quint32 i = 0;
     // ovo ide od nazad jer se elementi brisu
-    for(int i = bullets_.size()-1; i >= 0; i--)
+    // limun: evo sa it, valjda je tako bolje
+    for(auto it = bullets_.crbegin(); it != bullets_.crend(); it++)
     {
         // todo: ovo ce se se skloniti kad se uvede bolja struktura podataka, jako je lose
         // limun: nmp šta bi to podrazumevalo
-        if (bullets_[i].second == nullptr)
+        if(it->second == nullptr)
         {
-            bullets_.erase(bullets_.begin() + i);
+            // limun: stackoverflow.com/questions/1830158/how-to-call-erase-with-a-reverse-iterator
+            std::advance(it, 1);
+            bullets_.erase(it.base());
             continue;
         }
-        qreal x_pos = bullets_[i].second->getDrawer()->scenePos().x() + 10 * bullets_[i].second->aim_dir().x();
-        qreal y_pos = bullets_[i].second->getDrawer()->scenePos().y() + 10 * bullets_[i].second->aim_dir().y();
+        // limun: može bullet speed da se stavi umesto 10
+        qreal x_pos = it->second->getDrawer()->scenePos().x() + 10 * it->second->aim_dir().x();
+        qreal y_pos = it->second->getDrawer()->scenePos().y() + 10 * it->second->aim_dir().y();
 
 
-        bullets_[i].second->getDrawer()->setPos(x_pos, y_pos);
+        it->second->getDrawer()->setPos(x_pos, y_pos);
         // todo: proveriti kolizije na optimalniji nacin
-        // limun: važi
+        // limun: mislim da je ok, optimalnost ćemo kasnije
 
-        checkCollisions(bullets_[i].second);
+        checkCollisions(it->second);
     }
 }
 
@@ -138,11 +138,21 @@ void GameLogicHandler::destroyBullet(Bullet* bullet)
     delete bullet;
 }
 
+void GameLogicHandler::updatePlayers()
+{
+    updateMovement();
+    updateRotation();
+}
+
+void GameLogicHandler::updateRotation()
+{
+
+}
 
 void GameLogicHandler::checkCollisions(Bullet* bullet)
 {
     // todo: deluje sumnjicavo, verovatno se moze optimizovati
-    // limun: pitaću ljude odgovorne za ovo
+    // limun: ne znam
     QList<QGraphicsItem*> colidingItems = bullet->getDrawer()->collidingItems();
 
     foreach(QGraphicsItem *item, colidingItems)
@@ -162,7 +172,7 @@ void GameLogicHandler::checkCollisions(Bullet* bullet)
 
                 Player *enemy = players_[enemy_name];
 
-                decreaseHp(enemy,bullet);
+                decreaseHp(enemy, bullet);
 
                 qDebug() << enemy_name << " has " << enemy->getHp() << "hp";
 
@@ -170,29 +180,14 @@ void GameLogicHandler::checkCollisions(Bullet* bullet)
                 {
                     qDebug() << "igrac unisten";
                     // todo: hendlovati ovo
-                    // limun: užas, dobro
+                    // limun: užas, nemam pojma
                 }
             }
             if(typeid(*pixmap_item) == typeid(TileDrawer))
             {
-
                 TileDrawer *tile_drawer = dynamic_cast<TileDrawer*>(pixmap_item);
-
-
-                int x1 = tile_drawer->x()/IMAGE_SIZE;
-                int y1 = tile_drawer->y()/IMAGE_SIZE;
-
-
-                QVector<int> ids;
-
-                // limun: totalno glupo, ali ima važnijih stvari
-                int id = y1 * 12 + x1;
-
-                ids.push_back(id);
-
-                bool can_move = canEntityMove(ids);
-
-                if(!can_move) {
+                int tile_id = tile_drawer->y()/IMAGE_SIZE * map_->get_m() + tile_drawer->x()/IMAGE_SIZE;
+                if(matrix_[tile_id]->getTileType() == Tile::TileType::WALL) {
                     destroyBullet(bullet);
                     break;
                 }

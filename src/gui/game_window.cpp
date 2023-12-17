@@ -14,25 +14,17 @@ GameWindow::GameWindow(MapDrawer* map_drawer, Room* room, qreal width, qreal hei
 {
     addItem(map_group_);
 
-    std::pair<int, int> start_coords = room_->get_start_coords();
-    window_width_ = room_->get_width()*IMAGE_SIZE;
-    window_height_ = room_->get_height()*IMAGE_SIZE;
-
-    start_x_ = start_coords.first*IMAGE_SIZE;
-    start_y_ = start_coords.second*IMAGE_SIZE;
-
-    fight_phase_ = new QGraphicsView(this);
-    fight_phase_->setSceneRect(start_x_, start_y_, window_width_, window_height_);
-    fight_phase_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    fight_phase_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    fight_phase_->setBackgroundBrush(Qt::gray);
-    fight_phase_->setMouseTracking(true);
-
-    fight_phase_->installEventFilter(this);
-
     // todo: promeniti
-    // limun: stvarno treba, ali to ću kada bude postojao globalni tajmer
-    current_active_phase_ = GamePhase::FIGHT_PHASE;
+    // limun: urađeno
+
+    phase_ = new QGraphicsView(this);
+    phase_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    phase_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    phase_->setBackgroundBrush(Qt::gray);
+    phase_->setMouseTracking(true);
+    phase_->installEventFilter(this);
+
+    set_scene_up();
 }
 
 GameWindow::~GameWindow()
@@ -44,12 +36,29 @@ GameWindow::~GameWindow()
 
 }
 
+void GameWindow::change_room(Room *new_room)
+{
+    room_ = new_room;
+}
+
+void GameWindow::set_scene_up()
+{
+    std::pair<int, int> start_coords = room_->get_start_coords();
+    window_width_ = room_->get_width()*IMAGE_SIZE;
+    window_height_ = room_->get_height()*IMAGE_SIZE;
+
+    start_x_ = start_coords.first*IMAGE_SIZE;
+    start_y_ = start_coords.second*IMAGE_SIZE;
+
+    phase_->setSceneRect(start_x_, start_y_, window_width_, window_height_);
+}
+
 void GameWindow::show(GamePhase phase)
 {
     switch(phase)
     {
         case GamePhase::FIGHT_PHASE:
-            fight_phase_->show();
+            phase_->show();
             break;
         default:
             qDebug() << "not supported yet";
@@ -112,7 +121,7 @@ bool GameWindow::eventFilter(QObject *obj, QEvent *event)
 
         width_zoom_level_ *= (qreal)resizeEvent->size().width() / window_width_;
         height_zoom_level_ *= (qreal)resizeEvent->size().height() / window_height_;
-        fight_phase_->setTransform(QTransform::fromScale(width_zoom_level_, height_zoom_level_));
+        phase_->setTransform(QTransform::fromScale(width_zoom_level_, height_zoom_level_));
 
         window_width_ = resizeEvent->size().width();
         window_height_ = resizeEvent->size().height();

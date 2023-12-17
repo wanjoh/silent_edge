@@ -18,12 +18,14 @@ public:
     void add_to_active(int id);
     void restock_ammo_piles();
     const Room& get_room_by_id(int id) const;
-    Room *add_player_to_a_room(EntityDrawer *player);
+    Room *add_player_to_a_room(Player *player);
     const std::unordered_map<int, Tile*>& get_matrix() const;
     const std::unordered_map<int, Tile*>& get_active_ammo_buckets() const;
     const std::unordered_map<int, Tile*>& get_inactive_ammo_buckets() const;
     const std::unordered_map<int, Room*>& get_rooms() const;
     MapDrawer* get_drawer();
+    int get_n();
+    int get_m();
 private:
     QString map_path_;
     std::unordered_map<int, Tile*> matrix_;
@@ -31,4 +33,6 @@ private:
     std::unordered_map<int, Tile*> inactive_ammo_buckets_;
     std::unordered_map<int, Room*> rooms_;
     MapDrawer* drawer_;
+    int n_;
+    int m_;
 };

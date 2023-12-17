@@ -1,5 +1,7 @@
 #include "room.hpp"
 
+const int IMAGE_SIZE = 64;
+
 Room::Room()
 {
 
@@ -24,12 +26,12 @@ qreal Room::getId()
     return id_;
 }
 
-std::unordered_map<QString, Tile*> Room::get_unused_spawnpoints()
+std::unordered_map<int,QPair<int, int>> Room::get_unused_spawnpoints()
 {
     return unused_spawnpoints_;
 }
 
-std::unordered_map<QString, Tile*> Room::get_used_spawnpoints()
+std::unordered_map<int, QPair<int, int>> Room::get_used_spawnpoints()
 {
     return used_spawnpoints_;
 }
@@ -45,14 +47,25 @@ void Room::set_end_coords(std::pair<int, int> end_coords)
     end_coords_ = end_coords;
 }
 
-QVector<EntityDrawer *> Room::get_players_in_room()
+QVector<Player *> Room::get_players_in_room()
 {
     return players_in_room_;
 }
 
-void Room::add_player_to_room(EntityDrawer *player)
+void Room::add_player_to_room(Player *player)
 {
-    players_in_room_.append(player);
+    if(!unused_spawnpoints_.empty()) {
+        std::pair<int, QPair<int, int>> spawnpoint = *unused_spawnpoints_.begin();
+        players_in_room_.append(player);
+        player->getDrawer()->setPos(spawnpoint.second.first*IMAGE_SIZE, spawnpoint.second.second*IMAGE_SIZE);
+        unused_spawnpoints_.erase(spawnpoint.first);
+        used_spawnpoints_[spawnpoint.first] = spawnpoint.second;
+    }
+}
+
+void Room::add_spawnpoint(int id, QPair<int, int> coords)
+{
+    unused_spawnpoints_[id] = coords;
 }
 
 std::pair<int, int> Room::get_start_coords()

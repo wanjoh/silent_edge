@@ -33,6 +33,8 @@ public:
     void wheelEvent(QGraphicsSceneWheelEvent*) override;
     void focusOutEvent(QFocusEvent*) override;
     bool eventFilter(QObject *obj, QEvent *event) override;
+    void set_scene_up();
+    void change_room(Room *new_room);
 signals:
     void keyPressedSignal(quint32, bool);
     void mousePressedSignal(Qt::MouseButton, bool);
@@ -49,7 +51,7 @@ private:
     QGraphicsItemGroup *map_group_;
     Room* room_;
     std::unordered_map<QString, EntityDrawer*> items_;
-    QGraphicsView *fight_phase_;
+    QGraphicsView *phase_;
     qreal start_x_;
     qreal start_y_;
 };

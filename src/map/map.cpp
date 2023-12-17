@@ -29,7 +29,10 @@ void Map::initialize_matrix()
         QTextStream stream(&file);
         int n, m;
         stream >> n >> m;
+        n_ = n;
+        m_ = m;
 
+        int room_id = 0;
         float is_ammo = false;
         for (int i = 0; i < n; i++)
         {
@@ -41,14 +44,14 @@ void Map::initialize_matrix()
                 int number;
                 if(symbols.contains("^")) {
                     number = 2;
-                    int room_id = symbols.remove(0, 1).toInt();
+                    room_id = symbols.remove(0, 1).toInt();
                     std::pair<int, int> start_coords = {j, i};
                     Room *room = new Room(room_id, start_coords, start_coords);
                     rooms_[room_id] = room;
                 }
                 else if(symbols.contains("$")) {
                     number = 2;
-                    int room_id = symbols.remove(0, 1).toInt();
+                    room_id = symbols.remove(0, 1).toInt();
                     std::pair<int, int> end_coords = {j+1, i+1};
                     rooms_[room_id]->set_end_coords(end_coords);
                     rooms_[room_id]->set_width_and_height();
@@ -80,6 +83,7 @@ void Map::initialize_matrix()
                     // spawnpoint
                     case 3:
                         path += "spawnpoint.png";
+                        rooms_[room_id]->add_spawnpoint(room_id, QPair<int, int>(i, j));
                         break;
                     // ammo
                     case 4:
@@ -152,10 +156,10 @@ const Room& Map::get_room_by_id(int id) const
     return *rooms_.at(id);
 }
 
-Room* Map::add_player_to_a_room(EntityDrawer *player)
+Room* Map::add_player_to_a_room(Player *player)
 {
-    qreal player_x = player->x();
-    qreal player_y = player->y();
+    qreal player_x = player->getDrawer()->x();
+    qreal player_y = player->getDrawer()->y();
 
     for(auto &[_, room] : rooms_) {
         int start_x, start_y, end_x, end_y;
@@ -176,4 +180,14 @@ Room* Map::add_player_to_a_room(EntityDrawer *player)
 MapDrawer* Map::get_drawer()
 {
     return drawer_;
+}
+
+int Map::get_n()
+{
+    return n_;
+}
+
+int Map::get_m()
+{
+    return m_;
 }
