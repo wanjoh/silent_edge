@@ -139,5 +139,5 @@ void GameServer::tick()
 void GameServer::collectData()
 {
     // todo: prikpiti podatke od svih povezanih konekcija i sacuvati ih negde
-    // limun: niko sem pisca ne zna o čemu se ovde radi, ova f-ja ne postoji nigde sem u f-ji iznad
+    // limun: i dalje ne znam kako
 }

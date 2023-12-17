@@ -37,7 +37,7 @@ void GameLogicHandler::addBullet(QString name, Bullet* bullet)
     QMutexLocker locker(&mutex_);
     bullets_.push_back({name, bullet});
    // todo: add bullet rotation
-   // limun: oni na tome rade, ne diram za sada
+   // limun: oni na tome rade na drugoj grani, ne diram za sada
 }
 
 void GameLogicHandler::updateMovement()
@@ -162,14 +162,8 @@ void GameLogicHandler::checkCollisions(Bullet* bullet)
         {
             if(typeid(*pixmap_item) == typeid(PlayerDrawer))
             {
-                //Player* player = dynamic_cast<Player>(item);
-
                 PlayerDrawer *player_drawer = dynamic_cast<PlayerDrawer*>(pixmap_item);
-
                 QString enemy_name = player_drawer->name();
-
-                //qDebug() << "collision with " << enemies_[enemy_name]->getName();
-
                 Player *enemy = players_[enemy_name];
 
                 decreaseHp(enemy, bullet);
