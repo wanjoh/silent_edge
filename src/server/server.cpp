@@ -60,6 +60,7 @@ void GameServer::dataReceived(Connection* sender, const QByteArray& msg)
 
     // todo: check if data is valid
     // limun: uhh
+    // limun: npr: name, commands, mouse_x, mouse_y
 
     broadcast(msg, sender);
 }
@@ -108,7 +109,7 @@ void GameServer::incomingConnection(qintptr socket_desc)
         else
         {
             // TODO: handle
-            // limun: važi
+            // limun: važi (nisam uradio, ne znam)
             return;
         }
 
@@ -131,8 +132,15 @@ void GameServer::incomingConnection(qintptr socket_desc)
 
 void GameServer::tick()
 {
+    logic_handler_->clear_commands();
+    // limun: skupi datu u player_datas_, pa je onda prosleđuje logic handler-u
     collectData();
+    for(auto &player_data : player_datas_) {
+        logic_handler_->updatePlayerStats(player_data);
+    }
+    // limun: ovde vrši sve promene, igrač po igrač
     logic_handler_->updatePlayers();
+    // limun: na kraju menjamo metke, kao po dogovoru
     logic_handler_->updateBullets();
 }
 
@@ -140,4 +148,8 @@ void GameServer::collectData()
 {
     // todo: prikpiti podatke od svih povezanih konekcija i sacuvati ih negde
     // limun: i dalje ne znam kako
+    for (auto user : users_)
+    {
+        // limun: ovde uzimamo datu i stavlajmo u QVector<QByteArray> player_datas_
+    }
 }

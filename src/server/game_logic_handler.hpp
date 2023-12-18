@@ -22,14 +22,13 @@ public:
     GameLogicHandler(const GameLogicHandler&) = delete;
     ~GameLogicHandler();
     void updateBullets();
-    void updateMovement();
-    void updatePlayers();
-    void updateRotation();
-
+    qreal updatePlayerRotation(int x, int y, const QString& name, Player *player);
+    void updatePlayerPosition(int x, int y, const QString& name, Player *player);
+    void updatePlayerStats(QByteArray &);
+    void addBullet(const QString& name, qreal rotation);
     void put_players_into_rooms();
-
-public slots:
-    void addBullet(QString, Bullet*);
+    void updatePlayers();
+    void clear_commands();
 private slots:
     void updateAmmo();
 signals:
@@ -41,8 +40,9 @@ private:
     void checkCollisions(Bullet*);
     void decreaseHp(Player*, Bullet*);
     void initializeTimers();
-    void updatePlayer(QByteArray);
     bool canEntityMove(QVector<int> ids);
+    qreal dot_product(const QPair<qreal, qreal>& v1, const QPair<qreal, qreal>& v2);
+    qreal mag(const QPair<qreal, qreal>& v);
 
     QTimer movement_timer_;
     QTimer ammo_respawn_timer_;
@@ -55,5 +55,6 @@ private:
     std::unordered_map<int, Room*> rooms_;
     std::unordered_map<int, Tile*> matrix_;
     QMutex mutex_;
-    std::map<QString, int> commands;
+    std::map<QString, int> commands_;
+    std::map<QString, QPair<qreal, qreal>> mouse_positions_;
 };

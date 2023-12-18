@@ -1,7 +1,7 @@
 #include "bullet.hpp"
 
 
-Bullet::Bullet(QString name,qreal damage_dealt, QObject* parent)
+Bullet::Bullet(QString name, qreal damage_dealt, QObject* parent)
     : Entity(name, parent)
 {
     drawer_ = new BulletDrawer(name,"../silent-edge/src/images/bullet.png");

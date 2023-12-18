@@ -42,4 +42,5 @@ private:
     QVector<int> threads_load_;
     QVector<Connection*> users_;
     QTimer server_timer_;
+    QVector<QByteArray> player_datas_;
 };

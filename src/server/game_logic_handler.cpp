@@ -32,70 +32,81 @@ void GameLogicHandler::put_players_into_rooms()
     }
 }
 
-void GameLogicHandler::addBullet(QString name, Bullet* bullet)
+void GameLogicHandler::addBullet(const QString& name, qreal rotation)
 {
+    if(!(commands_[name] & (1 << 5)))
+        return;
     QMutexLocker locker(&mutex_);
+    Bullet *bullet = new Bullet("bullet");
+    bullet->getDrawer()->setRotation(rotation);
     bullets_.push_back({name, bullet});
    // todo: add bullet rotation
-   // limun: oni na tome rade na drugoj grani, ne diram za sada
+   // limun: evo
 }
 
-void GameLogicHandler::updateMovement()
+void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name, Player *player)
+{
+    bool moved = false;
+    // todo: apdejtovati pomeraj na osnovu poslate komande od strane igraca
+    // limun: važi, urađeno
+    qreal dx = -commands_[name] & 1 + commands_[name] & (1 << 3);
+    qreal dy = -commands_[name] & (1 << 4) + commands_[name] & (1 << 2);
+
+    if(dx == 0 && dy == 0)
+        return;
+
+    if (qFabs(dx) > EPSILON && qFabs(dy) > EPSILON)
+    {
+        qreal length = qSqrt(dx * dx + dy * dy);
+        dx /= length;
+        dy /= length;
+    }
+
+    x += dx * DEFAULT_PLAYER_VELOCITY;
+    y += dy * DEFAULT_PLAYER_VELOCITY;
+
+    std::unordered_map<int, Tile*> active_buckets = map_->get_active_ammo_buckets();
+
+    QList<QGraphicsItem*> collidingItems = player->getDrawer()->collidingItems();
+    for(auto item : collidingItems) {
+        QGraphicsPixmapItem* pixmap_item = dynamic_cast<QGraphicsPixmapItem*>(item);
+        if(pixmap_item) {
+            if(typeid(*pixmap_item) == typeid(TileDrawer))
+            {
+                TileDrawer *tile_drawer = dynamic_cast<TileDrawer*>(pixmap_item);
+                int tile_id = tile_drawer->y()/IMAGE_SIZE * map_->get_m() + tile_drawer->x()/IMAGE_SIZE;
+                if(matrix_[tile_id]->getTileType() == Tile::TileType::WALL) {
+                    return;
+                }
+
+                if(matrix_[tile_id]->getTileType() == Tile::TileType::AMMO_PILE) {
+                    // limun: treba i povecati municiju player-u, to je na drugoj grani
+
+                    QString path ="../silent-edge/src/images/ground.png";
+                    map_->get_drawer()->change_picture(active_buckets[tile_id], path);
+                    map_->remove_from_active(tile_id);
+
+
+                    emit tile_changed(tile_id, path);
+                }
+            }
+        }
+    }
+
+    player->getDrawer()->setPos(x, y);
+}
+
+void GameLogicHandler::updatePlayers()
 {
     for (auto& [name, player] : players_)
     {
         qreal x = players_[name]->getDrawer()->x();
         qreal y = players_[name]->getDrawer()->y();
 
-        bool moved = false;
-
-        // todo: apdejtovati pomeraj na osnovu poslate komande od strane igraca
-        // limun: važi, urađeno
-        qreal dx = -commands[name] & 1 + commands[name] & (1 << 3);
-        qreal dy = -commands[name] & (1 << 4) + commands[name] & (1 << 2);
-
-        if(dx == 0 && dy == 0)
-            break;
-
-        if (qFabs(dx) > EPSILON && qFabs(dy) > EPSILON)
-        {
-            qreal length = qSqrt(dx * dx + dy * dy);
-            dx /= length;
-            dy /= length;
-        }
-
-        x += dx * DEFAULT_PLAYER_VELOCITY;
-        y += dy * DEFAULT_PLAYER_VELOCITY;
-
-        std::unordered_map<int, Tile*> active_buckets = map_->get_active_ammo_buckets();
-
-        QList<QGraphicsItem*> collidingItems = player->getDrawer()->collidingItems();
-        for(auto item : collidingItems) {
-            QGraphicsPixmapItem* pixmap_item = dynamic_cast<QGraphicsPixmapItem*>(item);
-            if(pixmap_item) {
-                if(typeid(*pixmap_item) == typeid(TileDrawer))
-                {
-                    TileDrawer *tile_drawer = dynamic_cast<TileDrawer*>(pixmap_item);
-                    int tile_id = tile_drawer->y()/IMAGE_SIZE * map_->get_m() + tile_drawer->x()/IMAGE_SIZE;
-                    if(matrix_[tile_id]->getTileType() == Tile::TileType::WALL) {
-                        return;
-                    }
-
-                    if(matrix_[tile_id]->getTileType() == Tile::TileType::AMMO_PILE) {
-                        // limun: treba i povecati municiju player-u, to je na drugoj grani
-
-                        QString path ="../silent-edge/src/images/ground.png";
-                        map_->get_drawer()->change_picture(active_buckets[tile_id], path);
-                        map_->remove_from_active(tile_id);
-
-
-                        emit tile_changed(tile_id, path);
-                    }
-                }
-            }
-        }
-
-        player->getDrawer()->setPos(x, y);
+        // limun: rotacija, pozicija, meci
+        qreal rotation = updatePlayerRotation(x, y, name, player);
+        updatePlayerPosition(x, y, name, player);
+        addBullet(name, rotation);
     }
 }
 
@@ -138,15 +149,45 @@ void GameLogicHandler::destroyBullet(Bullet* bullet)
     delete bullet;
 }
 
-void GameLogicHandler::updatePlayers()
+void GameLogicHandler::clear_commands()
 {
-    updateMovement();
-    updateRotation();
+    commands_.clear();
 }
 
-void GameLogicHandler::updateRotation()
+qreal GameLogicHandler::dot_product(const QPair<qreal, qreal>& v1, const QPair<qreal, qreal>& v2)
 {
+    return v1.first * v2.first + v1.second + v2.second;
+}
 
+qreal GameLogicHandler::mag(const QPair<qreal, qreal>& v)
+{
+    return std::sqrt(v.first * v.first + v.second * v.second);
+}
+
+qreal GameLogicHandler::updatePlayerRotation(int x, int y, const QString& name, Player *player)
+{
+    qreal theta = 0.0;
+
+    qreal mouse_x = mouse_positions_[name].first;
+    qreal mouse_y = mouse_positions_[name].second;
+
+    QPair<qreal, qreal> v1 = {mouse_x - x, mouse_y - y};
+    QPair<qreal, qreal> v2 = {0.0, y};
+
+    qreal dot = dot_product(v1, v2);
+    qreal mag_v1 = mag(v1);
+    qreal mag_v2 = mag(v2);
+
+    if(mag_v1 == 0.0 || mag_v2 == 0.0)
+        return theta;
+
+    qreal cos_theta = dot / (mag_v1 * mag_v2);
+
+    theta = std::acos(cos_theta);
+
+    player->getDrawer()->setRotation(theta);
+
+    return theta;
 }
 
 void GameLogicHandler::checkCollisions(Bullet* bullet)
@@ -199,23 +240,36 @@ void GameLogicHandler::decreaseHp(Player* player, Bullet* bullet)
 
 void GameLogicHandler::initializeTimers()
 {
-    movement_timer_.setInterval(1000 / TARGET_FPS);
-    shooting_timer_.setInterval(1000 / BULLETS_PER_SECOND);
-    connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updateMovement);
+    // limun: ovo je verovatno nepotrebno
 
-    connect(&shooting_timer_, &QTimer::timeout, this, &GameLogicHandler::updateBullets);
-
-    movement_timer_.start();
-    shooting_timer_.start();
+    // movement_timer_.setInterval(1000 / TARGET_FPS);
+    // shooting_timer_.setInterval(1000 / BULLETS_PER_SECOND);
+    // connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updatePlayerPosition);
+    // connect(&shooting_timer_, &QTimer::timeout, this, &GameLogicHandler::updateBullets);
+    // movement_timer_.start();
+    // shooting_timer_.start();
 
     ammo_respawn_timer_.setInterval(AMMO_RESPAWN_TIME);
     connect(&ammo_respawn_timer_, &QTimer::timeout, this, &GameLogicHandler::updateAmmo);
     ammo_respawn_timer_.start();
 }
 
-void GameLogicHandler::updatePlayer(QByteArray player_info)
+void GameLogicHandler::updatePlayerStats(QByteArray &player_info)
 {
-    //todo: deserijalizovati BEZ KLOSARSKOG QVARIANT MOLIM VAS
-    //limun: smešno, ignorisaću caps deo za sada
+    // todo: deserijalizovati BEZ KLOSARSKOG QVARIANT MOLIM VAS
+    // limun: evo
+    // limun: 8 + 4 + 2 * 8 = 28 bajtova
+
+    QDataStream stream(player_info);
+
+    QString name;
+    int commands;
+    qreal mouse_x;
+    qreal mouse_y;
+
+    stream >> name >> commands >> mouse_x >> mouse_y;
+
+    commands_[name] = commands;
+    mouse_positions_[name] = QPair<qreal, qreal>(mouse_x, mouse_y);
 }
 

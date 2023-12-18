@@ -26,10 +26,6 @@ public:
         SHOOT = 1 << 4,
         MELEE = 1 << 5
     };
-
-public slots:
-    void playerMoved(QVariant);
-    void updateMap(QVariant variant);
 private:
     GameServer* server_;
     Client *client_;

@@ -40,17 +40,4 @@ void Game::quit()
     QApplication::exit();
 }
 
-void Game::playerMoved(QVariant variant)
-{
-    client_->sendMessage(variant);
-}
-
-void Game::updateMap(QVariant variant)
-{
-    // limun: ne treba ovo ovako, kasnije ću
-    int id = variant.toInt();
-    map_->remove_from_active(id);
-    map_->get_drawer()->change_picture(map_->get_matrix().at(id), "");
-}
-
 
