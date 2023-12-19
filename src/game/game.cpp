@@ -2,6 +2,7 @@
 
 // pomeriti u gui
 #include "qapplication.h"
+#include "../server/server_config.hpp"
 
 Game::Game(QString name, QObject *parent)
     : QObject(parent)

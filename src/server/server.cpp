@@ -1,8 +1,10 @@
 #include "server.hpp"
+#include "server_config.hpp"
 #include <QDebug>
 #include <QTcpSocket>
 #include <QByteArray>
 #include <QTimer>
+
 
 GameServer::GameServer(QObject *parent)
     : QTcpServer(parent)
@@ -108,8 +110,8 @@ void GameServer::incomingConnection(qintptr socket_desc)
         }
         else
         {
-            // TODO: handle
-            // limun: važi (nisam uradio, ne znam)
+            delete user;
+            qDebug() << "Previse korisnika povezano";
             return;
         }
 
@@ -132,7 +134,6 @@ void GameServer::incomingConnection(qintptr socket_desc)
 
 void GameServer::tick()
 {
-    logic_handler_->clear_commands();
     // limun: skupi datu u player_datas_, pa je onda prosleđuje logic handler-u
     collectData();
     for(auto &player_data : player_datas_) {

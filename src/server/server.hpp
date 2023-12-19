@@ -5,9 +5,6 @@
 
 #include <QTcpServer>
 #include <QVector>
-#include <QTimer>
-
-#include "server_config.hpp"
 
 class QByteArray;
 
@@ -34,9 +31,6 @@ private:
     void incomingConnection(qintptr socket_desc) override;
     void tick();
     void collectData();
-    // dodati kad napravimo algoritam za uparivanje ljudi u sobe
-    // za sad je samo jedna soba
-    //QVector<QVector<Connection*>> room_users_;
     GameLogicHandler* logic_handler_;
     QVector<QThread *> available_threads_;
     QVector<int> threads_load_;

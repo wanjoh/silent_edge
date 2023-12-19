@@ -17,15 +17,6 @@ public:
     void startGame();
     void startServer();
     void quit();
-    enum class PlayerActions : quint32
-    {
-        LEFT = 1,
-        UP = 1 << 1,
-        RIGHT = 1 << 2,
-        DOWN = 1 << 3,
-        SHOOT = 1 << 4,
-        MELEE = 1 << 5
-    };
 private:
     GameServer* server_;
     Client *client_;

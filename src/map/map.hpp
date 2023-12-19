@@ -7,30 +7,29 @@
 class Map
 {
 public:
+    typedef std::unordered_map<int, Tile*> tile_map;
     Map();
     ~Map();
     QGraphicsItemGroup *get_group();
-    //???? todo: srediti ovo, prenositi preko referenci
-    // limun: pokusao, verovatno uspeo
     void initialize_matrix();
-    void remove_tile(int id);
-    void remove_from_active(int id);
-    void add_to_active(int id);
-    void restock_ammo_piles();
-    const Room& get_room_by_id(int id) const;
-    Room *add_player_to_a_room(Player *player);
-    const std::unordered_map<int, Tile*>& get_matrix() const;
-    const std::unordered_map<int, Tile*>& get_active_ammo_buckets() const;
-    const std::unordered_map<int, Tile*>& get_inactive_ammo_buckets() const;
-    const std::unordered_map<int, Room*>& get_rooms() const;
-    MapDrawer* get_drawer();
-    int get_n();
-    int get_m();
+    void removeTile(int id);
+    void removeFromActive(int id);
+    void addToActive(int id);
+    void restockAmmoPiles();
+    const Room& getRoomById(int id) const;
+    Room *addPlayerToARoom(Player *player);
+    const tile_map& getMatrix() const;
+    const tile_map& getActiveAmmoBuckets() const;
+    const tile_map& getInactiveAmmoBuckets() const;
+    const std::unordered_map<int, Room*>& getRooms() const;
+    MapDrawer* getDrawer();
+    int getN();
+    int getM();
 private:
     QString map_path_;
-    std::unordered_map<int, Tile*> matrix_;
-    std::unordered_map<int, Tile*> active_ammo_buckets_;
-    std::unordered_map<int, Tile*> inactive_ammo_buckets_;
+    tile_map matrix_;
+    tile_map active_ammo_buckets_;
+    tile_map inactive_ammo_buckets_;
     std::unordered_map<int, Room*> rooms_;
     MapDrawer* drawer_;
     int n_;

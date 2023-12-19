@@ -42,21 +42,24 @@ void Map::initialize_matrix()
                 stream >> symbols;
 
                 int number;
-                if(symbols.contains("^")) {
+                if(symbols.contains("^"))
+                {
                     number = 2;
                     room_id = symbols.remove(0, 1).toInt();
                     std::pair<int, int> start_coords = {j, i};
                     Room *room = new Room(room_id, start_coords, start_coords);
                     rooms_[room_id] = room;
                 }
-                else if(symbols.contains("$")) {
+                else if(symbols.contains("$"))
+                {
                     number = 2;
                     room_id = symbols.remove(0, 1).toInt();
                     std::pair<int, int> end_coords = {j+1, i+1};
                     rooms_[room_id]->set_end_coords(end_coords);
                     rooms_[room_id]->set_width_and_height();
                 }
-                else {
+                else
+                {
                     number = symbols.toInt();
                 }
 
@@ -64,7 +67,8 @@ void Map::initialize_matrix()
 
                 QString path = "../silent-edge/src/images/";
                 Tile::TileType type = Tile::TileType::GROUND;
-                switch(number) {
+                switch(number)
+                {
                     // barrier
                     case 0:
                         path += "barrier.png";
@@ -111,19 +115,19 @@ void Map::initialize_matrix()
     }
 }
 
-void Map::remove_from_active(int id)
+void Map::removeFromActive(int id)
 {
     inactive_ammo_buckets_[id] = active_ammo_buckets_[id];
     active_ammo_buckets_.erase(id);
 }
 
-void Map::add_to_active(int id)
+void Map::addToActive(int id)
 {
     active_ammo_buckets_[id] = inactive_ammo_buckets_[id];
     inactive_ammo_buckets_.erase(id);
 }
 
-void Map::restock_ammo_piles()
+void Map::restockAmmoPiles()
 {
     for (const auto &bucket : inactive_ammo_buckets_) {
         drawer_->change_picture(bucket.second, "../silent-edge/src/images/ammo_bucket.png");
@@ -131,37 +135,38 @@ void Map::restock_ammo_piles()
     }
 }
 
-const std::unordered_map<int, Tile*>& Map::get_matrix() const
+const std::unordered_map<int, Tile*>& Map::getMatrix() const
 {
     return matrix_;
 }
 
-const std::unordered_map<int, Tile*>& Map::get_active_ammo_buckets() const
+const std::unordered_map<int, Tile*>& Map::getActiveAmmoBuckets() const
 {
     return active_ammo_buckets_;
 }
 
-const std::unordered_map<int, Tile*>& Map::get_inactive_ammo_buckets() const
+const std::unordered_map<int, Tile*>& Map::getInactiveAmmoBuckets() const
 {
     return inactive_ammo_buckets_;
 }
 
-const std::unordered_map<int, Room*>& Map::get_rooms() const
+const std::unordered_map<int, Room*>& Map::getRooms() const
 {
     return rooms_;
 }
 
-const Room& Map::get_room_by_id(int id) const
+const Room& Map::getRoomById(int id) const
 {
     return *rooms_.at(id);
 }
 
-Room* Map::add_player_to_a_room(Player *player)
+Room* Map::addPlayerToARoom(Player *player)
 {
     qreal player_x = player->getDrawer()->x();
     qreal player_y = player->getDrawer()->y();
 
-    for(auto &[_, room] : rooms_) {
+    for(auto &[_, room] : rooms_)
+    {
         int start_x, start_y, end_x, end_y;
         std::tie(start_x, start_y) = room->get_start_coords();
         std::tie(end_x, end_y) = room->get_end_coords();
@@ -177,17 +182,17 @@ Room* Map::add_player_to_a_room(Player *player)
     return new Room();
 }
 
-MapDrawer* Map::get_drawer()
+MapDrawer* Map::getDrawer()
 {
     return drawer_;
 }
 
-int Map::get_n()
+int Map::getN()
 {
     return n_;
 }
 
-int Map::get_m()
+int Map::getM()
 {
     return m_;
 }

@@ -7,10 +7,10 @@ GameWindow::GameWindow(MapDrawer* map_drawer, Room* room, qreal width, qreal hei
     : QGraphicsScene(0, 0, width, height, parent)
     , window_width_(width)
     , window_height_(height)
+    , width_zoom_level_(1.0)
+    , height_zoom_level_(1.0)
     , map_group_(map_drawer->get_group())
     , room_(room)
-// todo: mrdunuti ovo gde treba
-// limun: delim mapu na map i mapDrawer onda, urađeno
 {
     addItem(map_group_);
 
@@ -24,7 +24,7 @@ GameWindow::GameWindow(MapDrawer* map_drawer, Room* room, qreal width, qreal hei
     phase_->setMouseTracking(true);
     phase_->installEventFilter(this);
 
-    set_scene_up();
+    setSceneUp();
 }
 
 GameWindow::~GameWindow()
@@ -36,12 +36,12 @@ GameWindow::~GameWindow()
 
 }
 
-void GameWindow::change_room(Room *new_room)
+void GameWindow::changeRoom(Room *new_room)
 {
     room_ = new_room;
 }
 
-void GameWindow::set_scene_up()
+void GameWindow::setSceneUp()
 {
     std::pair<int, int> start_coords = room_->get_start_coords();
     window_width_ = room_->get_width()*IMAGE_SIZE;

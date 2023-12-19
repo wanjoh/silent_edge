@@ -3,15 +3,18 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include "entity_drawer.hpp"
-#include "../map/map.hpp"
+#include "map_drawer.hpp"
+
+// mogao bi room drawer ili stagod, samo da se ovo izbaci
+#include "../map/room.hpp"
 
 class GameWindow : public QGraphicsScene
 {
     Q_OBJECT
 public:
-    qreal WINDOW_WIDTH = 1200;
-    qreal WINDOW_HEIGHT = 800;
-    GameWindow(MapDrawer*, Room*, qreal = 1280, qreal = 720, QObject* = nullptr);
+    static constexpr qreal WINDOW_WIDTH = 1280;
+    static constexpr qreal WINDOW_HEIGHT = 720;
+    GameWindow(MapDrawer*, Room*, qreal = WINDOW_WIDTH, qreal = WINDOW_HEIGHT, QObject* = nullptr);
     ~GameWindow();
 
     enum class GamePhase : quint32
@@ -33,8 +36,8 @@ public:
     void wheelEvent(QGraphicsSceneWheelEvent*) override;
     void focusOutEvent(QFocusEvent*) override;
     bool eventFilter(QObject *obj, QEvent *event) override;
-    void set_scene_up();
-    void change_room(Room *new_room);
+    void setSceneUp();
+    void changeRoom(Room *new_room);
 signals:
     void keyPressedSignal(quint32, bool);
     void mousePressedSignal(Qt::MouseButton, bool);
@@ -42,8 +45,8 @@ signals:
     void focusedOutSignal();
     void mousePos(QPointF);
 private:
-    qreal width_zoom_level_ = 1.0;
-    qreal height_zoom_level_ = 1.0;
+    qreal width_zoom_level_;
+    qreal height_zoom_level_;
     quint32 window_width_;
     quint32 window_height_;
     GamePhase current_active_phase_;
