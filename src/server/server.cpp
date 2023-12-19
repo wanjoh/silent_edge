@@ -136,7 +136,8 @@ void GameServer::tick()
 {
     // limun: skupi datu u player_datas_, pa je onda prosleđuje logic handler-u
     collectData();
-    for(auto &player_data : player_datas_) {
+    for(auto &player_data : player_datas_)
+    {
         logic_handler_->updatePlayerStats(player_data);
     }
     // limun: ovde vrši sve promene, igrač po igrač

@@ -11,7 +11,6 @@ public:
     Map();
     ~Map();
     QGraphicsItemGroup *get_group();
-    void initialize_matrix();
     void removeTile(int id);
     void removeFromActive(int id);
     void addToActive(int id);
@@ -26,6 +25,7 @@ public:
     int getN();
     int getM();
 private:
+    void initializeMatrix();
     QString map_path_;
     tile_map matrix_;
     tile_map active_ammo_buckets_;

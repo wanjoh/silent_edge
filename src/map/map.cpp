@@ -6,7 +6,7 @@
 Map::Map()
 : map_path_("../silent-edge/src/map/map_matrix.txt"), matrix_()
 {
-    initialize_matrix();
+    initializeMatrix();
     drawer_ = new MapDrawer(matrix_);
 }
 
@@ -16,7 +16,7 @@ Map::~Map()
     matrix_.clear();
 }
 
-void Map::initialize_matrix()
+void Map::initializeMatrix()
 {
     QVector<QString> wall_paths = {"wall.png", "wall1.png", "wall2.png", "wall3.png", "wall4.png", "wall5.png",
                                     "wall6.png", "wall7.png", "wall8.png", "wall9.png", "wall10.png", "wall11.png",};

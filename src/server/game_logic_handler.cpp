@@ -57,7 +57,7 @@ void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name, P
     qreal dx = 0.0 - (commands_[name] & PlayerActions::LEFT) + (commands_[name] & PlayerActions::RIGHT);
     qreal dy = 0.0 - (commands_[name] & PlayerActions::DOWN) + (commands_[name] & PlayerActions::UP);
 
-    if(dx == 0 && dy == 0)
+    if(qFabs(dx) < EPSILON && qFabs(dy) < EPSILON)
         return;
 
     if (qFabs(dx) > EPSILON && qFabs(dy) > EPSILON)
@@ -238,7 +238,6 @@ void GameLogicHandler::initializeTimers()
 
 void GameLogicHandler::updatePlayerStats(QByteArray &player_info)
 {
-    // todo: deserijalizovati BEZ KLOSARSKOG QVARIANT MOLIM VAS
     // limun: evo
     // limun: 8 + 4 + 2 * 8 = 28 bajtova
 
