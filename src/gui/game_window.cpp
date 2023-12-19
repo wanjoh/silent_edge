@@ -43,9 +43,9 @@ void GameWindow::changeRoom(Room *new_room)
 
 void GameWindow::setSceneUp()
 {
-    std::pair<int, int> start_coords = room_->get_start_coords();
-    window_width_ = room_->get_width()*IMAGE_SIZE;
-    window_height_ = room_->get_height()*IMAGE_SIZE;
+    std::pair<int, int> start_coords = room_->getStartCoords();
+    window_width_ = room_->getWidth()*IMAGE_SIZE;
+    window_height_ = room_->getHeight()*IMAGE_SIZE;
 
     start_x_ = start_coords.first*IMAGE_SIZE;
     start_y_ = start_coords.second*IMAGE_SIZE;

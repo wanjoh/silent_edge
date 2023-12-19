@@ -55,8 +55,8 @@ void Map::initialize_matrix()
                     number = 2;
                     room_id = symbols.remove(0, 1).toInt();
                     std::pair<int, int> end_coords = {j+1, i+1};
-                    rooms_[room_id]->set_end_coords(end_coords);
-                    rooms_[room_id]->set_width_and_height();
+                    rooms_[room_id]->setEndCoords(end_coords);
+                    rooms_[room_id]->setWidthAndHeight();
                 }
                 else
                 {
@@ -87,7 +87,7 @@ void Map::initialize_matrix()
                     // spawnpoint
                     case 3:
                         path += "spawnpoint.png";
-                        rooms_[room_id]->add_spawnpoint(room_id, QPair<int, int>(i, j));
+                        rooms_[room_id]->addSpawnpoint(room_id, QPair<int, int>(i, j));
                         break;
                     // ammo
                     case 4:
@@ -168,13 +168,13 @@ Room* Map::addPlayerToARoom(Player *player)
     for(auto &[_, room] : rooms_)
     {
         int start_x, start_y, end_x, end_y;
-        std::tie(start_x, start_y) = room->get_start_coords();
-        std::tie(end_x, end_y) = room->get_end_coords();
+        std::tie(start_x, start_y) = room->getStartCoords();
+        std::tie(end_x, end_y) = room->getEndCoords();
 
         if(player_x >= start_x*IMAGE_SIZE && player_x <= end_x*IMAGE_SIZE &&
            player_y >= start_y*IMAGE_SIZE && player_y <= end_y*IMAGE_SIZE) {
-            if (!room->get_players_in_room().contains(player))
-                room->add_player_to_room(player);
+            if (!room->getPlayersInRoom().contains(player))
+                room->addPlayerToRoom(player);
             return room;
         }
     }

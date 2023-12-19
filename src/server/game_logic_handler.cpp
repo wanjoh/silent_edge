@@ -10,7 +10,7 @@ GameLogicHandler::GameLogicHandler(Map *map, QObject* parent)
     , rooms_(map_->getRooms())
 {
     initializeTimers();
-    put_players_into_rooms();
+    putPlayersIntoRooms();
 }
 
 GameLogicHandler::~GameLogicHandler()
@@ -21,14 +21,16 @@ GameLogicHandler::~GameLogicHandler()
     }
 }
 
-void GameLogicHandler::put_players_into_rooms()
+void GameLogicHandler::putPlayersIntoRooms()
 {
     auto player_it = players_.begin();
-    for(auto it = rooms_.begin(); it != rooms_.end(); it++) {
-        std::unordered_map<int, QPair<int, int>> spawnpoints = it->second->get_unused_spawnpoints();
-        int n = spawnpoints.size();
-        for(int i = 0; i < n; i++) {
-            it->second->add_player_to_room(player_it->second);
+    for(auto it = rooms_.begin(); it != rooms_.end(); it++)
+    {
+        int n = it->second->getUnusedSpawnpoints().size();
+
+        for(int i = 0; i < n && player_it != players_.end(); i++)
+        {
+            it->second->addPlayerToRoom(player_it->second);
             player_it++;
         }
     }
