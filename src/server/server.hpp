@@ -17,13 +17,17 @@ public:
     static constexpr qint32 PORT = 6969;
     static constexpr qint32 MAX_USERS = 8;
     static constexpr qint32 MAX_ROOMS = MAX_USERS / 2;
+    //static QHostAddress HOST;
     inline static const QHostAddress HOST = remoteServer ? remoteIP : QHostAddress::LocalHost;
 
     GameServer(QObject* = nullptr);
+    GameServer(QString,QObject* = nullptr);
     GameServer(const GameServer&) = delete;
     ~GameServer();
 
     void startGame();
+    QString server_address() const;
+
 public slots:
     void error(QTcpSocket::SocketError);
     void dataReceived(Connection*, const QByteArray&);
@@ -43,4 +47,5 @@ private:
     QVector<QThread *> available_threads_;
     QVector<int> threads_load_;
     QVector<Connection*> users_;
+    QString server_address_;
 };

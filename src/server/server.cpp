@@ -7,6 +7,7 @@
 GameServer::GameServer(QObject *parent)
     : QTcpServer(parent)
 {
+
     available_threads_.reserve(MAX_USERS);
     threads_load_.reserve(MAX_USERS);
 
@@ -18,6 +19,26 @@ GameServer::GameServer(QObject *parent)
     {
         qDebug() << "Server started on " << HOST <<  ", port" << PORT;
     }
+}
+
+GameServer::GameServer(QString ip, QObject *parent)
+    : QTcpServer(parent), server_address_(ip)
+{
+    available_threads_.reserve(MAX_USERS);
+    threads_load_.reserve(MAX_USERS);
+
+
+    const QHostAddress ip_address = QHostAddress(ip);
+
+    if (!this->listen(ip_address,PORT))
+    {
+        qDebug() << "Could not start the server";
+    }
+    else
+    {
+        qDebug() << "Server started on " << ip_address <<  ", port" << PORT;
+    }
+
 }
 
 GameServer::~GameServer()
@@ -117,4 +138,9 @@ void GameServer::incomingConnection(qintptr socket_desc)
         users_.push_back(user);
         qDebug() << "thread created";
     }
+}
+
+QString GameServer::server_address() const
+{
+    return server_address_;
 }
