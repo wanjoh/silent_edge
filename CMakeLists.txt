@@ -102,6 +102,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/map/overlay.cpp
         src/gui/overlay_drawer.hpp
         src/gui/overlay_drawer.cpp
+        src/gui/results.hpp
+        src/gui/results.cpp
+        src/gui/results.ui
     )
     # qt_add_executable(ServerMain src/server/server_main.cpp)
     # # qt_add_executable(ClientMain src/client/client_main.cpp)

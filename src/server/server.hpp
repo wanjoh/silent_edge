@@ -4,6 +4,8 @@
 
 #include <QTcpServer>
 #include <QVector>
+#include <QFile>
+#include <QDir>
 
 class QByteArray;
 
@@ -30,17 +32,21 @@ public slots:
     void userDisconnected(Connection*, int);
     void broadcast(const QByteArray&, Connection*);
     void stopServer();
+    void calculateScores();
+    void rangList();
 signals:
     void logMessage(const QString&);
     void stopAllClients();
+    void showRangList();
 private:
     void sendData(Connection*, const QByteArray&);
     void incomingConnection(qintptr socket_desc) override;
     // dodati kad napravimo algoritam za uparivanje ljudi u sobe
     // za sad je samo jedna soba
-    //QVector<QVector<Connection*>> room_users_;
+    QVector<QVector<Connection*>> room_users_;
 
     QVector<QThread *> available_threads_;
     QVector<int> threads_load_;
     QVector<Connection*> users_;
+    QList<std::pair<Connection*, int>> player_list_;
 };

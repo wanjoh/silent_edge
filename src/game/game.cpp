@@ -9,6 +9,7 @@ Game::Game(QString name, QObject *parent)
     , gui_()
     , logic_handler_()
     , map_(new Map())
+    , results_(new Results)
 {
     logic_handler_ = new GameLogicHandler(name, map_);
     gui_ = new GameWindow(map_, logic_handler_->getPlayer()->getDrawer());
@@ -33,6 +34,11 @@ Game::Game(QString name, QObject *parent)
 
     connect(logic_handler_, &GameLogicHandler::weapon_changed, gui_, &GameWindow::change_weapon);
     connect(logic_handler_, &GameLogicHandler::update_hp, gui_, &GameWindow::update_hp_overlay);
+
+// premestiti
+//    connect(this, &Game::roundIsOver, server_, &GameServer::calculateScores);
+//    connect(this, &Game::gameIsOver, server_, &GameServer::rangList);
+//    connect(server_, &GameServer::showRangList, this, &Game::showRangList);
 }
 
 Game::~Game()
@@ -41,6 +47,9 @@ Game::~Game()
     {
         delete enemy;
     }
+
+    //    delete gui_;
+    //    gui_ = nullptr;
 }
 
 void Game::startGame()
@@ -48,6 +57,8 @@ void Game::startGame()
     startServer();
     client_->connectToServer(GameServer::HOST.toString(), GameServer::PORT);
     gui_->show(GameWindow::GamePhase::FIGHT_PHASE);
+
+    showRangList();
 }
 
 void Game::startServer()
@@ -71,6 +82,12 @@ void Game::bulletMoved(QVariant variant)
 {
     client_->sendMessage(variant);
 }
+
+void Game::showRangList()
+{
+    results_->showResults();
+}
+
 
 void Game::updateMap(QVariant variant)
 {

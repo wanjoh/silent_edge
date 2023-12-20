@@ -6,6 +6,7 @@
 #include "game_logic_handler.hpp"
 #include "../entity/player.hpp"
 #include "../map/map.hpp"
+#include "../gui/results.hpp"
 
 class Game : public QObject
 {
@@ -23,6 +24,10 @@ public slots:
     void updateMap(QVariant variant);
     void tileDeleted(int id);
     void bulletMoved(QVariant);
+    void showRangList();
+signals:
+    void roundIsOver();
+    void gameIsOver();
 private:
     GameServer* server_;
     Client *client_;
@@ -30,4 +35,6 @@ private:
     GameLogicHandler* logic_handler_;
     Map *map_;
     std::map<QString, Player*> enemies_;
+    QList<std::pair<QString, int>> playerList;
+    Results *results_;
 };

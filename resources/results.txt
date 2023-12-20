@@ -1,0 +1,8 @@
+ime1 12
+ime2 4
+ime3 7
+ime4 9
+ime5 15
+ime6 11
+ime7 6
+ime8 7

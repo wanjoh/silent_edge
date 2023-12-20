@@ -40,6 +40,51 @@ void GameServer::stopServer()
     close();
 }
 
+void GameServer::calculateScores()
+{
+    for (QVector room : room_users_)
+    {
+        for (Connection *user : room)
+        {
+            // TODO
+            // provera da li je igrac ziv
+
+            // azuriranje rezultata ako jeste
+        }
+    }
+}
+
+void GameServer::rangList()
+{
+
+    // TODO: sortiranje
+
+    QString path = QDir::currentPath().mid(0, QDir::currentPath().lastIndexOf('/'));
+    QFile players(path + "/silent-edge/resources/players.txt");
+    players.open(QIODevice::WriteOnly | QIODevice::Text);
+
+    if(!players.exists()){
+        qDebug() << "File does not exist.";
+        return ;
+    }
+    if(!players.isOpen())
+    {
+        qDebug() << "Opening failed";
+        return;
+    }
+
+    QTextStream stream(&players);
+
+    for (auto player : player_list_)
+    {
+        stream << player.first->username() << " " << player.second;
+    }
+
+    players.close();
+
+//    emit showRangList();
+}
+
 void GameServer::error(QTcpSocket::SocketError error)
 {
     emit logMessage(QLatin1String("error"));
@@ -115,6 +160,7 @@ void GameServer::incomingConnection(qintptr socket_desc)
         connect(available_threads_.last(), &QThread::finished, user, &QObject::deleteLater);
 
         users_.push_back(user);
+        player_list_.append(std::make_pair(user, 0));
         qDebug() << "thread created";
     }
 }
