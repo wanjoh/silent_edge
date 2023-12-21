@@ -40,7 +40,7 @@ void GameServer::stopServer()
     close();
 }
 
-void GameServer::calculateScores()
+void GameServer::updateScores()
 {
     for (QVector room : room_users_)
     {
@@ -56,17 +56,19 @@ void GameServer::calculateScores()
 
 void GameServer::rangList()
 {
+    std::sort(player_list_.begin(), player_list_.end(),
+              [](const QPair<Connection*, int> &p1, const QPair<Connection*, int> &p2) {
+                  return p1.second > p2.second;
+              });
 
-    // TODO: sortiranje
-
-    QString path = QDir::currentPath().mid(0, QDir::currentPath().lastIndexOf('/'));
-    QFile players(path + "/silent-edge/resources/players.txt");
-    players.open(QIODevice::WriteOnly | QIODevice::Text);
-
-    if(!players.exists()){
+    QFile players("../silent-edge/resources/results.txt");
+    if(!players.exists())
+    {
         qDebug() << "File does not exist.";
         return ;
     }
+
+    players.open(QIODevice::WriteOnly | QIODevice::Text);
     if(!players.isOpen())
     {
         qDebug() << "Opening failed";

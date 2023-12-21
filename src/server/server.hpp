@@ -32,7 +32,7 @@ public slots:
     void userDisconnected(Connection*, int);
     void broadcast(const QByteArray&, Connection*);
     void stopServer();
-    void calculateScores();
+    void updateScores();
     void rangList();
 signals:
     void logMessage(const QString&);

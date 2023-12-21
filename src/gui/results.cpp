@@ -15,14 +15,16 @@ Results::~Results()
 
 void Results::readResultsFromFile()
 {
-    QString path = QDir::currentPath().mid(0, QDir::currentPath().lastIndexOf('/'));
-    QFile results(path + "/silent-edge/resources/results.txt");
-
-    if(!results.exists()){
+    QFile results("../silent-edge/resources/results.txt");
+    if(!results.exists())
+    {
         qDebug() << "File does not exist.";
         return ;
     }
-    if(!results.open(QIODevice::ReadOnly | QIODevice::Text)){
+
+    results.open(QIODevice::ReadOnly | QIODevice::Text);
+    if(!results.isOpen())
+    {
         qDebug() << "Opening failed";
         return ;
     }
@@ -42,6 +44,8 @@ void Results::readResultsFromFile()
         players_ += name + "\n";
         scores_ += score + "\n";
     }
+
+    results.close();
 }
 
 void Results::showResults()

@@ -36,7 +36,7 @@ Game::Game(QString name, QObject *parent)
     connect(logic_handler_, &GameLogicHandler::update_hp, gui_, &GameWindow::update_hp_overlay);
 
 // premestiti
-//    connect(this, &Game::roundIsOver, server_, &GameServer::calculateScores);
+//    connect(this, &Game::roundIsOver, server_, &GameServer::updateScores);
 //    connect(this, &Game::gameIsOver, server_, &GameServer::rangList);
 //    connect(server_, &GameServer::showRangList, this, &Game::showRangList);
 }
@@ -87,7 +87,6 @@ void Game::showRangList()
 {
     results_->showResults();
 }
-
 
 void Game::updateMap(QVariant variant)
 {
