@@ -23,19 +23,14 @@ public:
 
     Bullet(QString, qreal damage_dealt = 25, QObject* = nullptr);
 
-    ~Bullet();
+    ~Bullet() = default;
     BulletType getBulletType();
     qreal getDamageDealt();
     QVariant toVariant() const override;
     void fromVariant(const QVariant&) override;
-    void setAim_dir(const QVector2D &newAim_dir);
-
-    QVector2D aim_dir() const;
-
     void setName(const QString &newName);
 
 private:
     BulletType type_;
     qreal damage_dealt_;
-    QVector2D aim_dir_;
 };

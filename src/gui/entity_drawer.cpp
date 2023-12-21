@@ -5,6 +5,7 @@ EntityDrawer::EntityDrawer(QString name,const QString& pixmap_path,
     QGraphicsPixmapItem(QPixmap(pixmap_path), parent)
 {
     name_ = name;
+    setTransformOriginPoint(pixmap().width() / 2, pixmap().height() / 2);
 }
 
 QString EntityDrawer::name() const

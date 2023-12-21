@@ -39,7 +39,7 @@ private slots:
     void updateAmmo();
     void updateBullets();
     void swingMelee();
-    bool checkCollisions(Bullet*);
+    void checkCollisions(Bullet*);
 signals:
     void playerMoved(QVariant);
     void tileDeleted(QString);
@@ -58,7 +58,7 @@ private:
 
     QTimer movement_timer_;
     QTimer ammo_respawn_timer_;
-    QTimer shooting_timer_;
+    QTimer shooting_cooldown_timer_;
     QTimer reload_timer_;
     Player* player_;
     QPointF aiming_point_;
