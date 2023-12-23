@@ -32,7 +32,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->pushButtonQuit,&QPushButton::clicked,
             this,&MainWindow::onPbQuit_clicked);
 
-
 }
 
 MainWindow::~MainWindow()
@@ -40,6 +39,18 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+QString MainWindow::getLocalIPv4Address()
+{
+    QList<QHostAddress> ip_addresses_list = QNetworkInterface::allAddresses();
+
+    for (const QHostAddress &address : ip_addresses_list) {
+        if (address.protocol() == QAbstractSocket::IPv4Protocol && !address.isLoopback()) {
+            return address.toString();
+        }
+    }
+
+    return QString();
+}
 void MainWindow::onPbCreateServer_clicked()
 {
 
@@ -53,49 +64,33 @@ void MainWindow::onPbCreateServer_clicked()
 
 void MainWindow::onPbJoinGame_clicked()
 {
-
     ui->stackedWidget->setCurrentIndex(2);
 
-    QString ip = server_->server_address();
+    QString local_ip = getLocalIPv4Address();
 
-    qsizetype dot_position = ip.lastIndexOf('.');
-
-    QString base_ip = ip.sliced(0,dot_position+1);
-
-
-
-    for(int j=1;j<=255;j++)
+    if (!local_ip.isEmpty())
     {
-        QTcpSocket tcp_socket;
-        QString ip_address = base_ip + QString::number(j);
-        tcp_socket.connectToHost(QHostAddress(ip_address),6969);
-
-        if(tcp_socket.waitForConnected(5))
-        {
-            qDebug() << "Server found at" << ip_address << "on port" << 6969;
-            ui->serverList->addItem(ip_address);
-            tcp_socket.disconnectFromHost();
-        }
+        ui->serverList->addItem(local_ip);
     }
-
-
-
+    else
+    {
+        qDebug() << "Local IP address is empty. Connection not attempted.";
+    }
 }
 
 void MainWindow::onPbConnect_clicked()
 {
 
     QList<QListWidgetItem*> server_list = ui->serverList->selectedItems();
-    QString server_address = server_list.first()->text();
-    client_->connectToServer(server_address,6969);
-
+    if (!server_list.isEmpty())
+    {
+        QString server_address = server_list.first()->text();
+        client_->connectToServer(server_address, 6969);
 
 
     //client_->sendMessage(lobbies_[server_address]->toVariant());
 
-
-
-
+    }
 }
 
 void MainWindow::onPbSettings_clicked()
@@ -123,6 +118,8 @@ void MainWindow::onPbDone_clicked()
 
         server_ = new GameServer(server_address);
 
+        connect(server_, &GameServer::playerJoined, this, &MainWindow::onPlayerJoined);
+
         //list_of_servers[server_address] = new GameServer(server_address);
 
     }
@@ -135,3 +132,12 @@ void MainWindow::onPbQuit_clicked()
     this->close();
 }
 
+void MainWindow::onPlayerJoined(const QString &playerName, Lobby* lobby)
+{
+    if (lobby)
+    {
+        lobby->show();
+    }
+
+    qDebug() << playerName << "joined the game!";
+}

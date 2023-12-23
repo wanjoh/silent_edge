@@ -28,6 +28,8 @@ public slots:
     void onPbBack_clicked();
     void onPbDone_clicked();
     void onPbQuit_clicked();
+    void onPlayerJoined(const QString&, Lobby*);
+    QString getLocalIPv4Address();
 
 private:
     Ui::MainWindow *ui;

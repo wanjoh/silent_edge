@@ -15,6 +15,8 @@ public:
     explicit Lobby(QWidget *parent = nullptr);
     ~Lobby();
 
+    bool isEmpty() const;
+
     //QVariant toVariant() const override;
     //void fromVariant(const QVariant&) override;
 

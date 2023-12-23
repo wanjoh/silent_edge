@@ -13,6 +13,11 @@ Lobby::~Lobby()
     delete ui;
 }
 
+bool Lobby::isEmpty() const
+{
+    return ui->playerList->count() == 0;
+}
+
 /*QVariant Lobby::toVariant() const
 {
 

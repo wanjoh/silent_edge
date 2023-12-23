@@ -4,6 +4,11 @@
 #include <QByteArray>
 #include <QTimer>
 
+Lobby *GameServer::getServerLobby(const QString &server_address) const
+{
+    return server_lobbies_[server_address];
+}
+
 GameServer::GameServer(QObject *parent)
     : QTcpServer(parent)
 {
@@ -80,10 +85,16 @@ void GameServer::dataReceived(Connection* sender, const QByteArray& msg)
 
 void GameServer::userDisconnected(Connection* user, int thread_idx)
 {
+    QMutexLocker locker(&users_mutex_);
+    QMutexLocker lobby_locker(&server_lobbies_mutex_);
     Q_ASSERT(user);
     // videti da li nam ovo treba i kako ga azurirati
 //    --threads_load_[thread_idx];
     users_.removeAll(user);
+//    user_to_server_map_.remove(user);
+//    if (server_lobbies_[user_to_server_map_[user]]->isEmpty()) {
+//        delete server_lobbies_[user_to_server_map_[user]];
+//    }
 }
 
 void GameServer::broadcast(const QByteArray& msg, Connection *sender)
@@ -107,6 +118,7 @@ void GameServer::sendData(Connection *user, const QByteArray& msg)
 
 void GameServer::incomingConnection(qintptr socket_desc)
 {
+    QMutexLocker lobby_locker(&server_lobbies_mutex_);
     if (users_.size() < MAX_USERS)
     {
         // ovo treba da se razmotri, nismo sigurni da li će ovo praviti siročiće
@@ -137,6 +149,11 @@ void GameServer::incomingConnection(qintptr socket_desc)
         connect(available_threads_.last(), &QThread::finished, user, &QObject::deleteLater);
 
         users_.push_back(user);
+        if (!server_lobbies_[server_address_]) {
+            server_lobbies_[server_address_] = new Lobby();
+        }
+        user_servers_[user] = server_address_;
+        emit playerJoined(user->username(), server_lobbies_[server_address_]);
         qDebug() << "thread created";
     }
 }
