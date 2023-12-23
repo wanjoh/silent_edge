@@ -2,6 +2,8 @@
 
 #include <QMainWindow>
 #include "../server/server.hpp"
+#include "lobby.hpp"
+#include "../client/client_manager.hpp"
 #include <QHostAddress>
 #include <QString>
 
@@ -30,5 +32,7 @@ public slots:
 private:
     Ui::MainWindow *ui;
     GameServer *server_;
-    QVector<GameServer*> *server_list_;
+    QString username_;
+    Client *client_;
+    std::unordered_map<QString,GameServer*> list_of_servers;
 };

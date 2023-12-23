@@ -1,7 +1,7 @@
 #pragma once
 
 #include "connection.hpp"
-
+#include "../gui/lobby.hpp"
 #include <QTcpServer>
 #include <QVector>
 
@@ -19,6 +19,7 @@ public:
     static constexpr qint32 MAX_ROOMS = MAX_USERS / 2;
     //static QHostAddress HOST;
     inline static const QHostAddress HOST = remoteServer ? remoteIP : QHostAddress::LocalHost;
+    Lobby *lobby;
 
     GameServer(QObject* = nullptr);
     GameServer(QString,QObject* = nullptr);

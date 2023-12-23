@@ -22,7 +22,7 @@ GameServer::GameServer(QObject *parent)
 }
 
 GameServer::GameServer(QString ip, QObject *parent)
-    : QTcpServer(parent), server_address_(ip)
+    : QTcpServer(parent), server_address_(ip), lobby(new Lobby())
 {
     available_threads_.reserve(MAX_USERS);
     threads_load_.reserve(MAX_USERS);
@@ -37,6 +37,7 @@ GameServer::GameServer(QString ip, QObject *parent)
     else
     {
         qDebug() << "Server started on " << ip_address <<  ", port" << PORT;
+
     }
 
 }

@@ -4,6 +4,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , client_(new Client())
 {
     ui->setupUi(this);
 
@@ -78,10 +79,22 @@ void MainWindow::onPbJoinGame_clicked()
     }
 
 
+
 }
 
 void MainWindow::onPbConnect_clicked()
 {
+
+    QList<QListWidgetItem*> server_list = ui->serverList->selectedItems();
+    QString server_address = server_list.first()->text();
+    client_->connectToServer(server_address,6969);
+
+
+
+    //client_->sendMessage(lobbies_[server_address]->toVariant());
+
+
+
 
 }
 
@@ -106,9 +119,11 @@ void MainWindow::onPbDone_clicked()
     if(ui->ip_line->isVisible())
     {
 
-        QString server_adress = ui->ip_line->text();
+        QString server_address = ui->ip_line->text();
 
-        server_ = new GameServer(server_adress);
+        server_ = new GameServer(server_address);
+
+        //list_of_servers[server_address] = new GameServer(server_address);
 
     }
 
