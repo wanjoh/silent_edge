@@ -4,7 +4,8 @@
 #include <QTcpSocket>
 #include <QByteArray>
 #include <QTimer>
-
+#include <QJsonDocument>
+#include<QJsonObject>
 
 GameServer::GameServer(QObject *parent)
     : QTcpServer(parent)
@@ -44,10 +45,19 @@ void GameServer::stopServer()
     close();
 }
 
+void GameServer::broadcastInfo()
+{
+
+}
+
 void GameServer::initializeTimers()
 {
     server_timer_.setInterval(ServerConfig::TICK_TIME);
+    connect(&server_timer_, &QTimer::timeout, logic_handler_, &GameLogicHandler::updatePlayers);
+    connect(&server_timer_, &QTimer::timeout, logic_handler_, &GameLogicHandler::updateBullets);
     connect(&server_timer_, &QTimer::timeout, this, &GameServer::emitTickMessage);
+    connect(&server_timer_, &QTimer::timeout, this, &GameServer::broadcastInfo);
+
     server_timer_.start();
 }
 
@@ -64,16 +74,12 @@ void GameServer::userDisconnected(Connection* user, int thread_idx)
     users_.removeAll(user);
 }
 
-void GameServer::broadcast(const QByteArray& msg, Connection *sender)
+void GameServer::broadcast(const QByteArray& msg)
 {
     for (auto user : users_)
     {
         Q_ASSERT(user);
-        // exclude sender
-        if (user != sender)
-        {
-            user->sendData(msg);
-        }
+        user->sendData(msg);
     }
 }
 

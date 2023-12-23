@@ -19,9 +19,10 @@ public:
 public slots:
     void error(QTcpSocket::SocketError);
     void userDisconnected(Connection*, int);
-    void broadcast(const QByteArray&, Connection* = nullptr);
+    void broadcast(const QByteArray&);
     void stopServer();
 private slots:
+    void broadcastInfo();
     void emitTickMessage();
 signals:
     void logMessage(const QString&);

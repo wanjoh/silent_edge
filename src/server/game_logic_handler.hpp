@@ -36,6 +36,8 @@ signals:
     // videti kako ovo da se iskoristi, nesto mora da se prosledi kao param
     void playerDestroyedSignal();
 private:
+    void addPlayer(Player*);
+    void removePlayer(QString);
     /*Returns true on bullet collision*/
     bool checkCollisions(Bullet*);
     void decreaseHp(Player*, Bullet*);

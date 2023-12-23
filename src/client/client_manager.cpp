@@ -21,35 +21,17 @@ Client::~Client()
 }
 
 
-void Client::sendMessage(QString player_name, quint32 movement)
+void Client::sendMessage(const QByteArray& data)
 {
     QDataStream clientStream(client_socket_);
     clientStream.setVersion(QDataStream::Qt_6_4);
 
-    // todo: proslediti podatke o kursoru
-    QByteArray data = player_name.toLocal8Bit();
-    data.append(movement);
     clientStream << data;
 }
 
 void Client::disconnectFromHost()
 {
     client_socket_->disconnectFromHost();
-}
-
-void Client::dataReceived(const QByteArray &data)
-{
-    QString test = QString(data);
-
-    // todo: hendlovati
-    if (test == "tick")
-    {
-        emit serverTickReceived();
-    }
-    else
-    {
-        qDebug() << "sa servera: " << test;
-    }
 }
 
 void Client::connectToServer(const QString &ipAdress, quint16 port)
@@ -68,7 +50,11 @@ void Client::onReadyRead()
         socketStream >> data;
         if (socketStream.commitTransaction())
         {
-            dataReceived(data);
+            if (data == "tick")
+            {
+                emit serverTickReceived();
+            }
+            emit dataReceived(data);
         } else
         {
             break;

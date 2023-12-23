@@ -5,6 +5,7 @@
 #include "../client/client_manager.hpp"
 #include "../entity/player.hpp"
 #include "../map/map.hpp"
+#include <QJsonObject>
 
 class Game : public QObject
 {
@@ -18,7 +19,10 @@ public:
     void startServer();
     void quit();
 private:
+    void deserializeData(const QByteArray&);
+    void serializeData();
     GameServer* server_;
+    QJsonObject json_object_;
     Client *client_;
     GameWindow *gui_;
     Map *map_;

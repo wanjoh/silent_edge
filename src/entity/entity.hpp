@@ -11,7 +11,7 @@ public:
     // limun: što?
     Entity(QObject* = nullptr);
     Entity(QString, QObject* = nullptr);
-    ~Entity() = default;
+    virtual ~Entity() = default;
     QString getName();
     EntityDrawer* getDrawer();
     QString getEtityType();

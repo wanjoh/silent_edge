@@ -2,6 +2,8 @@
 #include "server_config.hpp"
 #include <QtMath>
 #include <QVector2D>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 GameLogicHandler::GameLogicHandler(Map *map, QObject* parent)
     : QObject(parent)
@@ -10,7 +12,6 @@ GameLogicHandler::GameLogicHandler(Map *map, QObject* parent)
     , rooms_(map_->getRooms())
 {
     initializeTimers();
-    putPlayersIntoRooms();
 }
 
 GameLogicHandler::~GameLogicHandler()
@@ -23,6 +24,8 @@ GameLogicHandler::~GameLogicHandler()
 
 void GameLogicHandler::putPlayersIntoRooms()
 {
+    // todo: ovo je fobra funkcija, ako postoji neki lobby i igra se pokrece tek kad ima X igraca
+    // inace nije jer trenutno igraci ulaze jedan po jedan i potrebno je zasebno stavljati svakog igraca u sobu
     auto player_it = players_.begin();
     for(auto it = rooms_.begin(); it != rooms_.end(); it++)
     {
@@ -122,6 +125,22 @@ void GameLogicHandler::updateAmmo()
     map_->restockAmmoPiles();
 }
 
+void GameLogicHandler::addPlayer(Player* playa)
+{
+    QString name = playa->getName();
+    players_[name] = playa;
+    commands_[name] = 0;
+    mouse_positions_[name] = {0.0, 0.0};
+}
+
+void GameLogicHandler::removePlayer(QString name)
+{
+    delete players_[name];
+    players_.erase(name);
+    commands_.erase(name);
+    mouse_positions_.erase(name);
+}
+
 void GameLogicHandler::updateBullets()
 {
     QMutexLocker locker(&mutex_);
@@ -174,6 +193,7 @@ qreal GameLogicHandler::updatePlayerRotation(int x, int y, const QString& name, 
 bool GameLogicHandler::checkCollisions(Bullet* bullet)
 {
     // todo: deluje sumnjicavo, verovatno se moze optimizovati
+    // ne toliko thread safe, jer se moze desiti da se podaci o igracima azuriraju kad se ovo pozove
     QList<QGraphicsItem*> colidingItems = bullet->getDrawer()->collidingItems();
 
     foreach(QGraphicsItem *item, colidingItems)
@@ -193,7 +213,7 @@ bool GameLogicHandler::checkCollisions(Bullet* bullet)
                 if(players_[player_name]->getHp() == 0)
                 {
                     qDebug() << "igrac unisten";
-                    // todo: handle
+                    removePlayer(player_name);
                     emit playerDestroyedSignal();
                 }
 
@@ -231,16 +251,30 @@ void GameLogicHandler::updatePlayerStats(const QByteArray &player_info)
 {
     // limun: evo
     // limun: 8 + 4 + 2 * 8 = 28 bajtova
-    qDebug() << "azuriranje igraca " << player_info;
-    QDataStream stream(player_info);
+    QJsonParseError parse_error;
+    const QJsonDocument json_data = QJsonDocument::fromJson(player_info, &parse_error);
+    if (parse_error.error == QJsonParseError::NoError && json_data.isObject())
+    {
+        QString name = json_data["name"].toString();
+        if (commands_.find(name) == commands_.end())
+        {
+            Player* playa = new Player(name);
+            addPlayer(playa);
+            if (commands_.size() >= 2)
+            {
+                // todo: ovo je privremeni fix jer nemamo lobby
+                // kad ubacimo lobby, ovo ce se vratiti u konstruktor
+                putPlayersIntoRooms();
+            }
+        }
+        commands_[name] = static_cast<quint32>(json_data["movement"].toInteger());
+        //todo: otkomentarisati kad se bude slalo sa klijenta
+//        mouse_positions_[name] = QPair<qreal, qreal>(json_data["mouseX"].toDouble(), json_data["mouseY"].toDouble());
+    }
+    else
+    {
+        // todo: handle? ili ne? nemamo vremena :(((
+    }
 
-    QString name;
-    qint32 commands;
-    qreal mouse_x;
-    qreal mouse_y;
-
-    stream >> name >> commands >> mouse_x >> mouse_y;
-    commands_[name] = commands;
-    mouse_positions_[name] = QPair<qreal, qreal>(mouse_x, mouse_y);
 }
 
