@@ -40,6 +40,7 @@ private slots:
     void updateBullets();
     void swingMelee();
     void checkCollisions(Bullet*);
+    void reload();
 signals:
     void playerMoved(QVariant);
     void tileDeleted(QString);
@@ -50,6 +51,9 @@ signals:
     void destroyPlayer(QString);
     void bulletMoved(QVariant);
     void update(QString, EntityDrawer*);
+    void reloadItemSignal(QString, EntityDrawer*);
+    void removeReload(QString);
+    void labelSignal(qint32, qint32, qint32);
 private:
     void decreaseHp(Player*,Bullet*);
     void initializeTimers();
@@ -72,4 +76,5 @@ private:
     Map* map_object_;
     std::unordered_map<QString, Tile*> map_;
     QMutex mutex_;
+    EntityDrawer* reload_drawer_;
 };

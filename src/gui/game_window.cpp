@@ -33,6 +33,33 @@ GameWindow::GameWindow(Map* map, EntityDrawer* player, qreal width, qreal height
 
     // todo: promeniti
     current_active_phase_ = GamePhase::FIGHT_PHASE;
+
+    bullets_label_ = addText("99/99");
+    bullets_label_->setPos(fight_phase_->sceneRect().width() - bullets_label_->boundingRect().width(),
+                           fight_phase_->sceneRect().height() - bullets_label_->boundingRect().height());
+    bullets_label_->setFont(QFont("Arial", 26));
+    bullets_label_->setZValue(5);
+    bullets_label_->setVisible(false);
+
+    bullets_background_ = addRect(bullets_label_->boundingRect(),
+                                                   QPen(QColor(255, 0, 0)),
+                                                   QBrush(QColor(128, 128, 0)));
+    bullets_background_->setZValue(bullets_label_->zValue() - 1);
+    bullets_background_->setPos(bullets_label_->pos());
+    bullets_background_->setVisible(false);
+
+    remaining_bullets_label_ = addText("999");
+    remaining_bullets_label_->setPos(bullets_label_->pos().x(), bullets_label_->pos().y() + bullets_label_->boundingRect().height());
+    remaining_bullets_label_->setFont(QFont("Arial", 26));
+    remaining_bullets_label_->setZValue(5);
+    remaining_bullets_label_->setVisible(false);
+
+    remaining_bullets_background_ = addRect(remaining_bullets_label_->boundingRect(),
+                                                            QPen(QColor(255, 0, 0)),
+                                                            QBrush(QColor(128, 128, 0)));
+    remaining_bullets_background_->setZValue(remaining_bullets_label_->zValue() - 1);
+    remaining_bullets_background_->setPos(remaining_bullets_label_->pos());
+    remaining_bullets_background_->setVisible(false);
 }
 
 GameWindow::~GameWindow()
@@ -65,8 +92,24 @@ void GameWindow::addEntity(QString name, EntityDrawer* entity)
 
 void GameWindow::removeEntity(QString name)
 {
-        removeItem(items_[name]);
-        items_.erase(name);
+    removeItem(items_[name]);
+    items_.erase(name);
+}
+
+void GameWindow::updateBulletsLabel(qint32 bullets_in_mag, qint32 capacity, qint32 remaining_bullets)
+{
+    if(!bullets_label_->isVisible() && !bullets_background_->isVisible())
+    {
+        bullets_label_->setVisible(true);
+        bullets_background_->setVisible(true);
+    }
+    if(!remaining_bullets_label_->isVisible() && !remaining_bullets_background_->isVisible())
+    {
+        remaining_bullets_label_->setVisible(true);
+        remaining_bullets_background_->setVisible(true);
+    }
+    bullets_label_->setPlainText(QString("%1/%2").arg(bullets_in_mag).arg(capacity));
+    remaining_bullets_label_->setPlainText(QString::number(remaining_bullets));
 }
 
 void GameWindow::keyPressEvent(QKeyEvent *event)

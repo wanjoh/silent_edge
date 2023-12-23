@@ -33,6 +33,6 @@ private:
     qreal dpp_;
     qreal score_;
 
-    MeleeWeapon* meleeWeapon_;
-    RangedWeapon* rangedWeapon_;
+    MeleeWeapon* melee_weapon_;
+    RangedWeapon* ranged_weapon_;
 };

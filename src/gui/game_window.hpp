@@ -24,6 +24,7 @@ public:
 
     void addEntity(QString, EntityDrawer*);
     void removeEntity(QString);
+    void updateBulletsLabel(qint32, qint32, qint32);
 
     void keyPressEvent(QKeyEvent*) override;
     void keyReleaseEvent(QKeyEvent*) override;
@@ -51,4 +52,8 @@ private:
     QGraphicsView *fight_phase_;
     qreal start_x_;
     qreal start_y_;
+    QGraphicsTextItem* bullets_label_;
+    QGraphicsTextItem* remaining_bullets_label_;
+    QGraphicsRectItem* bullets_background_;
+    QGraphicsRectItem* remaining_bullets_background_;
 };

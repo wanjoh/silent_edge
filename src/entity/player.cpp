@@ -5,13 +5,13 @@
 //TODO: OCISTITI DJUBRE
 Player::Player() : Entity()
 {
-    meleeWeapon_ = new MeleeWeapon("Katana", Weapon::RarenessType::COMMON, 50.0, 20.0, 400.0);
-    rangedWeapon_ = new RangedWeapon("Gun", Weapon::RarenessType::COMMON, 200.0, 10.0, 200.0, 30, 1300.0);
+    melee_weapon_ = new MeleeWeapon("Katana", Weapon::RarenessType::COMMON, 50.0, 20.0, 400.0);
+    ranged_weapon_ = new RangedWeapon("Gun", Weapon::RarenessType::COMMON, 200.0, 10.0, 200.0, 10u, 1300.0, 30u);
 }
 Player::Player(QString name, bool enemy,qreal hp, int x, int y, QObject* parent) : Entity(name, parent)
 {
-    meleeWeapon_ = new MeleeWeapon("Katana", Weapon::RarenessType::COMMON, 50.0, 20.0, 1.0);
-    rangedWeapon_ = new RangedWeapon("Gun", Weapon::RarenessType::COMMON, 200.0, 10.0, 200.0, 30, 1300.0);
+    melee_weapon_ = new MeleeWeapon("Katana", Weapon::RarenessType::COMMON, 50.0, 20.0, 1.0);
+    ranged_weapon_ = new RangedWeapon("Gun", Weapon::RarenessType::COMMON, 200.0, 10.0, 200.0, 10u, 1300.0, 20u);
     drawer_ = new PlayerDrawer(name,enemy ? "../silent-edge/src/images/enemy.png" : "../silent-edge/src/images/samurai.png");
     drawer_->setPos(x, y);
     drawer_->setZValue(2);
@@ -59,12 +59,12 @@ qreal Player::getHp()
 
 MeleeWeapon* Player::getMeleeWeapon() const
 {
-    return meleeWeapon_;
+    return melee_weapon_;
 }
 
 RangedWeapon* Player::getRangedWeapon() const
 {
-    return rangedWeapon_;
+    return ranged_weapon_;
 }
 
 void Player::setHp(qreal hp)

@@ -87,6 +87,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/images/ammo_bucket.png
         src/images/katana.png
         src/images/bullet.png
+        src/images/reload.png
 
         src/map/map_matrix.txt
         src/gui/tile_drawer.hpp

@@ -23,7 +23,11 @@ Game::Game(QString name, QObject *parent)
     connect(logic_handler_, &GameLogicHandler::playerMoved, this, &Game::playerMoved, Qt::DirectConnection);
     connect(logic_handler_, &GameLogicHandler::bulletMoved, this, &Game::bulletMoved, Qt::DirectConnection);
 
+    connect(logic_handler_, &GameLogicHandler::labelSignal, gui_, &GameWindow::updateBulletsLabel);
+
     connect(logic_handler_, &GameLogicHandler::newBulletSignal, gui_, &GameWindow::addEntity);
+    connect(logic_handler_, &GameLogicHandler::reloadItemSignal, gui_, &GameWindow::addEntity);
+    connect(logic_handler_, &GameLogicHandler::removeReload, gui_, &GameWindow::removeEntity);
     connect(logic_handler_, &GameLogicHandler::destroyBullet, gui_, &GameWindow::removeEntity);
     connect(logic_handler_, &GameLogicHandler::destroyPlayer, gui_, &GameWindow::removeEntity);
     connect(gui_, &GameWindow::mousePos, logic_handler_, &GameLogicHandler::updateAimingPoint);

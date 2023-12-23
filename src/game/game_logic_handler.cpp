@@ -1,5 +1,6 @@
 #include "game_logic_handler.hpp"
 #include <QtMath>
+#include <QPropertyAnimation>
 
 const int IMAGE_SIZE = 64;
 
@@ -11,6 +12,9 @@ GameLogicHandler::GameLogicHandler(QString name, Map *map, QObject* parent)
 {
     player_->getDrawer()->setPos(2*IMAGE_SIZE, 2*IMAGE_SIZE);
     initializeTimers();
+    reload_drawer_ = new EntityDrawer("reload", "../silent-edge/src/images/reload.png");
+    reload_drawer_->setZValue(3);
+
 }
 
 GameLogicHandler::~GameLogicHandler()
@@ -51,6 +55,7 @@ void GameLogicHandler::updateMouseClick(Qt::MouseButton button, bool pressed)
         {
             addBullet(player_->getName());
             shooting_cooldown_timer_.start();
+            emit labelSignal(player_->getRangedWeapon()->getCapacity() - player_bullet_count_[player_->getName()], player_->getRangedWeapon()->getCapacity(), player_->getRangedWeapon()->getRemainingBullets());
         }
         else
         {
@@ -78,8 +83,6 @@ void GameLogicHandler::addBullet(QString name)
 
     emit bulletMoved(bullet->toVariant());
 
-    //qDebug() << "ADD BULLET AIM DIR: " << aim_dir;
-    //qDebug() << "bullet added " << bullet_name << "Bullets fired: " << player_bullet_count_[name];
 
 
 }
@@ -88,7 +91,14 @@ void GameLogicHandler::updateMovement()
 {
     if(keys_[Qt::Key_R])
     {
-        reload_timer_.start();
+        if(player_bullet_count_[player_->getName()] != 0 && player_->getRangedWeapon()->getRemainingBullets() != 0)
+        {
+            reload_timer_.start();
+            if(!reload_drawer_->isActive())
+            {
+                emit reloadItemSignal(reload_drawer_->name(), reload_drawer_);
+            }
+        }
     }
 
     qreal x = player_->getDrawer()->x();
@@ -133,6 +143,7 @@ void GameLogicHandler::updateMovement()
 
     if (moved && can_move) {
         player_->getDrawer()->setPos(x, y);
+        reload_drawer_->setPos(x, y);
 
         for(QString& edge : edges) {
             if(active_buckets.contains(edge)) {
@@ -353,20 +364,35 @@ void GameLogicHandler::recognizeEntityType(QVariant variant)
     }
 }
 
+void GameLogicHandler::reload()
+{
+    reload_timer_.stop();
+
+    quint32 bullets_shot = player_bullet_count_[player_->getName()];
+    player_bullet_count_[player_->getName()] -= std::min(player_->getRangedWeapon()->getRemainingBullets(), static_cast<qint32>(player_bullet_count_[player_->getName()]));
+    if(player_->getRangedWeapon()->getRemainingBullets() - bullets_shot < 0)
+    {
+        qDebug() << "testing";
+    }
+    player_->getRangedWeapon()->setRemainingBullets(std::max(player_->getRangedWeapon()->getRemainingBullets() - static_cast<qint32>(bullets_shot), 0));
+
+    qDebug() << player_bullet_count_[player_->getName()] << player_->getRangedWeapon()->getRemainingBullets();
+
+    qDebug() << "Reloading complete!";
+
+    emit removeReload(reload_drawer_->name());
+    emit labelSignal(player_->getRangedWeapon()->getCapacity() - player_bullet_count_[player_->getName()], player_->getRangedWeapon()->getCapacity(), player_->getRangedWeapon()->getRemainingBullets());
+
+}
+
 void GameLogicHandler::initializeTimers()
 {
     movement_timer_.setInterval(1000 / TARGET_FPS);
     shooting_cooldown_timer_.setInterval(player_->getRangedWeapon()->getShotCooldown());
     shooting_cooldown_timer_.setSingleShot(true);
     reload_timer_.setInterval(player_->getRangedWeapon()->getReloadTime());
-    qDebug() << reload_timer_.interval();
     reload_timer_.setSingleShot(true);
-    connect(&reload_timer_, &QTimer::timeout, this, [this]()
-    {
-        reload_timer_.stop();
-        player_bullet_count_[player_->getName()] = 0;
-        qDebug() << "Reloading complete!";
-    });
+    connect(&reload_timer_, &QTimer::timeout, this, &GameLogicHandler::reload);
     connect(&shooting_cooldown_timer_, &QTimer::timeout, this, [this]()
     {
         shooting_cooldown_timer_.stop();
