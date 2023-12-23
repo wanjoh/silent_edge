@@ -4,6 +4,7 @@
 #include <QGraphicsView>
 #include "entity_drawer.hpp"
 #include "map_drawer.hpp"
+#include "../server/server_config.hpp"
 
 // mogao bi room drawer ili stagod, samo da se ovo izbaci
 #include "../map/room.hpp"
@@ -22,7 +23,6 @@ public:
         PREP_PHASE = 0,
         FIGHT_PHASE
     };
-
     void show(GamePhase);
 
     void addEntity(QString, EntityDrawer*);
@@ -33,18 +33,29 @@ public:
     void mouseMoveEvent(QGraphicsSceneMouseEvent*) override;
     void mousePressEvent(QGraphicsSceneMouseEvent*) override;
     void mouseReleaseEvent(QGraphicsSceneMouseEvent*) override;
-    void wheelEvent(QGraphicsSceneWheelEvent*) override;
     void focusOutEvent(QFocusEvent*) override;
     bool eventFilter(QObject *obj, QEvent *event) override;
     void setSceneUp();
     void changeRoom(Room *new_room);
+    quint32 getMovement();
+public slots:
+    void resetMovement();
 signals:
-    void keyPressedSignal(quint32, bool);
-    void mousePressedSignal(Qt::MouseButton, bool);
-    void wheelScrollSignal(qint32);
     void focusedOutSignal();
     void mousePos(QPointF);
 private:
+    typedef unsigned int uint;
+    std::map<uint, uint> movement_map_
+    {
+        {static_cast<uint>(Qt::Key_W), static_cast<uint>(ServerConfig::PlayerActions::UP)},
+        {static_cast<uint>(Qt::Key_A), static_cast<uint>(ServerConfig::PlayerActions::LEFT)},
+        {static_cast<uint>(Qt::Key_D), static_cast<uint>(ServerConfig::PlayerActions::RIGHT)},
+        {static_cast<uint>(Qt::Key_S), static_cast<uint>(ServerConfig::PlayerActions::DOWN)},
+        {static_cast<uint>(Qt::LeftButton), static_cast<uint>(ServerConfig::PlayerActions::SHOOT)},
+        {static_cast<uint>(Qt::RightToLeft), static_cast<uint>(ServerConfig::PlayerActions::MELEE)},
+    };
+    quint32 movement_;
+
     qreal width_zoom_level_;
     qreal height_zoom_level_;
     quint32 window_width_;

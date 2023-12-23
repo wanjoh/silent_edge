@@ -21,15 +21,14 @@ Client::~Client()
 }
 
 
-void Client::sendMessage(QVariant variant)
+void Client::sendMessage(QString player_name, quint32 movement)
 {
     QDataStream clientStream(client_socket_);
     clientStream.setVersion(QDataStream::Qt_6_4);
 
-    QByteArray data;
-    QDataStream stream(&data, QIODevice::WriteOnly);
-    stream << variant;
-
+    // todo: proslediti podatke o kursoru
+    QByteArray data = player_name.toLocal8Bit();
+    data.append(movement);
     clientStream << data;
 }
 
@@ -40,14 +39,17 @@ void Client::disconnectFromHost()
 
 void Client::dataReceived(const QByteArray &data)
 {
-    QVariant variant;
-    QDataStream stream(data);
-    stream >> variant;
-    if(variant.typeId() == QMetaType::QString) {
-        emit signalTileNameReceived(variant);
+    QString test = QString(data);
+
+    // todo: hendlovati
+    if (test == "tick")
+    {
+        emit serverTickReceived();
     }
     else
-        emit signalDataReceived(variant);
+    {
+        qDebug() << "sa servera: " << test;
+    }
 }
 
 void Client::connectToServer(const QString &ipAdress, quint16 port)
@@ -60,18 +62,16 @@ void Client::onReadyRead()
     QByteArray data;
     QDataStream socketStream(client_socket_);
     socketStream.setVersion(QDataStream::Qt_6_4);
-    for (;;) {
+    for (;;)
+    {
         socketStream.startTransaction();
         socketStream >> data;
-        if (socketStream.commitTransaction()) {
+        if (socketStream.commitTransaction())
+        {
             dataReceived(data);
-        } else {
+        } else
+        {
             break;
         }
     }
-}
-
-void Client::updatePosition(QVariant variant)
-{
-    sendMessage(variant);
 }

@@ -11,11 +11,9 @@ GameWindow::GameWindow(MapDrawer* map_drawer, Room* room, qreal width, qreal hei
     , height_zoom_level_(1.0)
     , map_group_(map_drawer->get_group())
     , room_(room)
+    , movement_(0)
 {
     addItem(map_group_);
-
-    // todo: promeniti
-    // limun: urađeno
 
     phase_ = new QGraphicsView(this);
     phase_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -39,6 +37,18 @@ GameWindow::~GameWindow()
 void GameWindow::changeRoom(Room *new_room)
 {
     room_ = new_room;
+}
+
+quint32 GameWindow::getMovement()
+{
+    // ne toliko thread safe, moze se desiti da se movement promeni usred slanja
+    // todo: poboljsati ako ostane vremena
+    return movement_;
+}
+
+void GameWindow::resetMovement()
+{
+    movement_ = 0;
 }
 
 void GameWindow::setSceneUp()
@@ -80,12 +90,18 @@ void GameWindow::removeEntity(QString name)
 
 void GameWindow::keyPressEvent(QKeyEvent *event)
 {
-    emit keyPressedSignal(event->key(), true);
+    if (movement_map_.find(event->key()) != movement_map_.end())
+    {
+        movement_ |= movement_map_[static_cast<uint>(event->key())];
+    }
 }
 
 void GameWindow::keyReleaseEvent(QKeyEvent *event)
 {
-    emit keyPressedSignal(event->key(), false);
+    if (movement_map_.find(event->key()) != movement_map_.end())
+    {
+        movement_ &= ~movement_map_[static_cast<uint>(event->key())];
+    }
 }
 
 void GameWindow::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -95,19 +111,19 @@ void GameWindow::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void GameWindow::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    emit mousePressedSignal(event->button(), true);
+    if (movement_map_.find(event->button()) != movement_map_.end())
+    {
+        movement_ |= movement_map_[static_cast<uint>(event->button())];
+    }
 }
 
 void GameWindow::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    emit mousePressedSignal(event->button(), false);
+    if (movement_map_.find(event->button()) != movement_map_.end())
+    {
+        movement_ &= movement_map_[static_cast<uint>(event->button())];
+    }
 }
-
-void GameWindow::wheelEvent(QGraphicsSceneWheelEvent *event)
-{
-    emit wheelScrollSignal(event->delta());
-}
-
 
 void GameWindow::focusOutEvent(QFocusEvent *event)
 {

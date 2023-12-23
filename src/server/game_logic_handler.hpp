@@ -25,7 +25,7 @@ public:
     void updateBullets();
     qreal updatePlayerRotation(int x, int y, const QString& name, Player *player);
     void updatePlayerPosition(int x, int y, const QString& name, Player *player);
-    void updatePlayerStats(QByteArray &);
+    void updatePlayerStats(const QByteArray&);
     void addBullet(const QString& name, qreal rotation);
     void putPlayersIntoRooms();
     void updatePlayers();

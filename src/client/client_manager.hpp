@@ -20,12 +20,12 @@ public:
 
 public slots:
     void connectToServer(const QString &ipAdress, quint16 port);
-    void sendMessage(QVariant);
+    void sendMessage(QString, quint32);
     void disconnectFromHost();
-    void updatePosition(QVariant);
 private slots:
     void onReadyRead();
 signals:
+    void serverTickReceived();
     void signalDataReceived(QVariant);
     void signalTileNameReceived(QVariant);
     void error(QAbstractSocket::SocketError socketError);

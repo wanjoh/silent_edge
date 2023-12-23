@@ -18,10 +18,11 @@ public:
     void startGame();
 public slots:
     void error(QTcpSocket::SocketError);
-    void dataReceived(Connection*, const QByteArray&);
     void userDisconnected(Connection*, int);
-    void broadcast(const QByteArray&, Connection*);
+    void broadcast(const QByteArray&, Connection* = nullptr);
     void stopServer();
+private slots:
+    void emitTickMessage();
 signals:
     void logMessage(const QString&);
     void stopAllClients();
@@ -29,8 +30,6 @@ private:
     void initializeTimers();
     void sendData(Connection*, const QByteArray&);
     void incomingConnection(qintptr socket_desc) override;
-    void tick();
-    void collectData();
     GameLogicHandler* logic_handler_;
     QVector<QThread *> available_threads_;
     QVector<int> threads_load_;

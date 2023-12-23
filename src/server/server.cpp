@@ -20,6 +20,7 @@ GameServer::GameServer(QObject *parent)
     else
     {
         qDebug() << "Server started on " << ServerConfig::getHost() <<  ", port" << ServerConfig::PORT;
+        initializeTimers();
     }
 }
 
@@ -46,25 +47,13 @@ void GameServer::stopServer()
 void GameServer::initializeTimers()
 {
     server_timer_.setInterval(ServerConfig::TICK_TIME);
-    connect(&server_timer_, &QTimer::timeout, this, &GameServer::tick);
+    connect(&server_timer_, &QTimer::timeout, this, &GameServer::emitTickMessage);
+    server_timer_.start();
 }
 
 void GameServer::error(QTcpSocket::SocketError error)
 {
     emit logMessage(QLatin1String("error"));
-}
-
-void GameServer::dataReceived(Connection* sender, const QByteArray& msg)
-{
-    Q_ASSERT(sender);
-
-    emit logMessage(QLatin1String("object received"));
-
-    // todo: check if data is valid
-    // limun: uhh
-    // limun: npr: name, commands, mouse_x, mouse_y
-
-    broadcast(msg, sender);
 }
 
 void GameServer::userDisconnected(Connection* user, int thread_idx)
@@ -80,6 +69,7 @@ void GameServer::broadcast(const QByteArray& msg, Connection *sender)
     for (auto user : users_)
     {
         Q_ASSERT(user);
+        // exclude sender
         if (user != sender)
         {
             user->sendData(msg);
@@ -119,7 +109,7 @@ void GameServer::incomingConnection(qintptr socket_desc)
 
         connect(user, &Connection::disconnectedFromServer, this, std::bind(&GameServer::userDisconnected, this, user, thread_idx));
         connect(user, &Connection::error, this, std::bind(&GameServer::error, this, std::placeholders::_1));
-        connect(user, &Connection::dataReceived, this, std::bind(&GameServer::dataReceived, this, user, std::placeholders::_1));
+        connect(user, &Connection::dataReceived, logic_handler_, &GameLogicHandler::updatePlayerStats);
         connect(user, &Connection::logMessage, this, &GameServer::logMessage);
         connect(this, &GameServer::stopAllClients, user, &Connection::disconnectedFromServer); // popraviti
 
@@ -132,26 +122,7 @@ void GameServer::incomingConnection(qintptr socket_desc)
     }
 }
 
-void GameServer::tick()
+void GameServer::emitTickMessage()
 {
-    // limun: skupi datu u player_datas_, pa je onda prosleđuje logic handler-u
-    collectData();
-    for(auto &player_data : player_datas_)
-    {
-        logic_handler_->updatePlayerStats(player_data);
-    }
-    // limun: ovde vrši sve promene, igrač po igrač
-    logic_handler_->updatePlayers();
-    // limun: na kraju menjamo metke, kao po dogovoru
-    logic_handler_->updateBullets();
-}
-
-void GameServer::collectData()
-{
-    // todo: prikpiti podatke od svih povezanih konekcija i sacuvati ih negde
-    // limun: i dalje ne znam kako
-    for (auto user : users_)
-    {
-        // limun: ovde uzimamo datu i stavlajmo u QVector<QByteArray> player_datas_
-    }
+    broadcast(QByteArray("tick\0"));
 }

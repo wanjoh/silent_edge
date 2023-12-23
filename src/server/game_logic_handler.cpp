@@ -222,34 +222,24 @@ void GameLogicHandler::decreaseHp(Player* player, Bullet* bullet)
 
 void GameLogicHandler::initializeTimers()
 {
-    // limun: ovo je verovatno nepotrebno
-
-    // movement_timer_.setInterval(1000 / TARGET_FPS);
-    // shooting_timer_.setInterval(1000 / BULLETS_PER_SECOND);
-    // connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updatePlayerPosition);
-    // connect(&shooting_timer_, &QTimer::timeout, this, &GameLogicHandler::updateBullets);
-    // movement_timer_.start();
-    // shooting_timer_.start();
-
     ammo_respawn_timer_.setInterval(AMMO_RESPAWN_TIME);
     connect(&ammo_respawn_timer_, &QTimer::timeout, this, &GameLogicHandler::updateAmmo);
     ammo_respawn_timer_.start();
 }
 
-void GameLogicHandler::updatePlayerStats(QByteArray &player_info)
+void GameLogicHandler::updatePlayerStats(const QByteArray &player_info)
 {
     // limun: evo
     // limun: 8 + 4 + 2 * 8 = 28 bajtova
-
+    qDebug() << "azuriranje igraca " << player_info;
     QDataStream stream(player_info);
 
     QString name;
-    int commands;
+    qint32 commands;
     qreal mouse_x;
     qreal mouse_y;
 
     stream >> name >> commands >> mouse_x >> mouse_y;
-
     commands_[name] = commands;
     mouse_positions_[name] = QPair<qreal, qreal>(mouse_x, mouse_y);
 }
