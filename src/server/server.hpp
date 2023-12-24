@@ -19,8 +19,6 @@ public:
     static constexpr qint32 MAX_ROOMS = MAX_USERS / 2;
     //static QHostAddress HOST;
     inline static const QHostAddress HOST = remoteServer ? remoteIP : QHostAddress::LocalHost;
-    Lobby *lobby;
-    Lobby* getServerLobby(const QString&) const;
 
     GameServer(QObject* = nullptr);
     GameServer(QString,QObject* = nullptr);
@@ -29,6 +27,8 @@ public:
 
     void startGame();
     QString server_address() const;
+
+    Lobby *getLobby() const;
 
 public slots:
     void error(QTcpSocket::SocketError);
@@ -47,7 +47,6 @@ private:
     // za sad je samo jedna soba
     //QVector<QVector<Connection*>> room_users_;
     QMap<Connection*, QString> user_servers_;
-    QMap<QString, Lobby*> server_lobbies_;
 
     QVector<QThread *> available_threads_;
     QVector<int> threads_load_;
@@ -55,4 +54,5 @@ private:
     QString server_address_;
     QMutex users_mutex_;
     QMutex server_lobbies_mutex_;
+    Lobby *lobby;
 };

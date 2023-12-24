@@ -58,24 +58,38 @@ void MainWindow::onPbCreateServer_clicked()
     ui->ip_line->setVisible(true);
     ui->stackedWidget->setCurrentIndex(1);
 
-
-
 }
 
 void MainWindow::onPbJoinGame_clicked()
 {
     ui->stackedWidget->setCurrentIndex(2);
 
-    QString local_ip = getLocalIPv4Address();
+    //QString local_ip = getLocalIPv4Address();
 
-    if (!local_ip.isEmpty())
+
+    //ovo sluzi da testiram na svom racunaru
+    QString local_ip = "192.168.1.2";
+    //
+    qsizetype dot_position = local_ip.lastIndexOf('.');
+
+    QString base_ip = local_ip.sliced(0,dot_position+1);
+
+
+
+    for(int j=1;j<=255;j++)
     {
-        ui->serverList->addItem(local_ip);
+        QTcpSocket tcp_socket;
+        QString ip_address = base_ip + QString::number(j);
+        tcp_socket.connectToHost(QHostAddress(ip_address),6969);
+
+        if(tcp_socket.waitForConnected(5))
+        {
+            qDebug() << "Server found at" << ip_address << "on port" << 6969;
+            ui->serverList->addItem(ip_address);
+            tcp_socket.disconnectFromHost();
+        }
     }
-    else
-    {
-        qDebug() << "Local IP address is empty. Connection not attempted.";
-    }
+
 }
 
 void MainWindow::onPbConnect_clicked()
@@ -86,9 +100,6 @@ void MainWindow::onPbConnect_clicked()
     {
         QString server_address = server_list.first()->text();
         client_->connectToServer(server_address, 6969);
-
-
-    //client_->sendMessage(lobbies_[server_address]->toVariant());
 
     }
 }
@@ -119,8 +130,6 @@ void MainWindow::onPbDone_clicked()
         server_ = new GameServer(server_address);
 
         connect(server_, &GameServer::playerJoined, this, &MainWindow::onPlayerJoined);
-
-        //list_of_servers[server_address] = new GameServer(server_address);
 
     }
 

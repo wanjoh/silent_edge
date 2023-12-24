@@ -4,11 +4,6 @@
 #include <QByteArray>
 #include <QTimer>
 
-Lobby *GameServer::getServerLobby(const QString &server_address) const
-{
-    return server_lobbies_[server_address];
-}
-
 GameServer::GameServer(QObject *parent)
     : QTcpServer(parent)
 {
@@ -149,14 +144,19 @@ void GameServer::incomingConnection(qintptr socket_desc)
         connect(available_threads_.last(), &QThread::finished, user, &QObject::deleteLater);
 
         users_.push_back(user);
-        if (!server_lobbies_[server_address_]) {
-            server_lobbies_[server_address_] = new Lobby();
-        }
         user_servers_[user] = server_address_;
-        emit playerJoined(user->username(), server_lobbies_[server_address_]);
+        emit playerJoined(user->username(), lobby);
         qDebug() << "thread created";
     }
 }
+
+Lobby *GameServer::getLobby() const
+{
+    return lobby;
+}
+
+
+
 
 QString GameServer::server_address() const
 {
