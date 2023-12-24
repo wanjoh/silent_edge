@@ -26,7 +26,7 @@ private slots:
     void onReadyRead();
 signals:
     void serverTickReceived();
-    void signalTileNameReceived(QVariant);
+    void signalTileNameReceived();
     void error(QAbstractSocket::SocketError socketError);
     void dataReceived(const QByteArray &data);
 private:

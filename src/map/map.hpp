@@ -16,7 +16,7 @@ public:
     void addToActive(int id);
     void restockAmmoPiles();
     const Room& getRoomById(int id) const;
-    Room *addPlayerToARoom(Player *player);
+    Room *addPlayerToARoom(Player &player);
     const tile_map& getMatrix() const;
     const tile_map& getActiveAmmoBuckets() const;
     const tile_map& getInactiveAmmoBuckets() const;

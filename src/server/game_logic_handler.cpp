@@ -4,6 +4,7 @@
 #include <QVector2D>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 
 GameLogicHandler::GameLogicHandler(Map *map, QObject* parent)
     : QObject(parent)
@@ -58,7 +59,7 @@ void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name, P
     // todo: apdejtovati pomeraj na osnovu poslate komande od strane igraca
     // limun: važi, urađeno
     qreal dx = 0.0 - (commands_[name] & PlayerActions::LEFT) + (commands_[name] & PlayerActions::RIGHT);
-    qreal dy = 0.0 - (commands_[name] & PlayerActions::DOWN) + (commands_[name] & PlayerActions::UP);
+    qreal dy = 0.0 + (commands_[name] & PlayerActions::DOWN) - (commands_[name] & PlayerActions::UP);
 
     if(qFabs(dx) < EPSILON && qFabs(dy) < EPSILON)
         return;
@@ -106,6 +107,27 @@ void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name, P
     player->getDrawer()->setPos(x, y);
 }
 
+QByteArray GameLogicHandler::jsonify()
+{
+    QJsonArray playersArray;
+
+    for(auto& [name, player] : players_)
+    {
+        QJsonObject playerObject;
+        playerObject["name"] = name;
+        playerObject["position_x"] = player->getDrawer()->x();
+        playerObject["position_y"] = player->getDrawer()->y();
+        playerObject["rotation"] = player->getDrawer()->rotation();
+        playerObject["hp"] = player->getHp();
+
+        playersArray.append(playerObject);
+    }
+
+    const QJsonDocument json_data(playersArray);
+
+    return json_data.toJson();
+}
+
 void GameLogicHandler::updatePlayers()
 {
     for (auto& [name, player] : players_)
@@ -118,6 +140,10 @@ void GameLogicHandler::updatePlayers()
         updatePlayerPosition(x, y, name, player);
         addBullet(name, rotation);
     }
+
+    QByteArray player_info = jsonify();
+
+    emit updatePlayersSignal(player_info);
 }
 
 void GameLogicHandler::updateAmmo()
@@ -268,8 +294,7 @@ void GameLogicHandler::updatePlayerStats(const QByteArray &player_info)
             }
         }
         commands_[name] = static_cast<quint32>(json_data["movement"].toInteger());
-        //todo: otkomentarisati kad se bude slalo sa klijenta
-//        mouse_positions_[name] = QPair<qreal, qreal>(json_data["mouseX"].toDouble(), json_data["mouseY"].toDouble());
+        mouse_positions_[name] = QPair<qreal, qreal>(json_data["mouseX"].toDouble(), json_data["mouseY"].toDouble());
     }
     else
     {

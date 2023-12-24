@@ -21,8 +21,8 @@ public slots:
     void userDisconnected(Connection*, int);
     void broadcast(const QByteArray&);
     void stopServer();
+    void updatePlayersSignal(const QByteArray&);
 private slots:
-    void broadcastInfo();
     void emitTickMessage();
 signals:
     void logMessage(const QString&);

@@ -2,7 +2,6 @@
 
 #include <QObject>
 #include <QTimer>
-#include <QVariantMap>
 #include "../entity/player.hpp"
 #include "../entity/bullet.hpp"
 #include "../map/map.hpp"
@@ -29,10 +28,12 @@ public:
     void addBullet(const QString& name, qreal rotation);
     void putPlayersIntoRooms();
     void updatePlayers();
+    QByteArray jsonify();
 private slots:
     void updateAmmo();
 signals:
     void tileChanged(int, const QString& path);
+    void updatePlayersSignal(QByteArray& player_info);
     // videti kako ovo da se iskoristi, nesto mora da se prosledi kao param
     void playerDestroyedSignal();
 private:

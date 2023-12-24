@@ -160,10 +160,10 @@ const Room& Map::getRoomById(int id) const
     return *rooms_.at(id);
 }
 
-Room* Map::addPlayerToARoom(Player *player)
+Room* Map::addPlayerToARoom(Player& player)
 {
-    qreal player_x = player->getDrawer()->x();
-    qreal player_y = player->getDrawer()->y();
+    qreal player_x = player.getDrawer()->x();
+    qreal player_y = player.getDrawer()->y();
 
     for(auto &[_, room] : rooms_)
     {
@@ -173,8 +173,8 @@ Room* Map::addPlayerToARoom(Player *player)
 
         if(player_x >= start_x*IMAGE_SIZE && player_x <= end_x*IMAGE_SIZE &&
            player_y >= start_y*IMAGE_SIZE && player_y <= end_y*IMAGE_SIZE) {
-            if (!room->getPlayersInRoom().contains(player))
-                room->addPlayerToRoom(player);
+            if (!room->getPlayersInRoom().contains(&player))
+                room->addPlayerToRoom(&player);
             return room;
         }
     }

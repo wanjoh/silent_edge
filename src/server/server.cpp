@@ -45,20 +45,20 @@ void GameServer::stopServer()
     close();
 }
 
-void GameServer::broadcastInfo()
-{
-
-}
-
 void GameServer::initializeTimers()
 {
     server_timer_.setInterval(ServerConfig::TICK_TIME);
     connect(&server_timer_, &QTimer::timeout, logic_handler_, &GameLogicHandler::updatePlayers);
     connect(&server_timer_, &QTimer::timeout, logic_handler_, &GameLogicHandler::updateBullets);
     connect(&server_timer_, &QTimer::timeout, this, &GameServer::emitTickMessage);
-    connect(&server_timer_, &QTimer::timeout, this, &GameServer::broadcastInfo);
+    connect(logic_handler_, &GameLogicHandler::updatePlayersSignal, this, &GameServer::updatePlayersSignal);
 
     server_timer_.start();
+}
+
+void GameServer::updatePlayersSignal(const QByteArray& player_info)
+{
+    broadcast(player_info);
 }
 
 void GameServer::error(QTcpSocket::SocketError error)

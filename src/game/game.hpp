@@ -18,8 +18,9 @@ public:
     void startGame();
     void startServer();
     void quit();
-private:
+public slots:
     void deserializeData(const QByteArray&);
+private:
     void serializeData();
     GameServer* server_;
     QJsonObject json_object_;

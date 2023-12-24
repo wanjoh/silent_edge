@@ -26,8 +26,6 @@ public:
     qreal getFireRate();
     qreal getReloadTime();
     RarenessType getRarenessClass();
-    QVariant toVariant() const override;
-    void fromVariant(const QVariant&) override;
 
 
 private:

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../gui/entity_drawer.hpp"
-#include <QVariant>
 
 class Entity : public QObject
 {
@@ -15,8 +14,6 @@ public:
     QString getName();
     EntityDrawer* getDrawer();
     QString getEtityType();
-    virtual QVariant toVariant() const = 0;
-    virtual void fromVariant(const QVariant&) = 0;
 protected:
     EntityDrawer* drawer_;
     QString name_;

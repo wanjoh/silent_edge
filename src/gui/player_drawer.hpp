@@ -4,6 +4,6 @@
 class PlayerDrawer : public EntityDrawer
 {
 public:
-    PlayerDrawer(QString name,const QString &pixmap_path = "path_to_pixmap",
+    PlayerDrawer(const QString &name, const QString &pixmap_path = "path_to_pixmap",
                  QGraphicsItem * = nullptr);
 };

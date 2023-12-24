@@ -38,6 +38,8 @@ public:
     void setSceneUp();
     void changeRoom(Room *new_room);
     quint32 getMovement();
+    qreal getMouseX();
+    qreal getMouseY();
 public slots:
     void resetMovement();
 signals:

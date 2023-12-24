@@ -146,3 +146,13 @@ bool GameWindow::eventFilter(QObject *obj, QEvent *event)
     }
     return false;
 }
+
+qreal GameWindow::getMouseX()
+{
+    return phase_->mapToScene(phase_->mapFromGlobal(QCursor::pos())).x();
+}
+
+qreal GameWindow::getMouseY()
+{
+    return phase_->mapToScene(phase_->mapFromGlobal(QCursor::pos())).y();
+}
