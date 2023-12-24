@@ -3,7 +3,7 @@
 #include <QKeyEvent>
 #include <QGraphicsSceneMouseEvent>
 
-GameWindow::GameWindow(MapDrawer* map_drawer, Room* room, qreal width, qreal height, QObject *parent)
+GameWindow::GameWindow(MapDrawer* map_drawer, EntityDrawer* player_drawer, Room* room, qreal width, qreal height, QObject *parent)
     : QGraphicsScene(0, 0, width, height, parent)
     , window_width_(width)
     , window_height_(height)
@@ -13,6 +13,7 @@ GameWindow::GameWindow(MapDrawer* map_drawer, Room* room, qreal width, qreal hei
     , room_(room)
     , movement_(0)
 {
+    map_group_->addToGroup(player_drawer);
     addItem(map_group_);
 
     phase_ = new QGraphicsView(this);
@@ -121,7 +122,7 @@ void GameWindow::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     if (movement_map_.find(event->button()) != movement_map_.end())
     {
-        movement_ &= movement_map_[static_cast<uint>(event->button())];
+        movement_ &= ~movement_map_[static_cast<uint>(event->button())];
     }
 }
 

@@ -25,15 +25,16 @@ public:
     qreal updatePlayerRotation(int x, int y, const QString& name, Player *player);
     void updatePlayerPosition(int x, int y, const QString& name, Player *player);
     void updatePlayerStats(const QByteArray&);
-    void addBullet(const QString& name, qreal rotation);
+    void addBullet(int x, int y, const QString& name, qreal rotation);
     void putPlayersIntoRooms();
     void updatePlayers();
-    QByteArray jsonify();
+    QByteArray jsonify(const QString&);
 private slots:
     void updateAmmo();
 signals:
     void tileChanged(int, const QString& path);
     void updatePlayersSignal(QByteArray& player_info);
+    void updateBulletsSignal(QByteArray& bullet_info);
     // videti kako ovo da se iskoristi, nesto mora da se prosledi kao param
     void playerDestroyedSignal();
 private:

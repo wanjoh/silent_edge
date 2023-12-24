@@ -52,6 +52,7 @@ void GameServer::initializeTimers()
     connect(&server_timer_, &QTimer::timeout, logic_handler_, &GameLogicHandler::updateBullets);
     connect(&server_timer_, &QTimer::timeout, this, &GameServer::emitTickMessage);
     connect(logic_handler_, &GameLogicHandler::updatePlayersSignal, this, &GameServer::updatePlayersSignal);
+    connect(logic_handler_, &GameLogicHandler::updateBulletsSignal, this, &GameServer::updateBulletsSignal);
 
     server_timer_.start();
 }
@@ -59,6 +60,11 @@ void GameServer::initializeTimers()
 void GameServer::updatePlayersSignal(const QByteArray& player_info)
 {
     broadcast(player_info);
+}
+
+void GameServer::updateBulletsSignal(const QByteArray& bullet_info)
+{
+    broadcast(bullet_info);
 }
 
 void GameServer::error(QTcpSocket::SocketError error)

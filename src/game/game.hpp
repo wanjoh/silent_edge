@@ -28,5 +28,6 @@ private:
     GameWindow *gui_;
     Map *map_;
     std::map<QString, Player*> enemies_;
+    std::map<int, EntityDrawer*> bullets_;
     Player *player_;
 };

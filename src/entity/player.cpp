@@ -16,7 +16,6 @@ Player::Player(QString name, bool enemy, qreal hp, int x, int y, QObject* parent
 
     drawer_ = new PlayerDrawer(name, (enemy ? "../silent-edge/src/images/enemy.png" : "../silent-edge/src/images/samurai.png"));
     drawer_->setPos(x, y);
-    drawer_->setZValue(2);
     entityType_ = "player";
     hp_ = hp;
 

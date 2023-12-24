@@ -15,7 +15,7 @@ class GameWindow : public QGraphicsScene
 public:
     static constexpr qreal WINDOW_WIDTH = 1280;
     static constexpr qreal WINDOW_HEIGHT = 720;
-    GameWindow(MapDrawer*, Room*, qreal = WINDOW_WIDTH, qreal = WINDOW_HEIGHT, QObject* = nullptr);
+    GameWindow(MapDrawer*, EntityDrawer*, Room*, qreal = WINDOW_WIDTH, qreal = WINDOW_HEIGHT, QObject* = nullptr);
     ~GameWindow();
 
     enum class GamePhase : quint32

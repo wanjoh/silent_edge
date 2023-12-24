@@ -6,6 +6,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+int bullet_id = 1;
+
 GameLogicHandler::GameLogicHandler(Map *map, QObject* parent)
     : QObject(parent)
     , map_(map)
@@ -40,14 +42,22 @@ void GameLogicHandler::putPlayersIntoRooms()
     }
 }
 
-void GameLogicHandler::addBullet(const QString& name, qreal rotation)
+void GameLogicHandler::addBullet(int x, int y, const QString& name, qreal rotation)
 {
-    if(!(commands_[name] & ServerConfig::PlayerActions::SHOOT))
-        return;
     QMutexLocker locker(&mutex_);
+
     Bullet *bullet = new Bullet("bullet");
+    bullet->getDrawer()->setPos(x, y);
     bullet->getDrawer()->setRotation(rotation);
+    QPoint mouse_pos = QPoint(mouse_positions_[name].first, mouse_positions_[name].second);
+    QVector2D aim_dir = QVector2D(mouse_pos - players_[name]->getDrawer()->scenePos());
+    aim_dir.normalize();
+    bullet->setAim_dir(aim_dir);
     bullets_.push_back({name, bullet});
+    bullet_id++;
+    if(bullet_id > 10000)
+        bullet_id = 1;
+
    // todo: add bullet rotation
    // limun: evo
 }
@@ -58,8 +68,18 @@ void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name, P
     bool moved = false;
     // todo: apdejtovati pomeraj na osnovu poslate komande od strane igraca
     // limun: važi, urađeno
-    qreal dx = 0.0 - (commands_[name] & PlayerActions::LEFT) + (commands_[name] & PlayerActions::RIGHT);
-    qreal dy = 0.0 + (commands_[name] & PlayerActions::DOWN) - (commands_[name] & PlayerActions::UP);
+
+    qreal dx = 0.0;
+    qreal dy = 0.0;
+
+    if(commands_[name] & PlayerActions::LEFT)
+        dx -= 1.0;
+    if(commands_[name] & PlayerActions::RIGHT)
+        dx += 1.0;
+    if(commands_[name] & PlayerActions::UP)
+        dy -= 1.0;
+    if(commands_[name] & PlayerActions::DOWN)
+        dy += 1.0;
 
     if(qFabs(dx) < EPSILON && qFabs(dy) < EPSILON)
         return;
@@ -75,7 +95,6 @@ void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name, P
     y += dy * DEFAULT_PLAYER_VELOCITY;
 
     std::unordered_map<int, Tile*> active_buckets = map_->getActiveAmmoBuckets();
-
     QList<QGraphicsItem*> collidingItems = player->getDrawer()->collidingItems();
     for(auto item : collidingItems)
     {
@@ -107,25 +126,51 @@ void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name, P
     player->getDrawer()->setPos(x, y);
 }
 
-QByteArray GameLogicHandler::jsonify()
+QByteArray GameLogicHandler::jsonify(const QString& data_type)
 {
-    QJsonArray playersArray;
+    if(data_type == "player") {
+        QJsonArray playersArray;
 
-    for(auto& [name, player] : players_)
-    {
-        QJsonObject playerObject;
-        playerObject["name"] = name;
-        playerObject["position_x"] = player->getDrawer()->x();
-        playerObject["position_y"] = player->getDrawer()->y();
-        playerObject["rotation"] = player->getDrawer()->rotation();
-        playerObject["hp"] = player->getHp();
+        for(auto& [name, player] : players_)
+        {
+            QJsonObject playerObject;
+            playerObject["type"] = "player";
+            playerObject["name"] = name;
+            playerObject["position_x"] = player->getDrawer()->x();
+            playerObject["position_y"] = player->getDrawer()->y();
+            playerObject["rotation"] = player->getDrawer()->rotation();
+            playerObject["hp"] = player->getHp();
 
-        playersArray.append(playerObject);
+            playersArray.append(playerObject);
+        }
+
+        const QJsonDocument json_data(playersArray);
+
+        return json_data.toJson();
     }
+    else if(data_type == "bullet") {
+        QJsonArray bulletsArray;
 
-    const QJsonDocument json_data(playersArray);
+        for(auto& [name, bullet] : bullets_)
+        {
+            QJsonObject bulletObject;
+            bulletObject["type"] = "bullet";
+            bulletObject["id"] = bullet_id;
+            bulletObject["name"] = name;
+            bulletObject["position_x"] = bullet->getDrawer()->x();
+            bulletObject["position_y"] = bullet->getDrawer()->y();
+            bulletObject["rotation"] = bullet->getDrawer()->rotation();
 
-    return json_data.toJson();
+            bulletsArray.append(bulletObject);
+        }
+
+        const QJsonDocument json_data(bulletsArray);
+
+        return json_data.toJson();
+    }
+    else {
+        return nullptr;
+    }
 }
 
 void GameLogicHandler::updatePlayers()
@@ -138,12 +183,15 @@ void GameLogicHandler::updatePlayers()
         // limun: rotacija, pozicija, meci
         qreal rotation = updatePlayerRotation(x, y, name, player);
         updatePlayerPosition(x, y, name, player);
-        addBullet(name, rotation);
+        if((commands_[name] & ServerConfig::PlayerActions::SHOOT))
+            addBullet(x, y, name, rotation);
     }
 
-    QByteArray player_info = jsonify();
+    QByteArray player_info = jsonify("player");
+    QByteArray bullet_info = jsonify("bullet");
 
     emit updatePlayersSignal(player_info);
+    emit updateBulletsSignal(bullet_info);
 }
 
 void GameLogicHandler::updateAmmo()
@@ -294,12 +342,12 @@ void GameLogicHandler::updatePlayerStats(const QByteArray &player_info)
             }
         }
         commands_[name] = static_cast<quint32>(json_data["movement"].toInteger());
+        qDebug() << commands_[name];
         mouse_positions_[name] = QPair<qreal, qreal>(json_data["mouseX"].toDouble(), json_data["mouseY"].toDouble());
     }
     else
     {
         // todo: handle? ili ne? nemamo vremena :(((
     }
-
 }
 
