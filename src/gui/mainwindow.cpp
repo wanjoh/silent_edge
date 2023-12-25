@@ -32,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->pushButtonQuit,&QPushButton::clicked,
             this,&MainWindow::onPbQuit_clicked);
 
+
+
 }
 
 MainWindow::~MainWindow()
@@ -62,7 +64,6 @@ void MainWindow::onPbCreateServer_clicked()
 
 void MainWindow::onPbJoinGame_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(2);
 
     //QString local_ip = getLocalIPv4Address();
 
@@ -74,7 +75,7 @@ void MainWindow::onPbJoinGame_clicked()
 
     QString base_ip = local_ip.sliced(0,dot_position+1);
 
-
+    test_connection = true;
 
     for(int j=1;j<=255;j++)
     {
@@ -88,13 +89,19 @@ void MainWindow::onPbJoinGame_clicked()
             ui->serverList->addItem(ip_address);
             tcp_socket.disconnectFromHost();
         }
+
+
     }
+
+
+    ui->stackedWidget->setCurrentIndex(2);
 
 }
 
 void MainWindow::onPbConnect_clicked()
 {
 
+    test_connection = false;
     QList<QListWidgetItem*> server_list = ui->serverList->selectedItems();
     if (!server_list.isEmpty())
     {
@@ -143,10 +150,19 @@ void MainWindow::onPbQuit_clicked()
 
 void MainWindow::onPlayerJoined(const QString &playerName, Lobby* lobby)
 {
-    if (lobby)
+    if (lobby && !test_connection)
     {
+        connect(lobby,&Lobby::closeConnection,this,&MainWindow::disconnectFromServer);
+        lobby_ = lobby;
         lobby->show();
+        qDebug() << playerName << "joined the game!";
+        test_connection = !test_connection;
     }
 
-    qDebug() << playerName << "joined the game!";
+}
+
+void MainWindow::disconnectFromServer()
+{
+
+    client_->disconnectFromHost();
 }

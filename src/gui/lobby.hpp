@@ -16,9 +16,11 @@ public:
     ~Lobby();
 
     bool isEmpty() const;
+public slots:
+    void onPbExit_clicked();
 
-    //QVariant toVariant() const override;
-    //void fromVariant(const QVariant&) override;
+signals:
+    void closeConnection();
 
 private:
     Ui::Lobby *ui;

@@ -6,6 +6,9 @@ Lobby::Lobby(QWidget *parent) :
     ui(new Ui::Lobby)
 {
     ui->setupUi(this);
+
+    connect(ui->pushButtonExit,&QPushButton::clicked,this,&Lobby::onPbExit_clicked);
+
 }
 
 Lobby::~Lobby()
@@ -18,12 +21,10 @@ bool Lobby::isEmpty() const
     return ui->playerList->count() == 0;
 }
 
-/*QVariant Lobby::toVariant() const
+void Lobby::onPbExit_clicked()
 {
-
+    this->close();
+    emit closeConnection();
 }
 
-void Lobby::fromVariant(const QVariant &variant)
-{
 
-}*/

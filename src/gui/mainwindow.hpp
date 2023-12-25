@@ -19,6 +19,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    bool test_connection = true;
+
 public slots:
 
     void onPbCreateServer_clicked();
@@ -29,6 +31,7 @@ public slots:
     void onPbDone_clicked();
     void onPbQuit_clicked();
     void onPlayerJoined(const QString&, Lobby*);
+    void disconnectFromServer();
     QString getLocalIPv4Address();
 
 private:
@@ -37,4 +40,5 @@ private:
     QString username_;
     Client *client_;
     std::unordered_map<QString,GameServer*> list_of_servers;
+    Lobby *lobby_;
 };
