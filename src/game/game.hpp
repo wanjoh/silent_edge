@@ -3,9 +3,9 @@
 #include "../server/server.hpp"
 #include "../gui/game_window.hpp"
 #include "../client/client_manager.hpp"
-#include "game_logic_handler.hpp"
 #include "../entity/player.hpp"
 #include "../map/map.hpp"
+#include <QJsonObject>
 
 class Game : public QObject
 {
@@ -19,15 +19,15 @@ public:
     void startServer();
     void quit();
 public slots:
-    void playerMoved(QVariant);
-    void updateMap(QVariant variant);
-    void tileDeleted(int id);
-    void bulletMoved(QVariant);
+    void deserializeData(const QByteArray&);
 private:
+    void serializeData();
     GameServer* server_;
+    QJsonObject json_object_;
     Client *client_;
     GameWindow *gui_;
-    GameLogicHandler* logic_handler_;
     Map *map_;
     std::map<QString, Player*> enemies_;
+    std::map<int, EntityDrawer*> bullets_;
+    Player *player_;
 };

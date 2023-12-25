@@ -27,8 +27,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         src/game/game.cpp
         src/game/game.hpp
-        src/game/game_logic_handler.hpp
-        src/game/game_logic_handler.cpp
         src/entity/entity.cpp
         src/entity/entity.hpp
         src/entity/player.cpp
@@ -98,10 +96,18 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/gui/player_drawer.cpp
         src/gui/bullet_drawer.hpp
         src/gui/bullet_drawer.cpp
+
         src/map/overlay.hpp
         src/map/overlay.cpp
         src/gui/overlay_drawer.hpp
         src/gui/overlay_drawer.cpp
+
+        src/server/game_logic_handler.hpp
+        src/server/game_logic_handler.cpp
+
+        src/server/server_config.hpp
+        src/gui/map_drawer.hpp
+        src/gui/map_drawer.cpp
     )
     # qt_add_executable(ServerMain src/server/server_main.cpp)
     # # qt_add_executable(ClientMain src/client/client_main.cpp)

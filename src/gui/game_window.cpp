@@ -4,37 +4,27 @@
 #include <QGraphicsSceneMouseEvent>
 #include "../map/overlay.hpp"
 
-GameWindow::GameWindow(Map* map, EntityDrawer* player, qreal width, qreal height, QObject *parent)
+GameWindow::GameWindow(Room* room, qreal width, qreal height, QObject *parent)
     : QGraphicsScene(0, 0, width, height, parent)
     , window_width_(width)
     , window_height_(height)
-    , map_object_(map)
-    , map_(map_object_->get_matrix())
-    , room_(map_object_->add_player_to_a_room(player))
+    , width_zoom_level_(1.0)
+    , height_zoom_level_(1.0)
+    , room_(room)
+    , movement_(0)
 {
-    addItem(map_object_->get_group());
+    phase_ = new QGraphicsView(this);
+    phase_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    phase_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    phase_->setBackgroundBrush(Qt::gray);
+    phase_->setMouseTracking(true);
+    phase_->installEventFilter(this);
 
-    std::pair<int, int> start_coords = room_->get_start_coords();
-    window_width_ = room_->get_width()*IMAGE_SIZE;
-    window_height_ = room_->get_height()*IMAGE_SIZE;
-
-    start_x_ = start_coords.first*IMAGE_SIZE;
-    start_y_ = start_coords.second*IMAGE_SIZE;
-
-    fight_phase_ = new QGraphicsView(this);
-    fight_phase_->setSceneRect(start_x_, start_y_, window_width_, window_height_);
-    fight_phase_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    fight_phase_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    fight_phase_->setBackgroundBrush(Qt::gray);
-    fight_phase_->setMouseTracking(true);
-    fight_phase_->installEventFilter(this);
+    setSceneUp();
 
     overlay_group_ = new QGraphicsItemGroup();
     make_overlay();
     addItem(overlay_group_);
-
-    // todo: promeniti
-    current_active_phase_ = GamePhase::FIGHT_PHASE;
 }
 
 GameWindow::~GameWindow()
@@ -46,12 +36,41 @@ GameWindow::~GameWindow()
 
 }
 
+void GameWindow::changeRoom(Room *new_room)
+{
+    room_ = new_room;
+}
+
+quint32 GameWindow::getMovement()
+{
+    // ne toliko thread safe, moze se desiti da se movement promeni usred slanja
+    // todo: poboljsati ako ostane vremena
+    return movement_;
+}
+
+void GameWindow::resetMovement()
+{
+    movement_ = 0;
+}
+
+void GameWindow::setSceneUp()
+{
+    std::pair<int, int> start_coords = room_->getStartCoords();
+    window_width_ = room_->getWidth()*IMAGE_SIZE;
+    window_height_ = room_->getHeight()*IMAGE_SIZE;
+
+    start_x_ = start_coords.first*IMAGE_SIZE;
+    start_y_ = start_coords.second*IMAGE_SIZE;
+
+    phase_->setSceneRect(start_x_, start_y_, window_width_, window_height_);
+}
+
 void GameWindow::show(GamePhase phase)
 {
     switch(phase)
     {
         case GamePhase::FIGHT_PHASE:
-            fight_phase_->show();
+            phase_->show();
             break;
         default:
             qDebug() << "not supported yet";
@@ -73,12 +92,18 @@ void GameWindow::removeEntity(QString name)
 
 void GameWindow::keyPressEvent(QKeyEvent *event)
 {
-    emit keyPressedSignal(event->key(), true);
+    if (movement_map_.find(event->key()) != movement_map_.end())
+    {
+        movement_ |= movement_map_[static_cast<uint>(event->key())];
+    }
 }
 
 void GameWindow::keyReleaseEvent(QKeyEvent *event)
 {
-    emit keyPressedSignal(event->key(), false);
+    if (movement_map_.find(event->key()) != movement_map_.end())
+    {
+        movement_ &= ~movement_map_[static_cast<uint>(event->key())];
+    }
 }
 
 void GameWindow::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -88,14 +113,19 @@ void GameWindow::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void GameWindow::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    emit mousePressedSignal(event->button(), true);
+    if (movement_map_.find(event->button()) != movement_map_.end())
+    {
+        movement_ |= movement_map_[static_cast<uint>(event->button())];
+    }
 }
 
 void GameWindow::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    emit mousePressedSignal(event->button(), false);
+    if (movement_map_.find(event->button()) != movement_map_.end())
+    {
+        movement_ &= ~movement_map_[static_cast<uint>(event->button())];
+    }
 }
-
 
 void GameWindow::focusOutEvent(QFocusEvent *event)
 {
@@ -104,12 +134,12 @@ void GameWindow::focusOutEvent(QFocusEvent *event)
 
 bool GameWindow::eventFilter(QObject *obj, QEvent *event)
 {
-    if (obj == fight_phase_ && event->type() == QEvent::Resize) {
+    if (event->type() == QEvent::Resize) {
         QResizeEvent *resizeEvent = static_cast<QResizeEvent*>(event);
 
         width_zoom_level_ *= (qreal)resizeEvent->size().width() / window_width_;
         height_zoom_level_ *= (qreal)resizeEvent->size().height() / window_height_;
-        fight_phase_->setTransform(QTransform::fromScale(width_zoom_level_, height_zoom_level_));
+        phase_->setTransform(QTransform::fromScale(width_zoom_level_, height_zoom_level_));
 
         window_width_ = resizeEvent->size().width();
         window_height_ = resizeEvent->size().height();
@@ -144,7 +174,7 @@ void GameWindow::make_overlay()
     hp_overlay->setBrush(Qt::green);
 
     overlay_group_->addToGroup(hp_overlay);
-    overlay_group_->setZValue(0);
+    overlay_group_->setZValue(2);
 }
 
 void GameWindow::change_weapon(int id)
@@ -174,4 +204,13 @@ void GameWindow::update_hp_overlay(qreal hp)
         qreal y_pos = childItems.last()->y();
         childItems.last()->setPos(x_pos, y_pos + percentage);
     }
+}
+qreal GameWindow::getMouseX()
+{
+    return phase_->mapToScene(phase_->mapFromGlobal(QCursor::pos())).x();
+}
+
+qreal GameWindow::getMouseY()
+{
+    return phase_->mapToScene(phase_->mapFromGlobal(QCursor::pos())).y();
 }

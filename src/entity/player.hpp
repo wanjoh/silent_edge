@@ -13,7 +13,7 @@ public:
     // ovo ce leteti odavde
     constexpr static qint32 VELOCITY = 3;
     Player();
-    Player(QString, bool = true,qreal hp = 100, int x = 64, int y = 64, QObject* = nullptr);
+    Player(QString, bool = true, qreal hp = 100, int x = 128, int y = 128, QObject* = nullptr);
 
     qreal getHp();
     qreal getEnergy();
@@ -23,9 +23,6 @@ public:
     RangedWeapon* getRangedWeapon() const;
 
     void setHp(qreal);
-    QVariant toVariant() const override;
-    void fromVariant(const QVariant&) override;
-
 
 private:
     qreal hp_;

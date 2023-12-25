@@ -21,14 +21,10 @@ Client::~Client()
 }
 
 
-void Client::sendMessage(QVariant variant)
+void Client::sendMessage(const QByteArray& data)
 {
     QDataStream clientStream(client_socket_);
     clientStream.setVersion(QDataStream::Qt_6_4);
-
-    QByteArray data;
-    QDataStream stream(&data, QIODevice::WriteOnly);
-    stream << variant;
 
     clientStream << data;
 }
@@ -36,18 +32,6 @@ void Client::sendMessage(QVariant variant)
 void Client::disconnectFromHost()
 {
     client_socket_->disconnectFromHost();
-}
-
-void Client::dataReceived(const QByteArray &data)
-{
-    QVariant variant;
-    QDataStream stream(data);
-    stream >> variant;
-    if(variant.typeId() == QMetaType::QString) {
-        emit signalTileNameReceived(variant);
-    }
-    else
-        emit signalDataReceived(variant);
 }
 
 void Client::connectToServer(const QString &ipAdress, quint16 port)
@@ -60,18 +44,20 @@ void Client::onReadyRead()
     QByteArray data;
     QDataStream socketStream(client_socket_);
     socketStream.setVersion(QDataStream::Qt_6_4);
-    for (;;) {
+    for (;;)
+    {
         socketStream.startTransaction();
         socketStream >> data;
-        if (socketStream.commitTransaction()) {
-            dataReceived(data);
-        } else {
+        if (socketStream.commitTransaction())
+        {
+            if (data == "tick")
+            {
+                emit serverTickReceived();
+            }
+            emit dataReceived(data);
+        } else
+        {
             break;
         }
     }
-}
-
-void Client::updatePosition(QVariant variant)
-{
-    sendMessage(variant);
 }

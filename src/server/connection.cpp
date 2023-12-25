@@ -4,7 +4,6 @@
 
 Connection::Connection(qintptr socket_desc, QObject * parent)
     :QObject(parent),
-    username_("TODO"),
     socket_descriptor_(socket_desc)
 {
     if (!(socket_ = new QTcpSocket()))
@@ -54,7 +53,3 @@ void Connection::disconnectClient()
     emit disconnectedFromServer();
 }
 
-QString Connection::username() const
-{
-    return username_;
-}

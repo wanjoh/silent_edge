@@ -2,51 +2,35 @@
 
 // pomeriti u gui
 #include "qapplication.h"
+#include "../server/server_config.hpp"
+#include <QJsonDocument>
+#include <QJsonArray>
 
 Game::Game(QString name, QObject *parent)
     : QObject(parent)
     , client_(new Client())
-    , gui_()
-    , logic_handler_()
     , map_(new Map())
+    , player_(new Player(name, false))
 {
-    logic_handler_ = new GameLogicHandler(name, map_);
-    gui_ = new GameWindow(map_, logic_handler_->getPlayer()->getDrawer());
-    gui_->addEntity(name, logic_handler_->getPlayer()->getDrawer());
+    Room *room = map_->addPlayerToARoom(*player_);
+    gui_ = new GameWindow(room);
+    gui_->addItem(map_->getDrawer()->get_group());
+    gui_->addEntity(name, player_->getDrawer());
+    json_object_["name"] = name;
 
-
-    connect(client_, &Client::signalDataReceived, logic_handler_, &GameLogicHandler::recognizeEntityType, Qt::DirectConnection);
-    connect(client_, &Client::signalTileNameReceived, this, &Game::updateMap, Qt::DirectConnection);
-    
-    connect(logic_handler_, &GameLogicHandler::tileDeleted, this, &Game::tileDeleted, Qt::DirectConnection);
-    connect(logic_handler_, &GameLogicHandler::update, gui_, &GameWindow::addEntity);
-    connect(logic_handler_, &GameLogicHandler::playerMoved, this, &Game::playerMoved, Qt::DirectConnection);
-    connect(logic_handler_, &GameLogicHandler::bulletMoved, this, &Game::bulletMoved, Qt::DirectConnection);
-
-    connect(logic_handler_, &GameLogicHandler::newBulletSignal, gui_, &GameWindow::addEntity);
-    connect(logic_handler_, &GameLogicHandler::destroyBullet, gui_, &GameWindow::removeEntity);
-    connect(logic_handler_, &GameLogicHandler::destroyPlayer, gui_, &GameWindow::removeEntity);
-    connect(gui_, &GameWindow::mousePos, logic_handler_, &GameLogicHandler::updateAimingPoint);
-    connect(gui_, &GameWindow::keyPressedSignal, logic_handler_, &GameLogicHandler::updateKeys);
-    connect(gui_, &GameWindow::focusedOutSignal, logic_handler_, &GameLogicHandler::resetKeys);
-    connect(gui_, &GameWindow::mousePressedSignal, logic_handler_, &GameLogicHandler::updateMouseClick);
-
-    connect(logic_handler_, &GameLogicHandler::weapon_changed, gui_, &GameWindow::change_weapon);
-    connect(logic_handler_, &GameLogicHandler::update_hp, gui_, &GameWindow::update_hp_overlay);
+    connect(client_, &Client::serverTickReceived, this, &Game::serializeData, Qt::DirectConnection);
+    connect(client_, &Client::dataReceived, this, &Game::deserializeData, Qt::DirectConnection);
 }
 
 Game::~Game()
 {
-    for (auto& [_, enemy] : enemies_)
-    {
-        delete enemy;
-    }
+
 }
 
 void Game::startGame()
 {
     startServer();
-    client_->connectToServer(GameServer::HOST.toString(), GameServer::PORT);
+    client_->connectToServer(ServerConfig::getHost().toString(), ServerConfig::PORT);
     gui_->show(GameWindow::GamePhase::FIGHT_PHASE);
 }
 
@@ -62,25 +46,88 @@ void Game::quit()
     QApplication::exit();
 }
 
-void Game::playerMoved(QVariant variant)
+void Game::deserializeData(const QByteArray &data)
 {
-    client_->sendMessage(variant);
+    QJsonParseError parse_error;
+    const QJsonDocument json_data = QJsonDocument::fromJson(data, &parse_error);
+
+    if (parse_error.error == QJsonParseError::NoError && json_data.isArray())
+    {
+        QJsonArray array = json_data.array();
+        QJsonObject object = array.first().toObject();
+
+        if(object["type"].toString() == "player") {
+            std::map<QString, Player*> players;
+
+            for(const auto& value : array) {
+                QJsonObject playerObject = value.toObject();
+
+                QString this_name = playerObject["name"].toString();
+                qreal x = playerObject["position_x"].toDouble();
+                qreal y = playerObject["position_y"].toDouble();
+                qreal rotation = playerObject["rotation"].toDouble();
+                qreal hp = playerObject["hp"].toDouble();
+
+                if(player_->getName() == this_name) {
+                    player_->getDrawer()->setPos(x, y);
+                    player_->getDrawer()->setRotation(rotation);
+                    player_->setHp(hp);
+                }
+                else if(enemies_.contains(this_name))
+                {
+                    enemies_[this_name]->getDrawer()->setPos(x, y);
+                    enemies_[this_name]->getDrawer()->setRotation(rotation);
+                    enemies_[this_name]->setHp(hp);
+                }
+
+                //qDebug() << player_->getName() << ": " << player_->getDrawer()->x() << " " << player_->getDrawer()->y();
+            }
+        } else if (object["type"].toString() == "bullet"){
+            std::map<QString, Player*> bullets;
+
+            for(const auto& value : array) {
+                QJsonObject bulletObject = value.toObject();
+
+                int id = bulletObject["id"].toInt();
+                QString owner_name = bulletObject["name"].toString();
+                qreal x = bulletObject["position_x"].toDouble();
+                qreal y = bulletObject["position_y"].toDouble();
+                qreal rotation = bulletObject["rotation"].toDouble();
+
+                //qDebug() << id << " " << owner_name << " " << x << " " << y << " " << rotation;
+
+                if(!bullets_.contains(id)) {
+                    Bullet *bullet = new Bullet(owner_name);
+                    bullet->getDrawer()->setPos(x, y);
+                    bullet->getDrawer()->setRotation(rotation);
+                    EntityDrawer* drawer = bullet->getDrawer();
+                    bullets_[id] = drawer;
+
+                    //qDebug() << x << " " << y;
+                    gui_->addItem(drawer);
+                }
+                else {
+                    //qDebug() << bullets_[id]->x() << " " << bullets_[id]->y();
+                    bullets_[id]->setPos(x, y);
+                    bullets_[id]->setRotation(rotation);
+                }
+            }
+        }
+    }
+    else
+    {
+        // todo: handle? ili ne? nemamo vremena :(((
+    }
 }
 
-void Game::bulletMoved(QVariant variant)
+void Game::serializeData()
 {
-    client_->sendMessage(variant);
-}
+    json_object_["movement"] = QJsonValue(static_cast<qint64>(gui_->getMovement()));
+    //json_object_["x"] = player_->getDrawer()->x();
+    //json_object_["y"] = player_->getDrawer()->y();
+    json_object_["mouse_x"] = gui_->getMouseX();
+    json_object_["mouse_y"] = gui_->getMouseY();
 
-void Game::updateMap(QVariant variant)
-{
-    int id = variant.toInt();
-    map_->remove_from_active(id);
-    map_->get_matrix()[id]->setDrawer("../silent-edge/src/images/ground.png");
-}
-
-void Game::tileDeleted(int id)
-{
-    client_->sendMessage(QVariant(id));
+    client_->sendMessage(QJsonDocument(json_object_).toJson());
 }
 

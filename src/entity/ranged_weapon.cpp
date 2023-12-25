@@ -21,24 +21,6 @@ qreal RangedWeapon::getReloadTime() const
     return reload_time_;
 }
 
-QVariant RangedWeapon::toVariant() const
-{
-    QVariantMap weaponData = Weapon::toVariant().toMap();
-    weaponData.insert("rate_of_fire", rate_of_fire_);
-    weaponData.insert("reload_time", reload_time_);
-
-    return weaponData;
-}
-
-void RangedWeapon::fromVariant(const QVariant& variant)
-{
-    Weapon::fromVariant(variant);
-
-    QVariantMap weaponData = variant.toMap();
-    rate_of_fire_ = weaponData["rate_of_fire"].toReal();
-    reload_time_ = weaponData["reload_time"].toReal();
-}
-
 //std::list<Bullet> RangedWeapon::getBulletsUsed()
 //{
 //    return bullets_used_;

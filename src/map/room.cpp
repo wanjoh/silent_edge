@@ -1,5 +1,7 @@
 #include "room.hpp"
 
+const int IMAGE_SIZE = 64;
+
 Room::Room()
 {
 
@@ -11,7 +13,7 @@ Room::Room(int id, std::pair<int, int> start_coords, std::pair<int, int> end_coo
     start_coords_ = start_coords;
     end_coords_ = end_coords;
 
-    set_width_and_height();
+    setWidthAndHeight();
 }
 
 Room::~Room()
@@ -24,53 +26,65 @@ qreal Room::getId()
     return id_;
 }
 
-std::unordered_map<QString, Tile*> Room::get_unused_spawnpoints()
+const std::unordered_map<int,QPair<int, int>>& Room::getUnusedSpawnpoints()
 {
     return unused_spawnpoints_;
 }
 
-std::unordered_map<QString, Tile*> Room::get_used_spawnpoints()
+const std::unordered_map<int, QPair<int, int>>& Room::getUsedSpawnpoints()
 {
     return used_spawnpoints_;
 }
 
-void Room::set_width_and_height()
+void Room::setWidthAndHeight()
 {
     width_ = end_coords_.first - start_coords_.first;
     height_ = end_coords_.second - start_coords_.second;
 }
 
-void Room::set_end_coords(std::pair<int, int> end_coords)
+void Room::setEndCoords(std::pair<int, int> end_coords)
 {
     end_coords_ = end_coords;
 }
 
-QVector<EntityDrawer *> Room::get_players_in_room()
+QVector<Player *> Room::getPlayersInRoom()
 {
     return players_in_room_;
 }
 
-void Room::add_player_to_room(EntityDrawer *player)
+void Room::addPlayerToRoom(Player *player)
 {
-    players_in_room_.append(player);
+    if(!unused_spawnpoints_.empty())
+    {
+        std::pair<int, QPair<int, int>> spawnpoint = *unused_spawnpoints_.begin();
+        players_in_room_.append(player);
+        player->getDrawer()->setPos(spawnpoint.second.first*IMAGE_SIZE, spawnpoint.second.second*IMAGE_SIZE);
+        unused_spawnpoints_.erase(spawnpoint.first);
+        used_spawnpoints_[spawnpoint.first] = spawnpoint.second;
+    }
 }
 
-std::pair<int, int> Room::get_start_coords()
+void Room::addSpawnpoint(int id, QPair<int, int> coords)
+{
+    unused_spawnpoints_[id] = coords;
+}
+
+std::pair<int, int> Room::getStartCoords()
 {
     return start_coords_;
 }
 
-std::pair<int, int> Room::get_end_coords()
+std::pair<int, int> Room::getEndCoords()
 {
     return end_coords_;
 }
 
-int Room::get_width()
+int Room::getWidth()
 {
     return width_;
 }
 
-int Room::get_height()
+int Room::getHeight()
 {
     return height_;
 }

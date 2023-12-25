@@ -24,8 +24,6 @@ public:
     qreal getPrice();
     qreal getDamageDealt();
     RarenessType getRarenessClass();
-    QVariant toVariant() const override;
-    void fromVariant(const QVariant&) override;
 
 
 private:

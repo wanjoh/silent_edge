@@ -14,19 +14,3 @@ qreal MeleeWeapon::getCooldown()
 {
     return cooldown_;
 }
-
-QVariant MeleeWeapon::toVariant() const
-{
-    QVariantMap weaponData = Weapon::toVariant().toMap();
-    weaponData.insert("cooldown", cooldown_);
-
-    return weaponData;
-}
-
-void MeleeWeapon::fromVariant(const QVariant& variant)
-{
-    Weapon::fromVariant(variant);
-
-    QVariantMap weaponData = variant.toMap();
-    cooldown_ = weaponData["cooldown"].toReal();
-}

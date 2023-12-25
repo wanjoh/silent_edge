@@ -20,18 +20,16 @@ public:
 
 public slots:
     void connectToServer(const QString &ipAdress, quint16 port);
-    void sendMessage(QVariant);
+    void sendMessage(const QByteArray&);
     void disconnectFromHost();
-    void updatePosition(QVariant);
 private slots:
     void onReadyRead();
 signals:
-    void signalDataReceived(QVariant);
-    void signalTileNameReceived(QVariant);
+    void serverTickReceived();
+    void signalTileNameReceived();
     void error(QAbstractSocket::SocketError socketError);
+    void dataReceived(const QByteArray &data);
 private:
     QTcpSocket *client_socket_;
     bool logged_in_;
-    //void jsonReceived(const QJsonObject &doc);
-    void dataReceived(const QByteArray &data);
 };
