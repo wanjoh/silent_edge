@@ -3,19 +3,15 @@
 #include <QKeyEvent>
 #include <QGraphicsSceneMouseEvent>
 
-GameWindow::GameWindow(MapDrawer* map_drawer, EntityDrawer* player_drawer, Room* room, qreal width, qreal height, QObject *parent)
+GameWindow::GameWindow(Room* room, qreal width, qreal height, QObject *parent)
     : QGraphicsScene(0, 0, width, height, parent)
     , window_width_(width)
     , window_height_(height)
     , width_zoom_level_(1.0)
     , height_zoom_level_(1.0)
-    , map_group_(map_drawer->get_group())
     , room_(room)
     , movement_(0)
 {
-    map_group_->addToGroup(player_drawer);
-    addItem(map_group_);
-
     phase_ = new QGraphicsView(this);
     phase_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     phase_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

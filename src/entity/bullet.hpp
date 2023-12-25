@@ -33,6 +33,7 @@ public:
     void setName(const QString &newName);
 
 private:
+    QString name_;
     BulletType type_;
     qreal damage_dealt_;
     QVector2D aim_dir_;

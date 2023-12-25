@@ -15,7 +15,7 @@ class GameWindow : public QGraphicsScene
 public:
     static constexpr qreal WINDOW_WIDTH = 1280;
     static constexpr qreal WINDOW_HEIGHT = 720;
-    GameWindow(MapDrawer*, EntityDrawer*, Room*, qreal = WINDOW_WIDTH, qreal = WINDOW_HEIGHT, QObject* = nullptr);
+    GameWindow(Room *, qreal = WINDOW_WIDTH, qreal = WINDOW_HEIGHT, QObject* = nullptr);
     ~GameWindow();
 
     enum class GamePhase : quint32
@@ -64,7 +64,6 @@ private:
     quint32 window_height_;
     GamePhase current_active_phase_;
 
-    QGraphicsItemGroup *map_group_;
     Room* room_;
     std::unordered_map<QString, EntityDrawer*> items_;
     QGraphicsView *phase_;

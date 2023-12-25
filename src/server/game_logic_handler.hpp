@@ -22,10 +22,10 @@ public:
     GameLogicHandler(const GameLogicHandler&) = delete;
     ~GameLogicHandler();
     void updateBullets();
-    qreal updatePlayerRotation(int x, int y, const QString& name, Player *player);
-    void updatePlayerPosition(int x, int y, const QString& name, Player *player);
+    void updatePlayerRotation(int x, int y, const QString& name);
+    void updatePlayerPosition(int x, int y, const QString& name);
     void updatePlayerStats(const QByteArray&);
-    void addBullet(int x, int y, const QString& name, qreal rotation);
+    void addBullet(int x, int y, const QString& name);
     void putPlayersIntoRooms();
     void updatePlayers();
     QByteArray jsonify(const QString&);
@@ -50,11 +50,13 @@ private:
     QTimer ammo_respawn_timer_;
     QTimer shooting_timer_;
     std::map<QString, Player*> players_;
-    QList<QPair<QString, Bullet*>> bullets_;
+    // limun: mapa čiji je ključ ime igrača, a sadrži listu metaka
+    std::map<QString, QList<Bullet*>> bullets_;
     Map* map_;
     std::unordered_map<qint32, Room*> rooms_;
     std::unordered_map<qint32, Tile*> matrix_;
     QMutex mutex_;
     std::map<QString, quint32> commands_;
+    std::map<QString, QPair<int, int>> positions_;
     std::map<QString, QPair<qreal, qreal>> mouse_positions_;
 };

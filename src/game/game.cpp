@@ -13,7 +13,9 @@ Game::Game(QString name, QObject *parent)
     , player_(new Player(name, false))
 {
     Room *room = map_->addPlayerToARoom(*player_);
-    gui_ = new GameWindow(map_->getDrawer(), player_->getDrawer(), room);
+    gui_ = new GameWindow(room);
+    gui_->addItem(map_->getDrawer()->get_group());
+    gui_->addEntity(name, player_->getDrawer());
     json_object_["name"] = name;
 
     connect(client_, &Client::serverTickReceived, this, &Game::serializeData, Qt::DirectConnection);
@@ -92,7 +94,7 @@ void Game::deserializeData(const QByteArray &data)
                 qreal y = bulletObject["position_y"].toDouble();
                 qreal rotation = bulletObject["rotation"].toDouble();
 
-                qDebug() << id << " " << owner_name << " " << x << " " << y << " " << rotation;
+                //qDebug() << id << " " << owner_name << " " << x << " " << y << " " << rotation;
 
                 if(!bullets_.contains(id)) {
                     Bullet *bullet = new Bullet(owner_name);
@@ -121,6 +123,8 @@ void Game::deserializeData(const QByteArray &data)
 void Game::serializeData()
 {
     json_object_["movement"] = QJsonValue(static_cast<qint64>(gui_->getMovement()));
+    //json_object_["x"] = player_->getDrawer()->x();
+    //json_object_["y"] = player_->getDrawer()->y();
     json_object_["mouse_x"] = gui_->getMouseX();
     json_object_["mouse_y"] = gui_->getMouseY();
 

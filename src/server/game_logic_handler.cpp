@@ -42,27 +42,28 @@ void GameLogicHandler::putPlayersIntoRooms()
     }
 }
 
-void GameLogicHandler::addBullet(int x, int y, const QString& name, qreal rotation)
+void GameLogicHandler::addBullet(int x, int y, const QString& name)
 {
     QMutexLocker locker(&mutex_);
 
-    Bullet *bullet = new Bullet("bullet");
-    bullet->getDrawer()->setPos(x, y);
-    bullet->getDrawer()->setRotation(rotation);
-    QPoint mouse_pos = QPoint(mouse_positions_[name].first, mouse_positions_[name].second);
-    QVector2D aim_dir = QVector2D(mouse_pos - players_[name]->getDrawer()->scenePos());
-    aim_dir.normalize();
-    bullet->setAim_dir(aim_dir);
-    bullets_.push_back({name, bullet});
+    QString bullet_name = QString::number(bullet_id);
     bullet_id++;
-    if(bullet_id > 10000)
-        bullet_id = 1;
+    Bullet* bullet = new Bullet(bullet_name);
+    bullets_[name].push_back(bullet);
+
+    QPointF top_left = players_[name]->getDrawer()->scenePos();
+    QPointF top_right = players_[name]->getDrawer()->mapToScene(players_[name]->getDrawer()->pixmap().rect().topRight());
+    QPointF top_center = (top_left + top_right) / 2;
+
+
+    bullet->getDrawer()->setRotation(players_[name]->getDrawer()->rotation());
+    bullet->getDrawer()->setPos(top_center.x(),top_center.y()-bullet->BULLET_HEIGHT);
 
    // todo: add bullet rotation
    // limun: evo
 }
 
-void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name, Player *player)
+void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name)
 {
     using namespace ServerConfig;
     bool moved = false;
@@ -95,7 +96,7 @@ void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name, P
     y += dy * DEFAULT_PLAYER_VELOCITY;
 
     std::unordered_map<int, Tile*> active_buckets = map_->getActiveAmmoBuckets();
-    QList<QGraphicsItem*> collidingItems = player->getDrawer()->collidingItems();
+    QList<QGraphicsItem*> collidingItems = players_[name]->getDrawer()->collidingItems();
     for(auto item : collidingItems)
     {
         QGraphicsPixmapItem* pixmap_item = dynamic_cast<QGraphicsPixmapItem*>(item);
@@ -123,7 +124,7 @@ void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name, P
         }
     }
 
-    player->getDrawer()->setPos(x, y);
+    players_[name]->getDrawer()->setPos(x, y);
 }
 
 QByteArray GameLogicHandler::jsonify(const QString& data_type)
@@ -151,17 +152,19 @@ QByteArray GameLogicHandler::jsonify(const QString& data_type)
     else if(data_type == "bullet") {
         QJsonArray bulletsArray;
 
-        for(auto& [name, bullet] : bullets_)
+        for(auto& [name, bullet_group] : bullets_)
         {
-            QJsonObject bulletObject;
-            bulletObject["type"] = "bullet";
-            bulletObject["id"] = bullet_id;
-            bulletObject["name"] = name;
-            bulletObject["position_x"] = bullet->getDrawer()->x();
-            bulletObject["position_y"] = bullet->getDrawer()->y();
-            bulletObject["rotation"] = bullet->getDrawer()->rotation();
+            for(auto& bullet : bullet_group) {
+                QJsonObject bulletObject;
+                bulletObject["type"] = "bullet";
+                bulletObject["id"] = bullet_id;
+                bulletObject["name"] = name;
+                bulletObject["position_x"] = bullet->getDrawer()->x();
+                bulletObject["position_y"] = bullet->getDrawer()->y();
+                bulletObject["rotation"] = bullet->getDrawer()->rotation();
 
-            bulletsArray.append(bulletObject);
+                bulletsArray.append(bulletObject);
+            }
         }
 
         const QJsonDocument json_data(bulletsArray);
@@ -177,14 +180,14 @@ void GameLogicHandler::updatePlayers()
 {
     for (auto& [name, player] : players_)
     {
-        qreal x = players_[name]->getDrawer()->x();
-        qreal y = players_[name]->getDrawer()->y();
+        qreal x = player->getDrawer()->x();//positions_[name].first;
+        qreal y = player->getDrawer()->y();//positions_[name].second;
 
         // limun: rotacija, pozicija, meci
-        qreal rotation = updatePlayerRotation(x, y, name, player);
-        updatePlayerPosition(x, y, name, player);
+        updatePlayerRotation(x, y, name);
+        updatePlayerPosition(x, y, name);
         if((commands_[name] & ServerConfig::PlayerActions::SHOOT))
-            addBullet(x, y, name, rotation);
+            addBullet(x, y, name);
     }
 
     QByteArray player_info = jsonify("player");
@@ -218,50 +221,37 @@ void GameLogicHandler::removePlayer(QString name)
 void GameLogicHandler::updateBullets()
 {
     QMutexLocker locker(&mutex_);
-    QList<QPair<QString, Bullet*>>::Iterator it = bullets_.begin();
-    while (it != bullets_.end())
+    for(auto &[name, bullet_group] : bullets_)
     {
-        qreal x_pos = it->second->getDrawer()->scenePos().x() + BULLET_SPEED * it->second->aim_dir().x();
-        qreal y_pos = it->second->getDrawer()->scenePos().y() + BULLET_SPEED * it->second->aim_dir().y();
+        for(int i = bullet_group.size() - 1; i >= 0; i--) {
+            qreal x_pos = bullet_group[i]->getDrawer()->x() + BULLET_SPEED * qSin(qDegreesToRadians(bullet_group[i]->getDrawer()->rotation()));
+            qreal y_pos = bullet_group[i]->getDrawer()->y() - BULLET_SPEED * qCos(qDegreesToRadians(bullet_group[i]->getDrawer()->rotation()));
 
-        it->second->getDrawer()->setPos(x_pos, y_pos);
+            bullet_group[i]->getDrawer()->setPos(x_pos, y_pos);
 
-        if (checkCollisions(it->second))
-        {
-            delete it->second;
-            bullets_.erase(it++);
-        }
-        else
-        {
-            it++;
+            if (checkCollisions(bullet_group[i]))
+                delete bullet_group[i];
         }
     }
 }
 
-qreal GameLogicHandler::updatePlayerRotation(int x, int y, const QString& name, Player *player)
+void GameLogicHandler::updatePlayerRotation(int x, int y, const QString& name)
 {
-    qreal theta = 0.0;
+    QPointF aiming_point = QPointF(mouse_positions_[name].first, mouse_positions_[name].second);
+    if(players_[name]->getDrawer()->contains(players_[name]->getDrawer()->mapFromScene(aiming_point)))
+        return;
+    QPointF top_left = players_[name]->getDrawer()->scenePos();
+    QPointF top_right = players_[name]->getDrawer()->mapToScene(players_[name]->getDrawer()->pixmap().rect().topRight());
+    QPointF top_center = (top_left + top_right) / 2;
+    QPointF aim_dir = aiming_point - top_center;
 
-    qreal mouse_x = mouse_positions_[name].first;
-    qreal mouse_y = mouse_positions_[name].second;
+    if (aim_dir.manhattanLength() < 50)
+        return;
+    qreal angle = qAtan2(aim_dir.x(), -aim_dir.y());
+    angle = qRadiansToDegrees(angle);
 
-    QVector2D v1(mouse_x - x, mouse_y - y);
-    QVector2D v2(0.0, y);
-
-    qreal dot = QVector2D::dotProduct(v1, v2);
-
-    if(abs(v1.length()) < EPSILON || abs(v2.length()) < EPSILON)
-    {
-        return theta;
-    }
-
-    qreal cos_theta = dot / (v1.length() * v2.length());
-
-    theta = std::acos(cos_theta);
-
-    player->getDrawer()->setRotation(theta);
-
-    return theta;
+    bool rotated = qFabs(angle - players_[name]->getDrawer()->rotation()) > EPSILON;
+    players_[name]->getDrawer()->setRotation(angle);
 }
 
 bool GameLogicHandler::checkCollisions(Bullet* bullet)
@@ -269,7 +259,6 @@ bool GameLogicHandler::checkCollisions(Bullet* bullet)
     // todo: deluje sumnjicavo, verovatno se moze optimizovati
     // ne toliko thread safe, jer se moze desiti da se podaci o igracima azuriraju kad se ovo pozove
     QList<QGraphicsItem*> colidingItems = bullet->getDrawer()->collidingItems();
-
     foreach(QGraphicsItem *item, colidingItems)
     {
         QGraphicsPixmapItem* pixmap_item = dynamic_cast<QGraphicsPixmapItem*>(item);
@@ -277,7 +266,7 @@ bool GameLogicHandler::checkCollisions(Bullet* bullet)
         {
             if(typeid(*pixmap_item) == typeid(PlayerDrawer))
             {
-                PlayerDrawer *player_drawer = dynamic_cast<PlayerDrawer*>(pixmap_item);
+                PlayerDrawer *player_drawer = static_cast<PlayerDrawer*>(pixmap_item);
                 QString player_name = player_drawer->name();
 
                 decreaseHp(players_[player_name], bullet);
@@ -295,7 +284,7 @@ bool GameLogicHandler::checkCollisions(Bullet* bullet)
             }
             if(typeid(*pixmap_item) == typeid(TileDrawer))
             {
-                TileDrawer *tile_drawer = dynamic_cast<TileDrawer*>(pixmap_item);
+                TileDrawer *tile_drawer = static_cast<TileDrawer*>(pixmap_item);
                 int tile_id = tile_drawer->y()/IMAGE_SIZE * map_->getM() + tile_drawer->x()/IMAGE_SIZE;
                 if(matrix_[tile_id]->getTileType() == Tile::TileType::WALL)
                 {
@@ -343,6 +332,7 @@ void GameLogicHandler::updatePlayerStats(const QByteArray &player_info)
         }
         commands_[name] = static_cast<quint32>(json_data["movement"].toInteger());
         qDebug() << commands_[name];
+        //positions_[name] = QPair<int, int>(json_data["x"].toInteger(), json_data["y"].toInteger());
         mouse_positions_[name] = QPair<qreal, qreal>(json_data["mouseX"].toDouble(), json_data["mouseY"].toDouble());
     }
     else
