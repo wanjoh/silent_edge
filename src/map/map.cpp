@@ -100,7 +100,7 @@ void Map::initializeMatrix()
                         path += "ground.png";
                         break;
                 }
-                int id = j * n + i;
+                int id = i * m + j;
                 Tile *tile = new Tile(id, path, std::pair<int, int>(j, i), type);
 
                 if(is_ammo)
@@ -130,7 +130,7 @@ void Map::addToActive(int id)
 void Map::restockAmmoPiles()
 {
     for (const auto &bucket : inactive_ammo_buckets_) {
-        drawer_->change_picture(bucket.second, "../silent-edge/src/images/ammo_bucket.png");
+        drawer_->change_picture(bucket.first, "../silent-edge/src/images/ammo_bucket.png");
         active_ammo_buckets_[bucket.first] = bucket.second;
     }
 }

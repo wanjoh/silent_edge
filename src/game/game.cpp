@@ -51,66 +51,76 @@ void Game::deserializeData(const QByteArray &data)
     QJsonParseError parse_error;
     const QJsonDocument json_data = QJsonDocument::fromJson(data, &parse_error);
 
-    if (parse_error.error == QJsonParseError::NoError && json_data.isArray())
+    if (parse_error.error == QJsonParseError::NoError)
     {
-        QJsonArray array = json_data.array();
-        QJsonObject object = array.first().toObject();
+        if(json_data.isArray()) {
+            QJsonArray array = json_data.array();
+            QJsonObject object = array.first().toObject();
 
-        if(object["type"].toString() == "player") {
-            std::map<QString, Player*> players;
+            if(object["type"].toString() == "player") {
+                std::map<QString, Player*> players;
 
-            for(const auto& value : array) {
-                QJsonObject playerObject = value.toObject();
+                for(const auto& value : array) {
+                    QJsonObject playerObject = value.toObject();
 
-                QString this_name = playerObject["name"].toString();
-                qreal x = playerObject["position_x"].toDouble();
-                qreal y = playerObject["position_y"].toDouble();
-                qreal rotation = playerObject["rotation"].toDouble();
-                qreal hp = playerObject["hp"].toDouble();
+                    QString this_name = playerObject["name"].toString();
+                    qreal x = playerObject["position_x"].toDouble();
+                    qreal y = playerObject["position_y"].toDouble();
+                    qreal rotation = playerObject["rotation"].toDouble();
+                    qreal hp = playerObject["hp"].toDouble();
 
-                if(player_->getName() == this_name) {
-                    player_->getDrawer()->setPos(x, y);
-                    player_->getDrawer()->setRotation(rotation);
-                    player_->setHp(hp);
+                    if(player_->getName() == this_name) {
+                        player_->getDrawer()->setPos(x, y);
+                        player_->getDrawer()->setRotation(rotation);
+                        player_->setHp(hp);
+                    }
+                    else if(enemies_.contains(this_name))
+                    {
+                        enemies_[this_name]->getDrawer()->setPos(x, y);
+                        enemies_[this_name]->getDrawer()->setRotation(rotation);
+                        enemies_[this_name]->setHp(hp);
+                    }
+
+                    //qDebug() << player_->getName() << ": " << player_->getDrawer()->x() << " " << player_->getDrawer()->y();
                 }
-                else if(enemies_.contains(this_name))
-                {
-                    enemies_[this_name]->getDrawer()->setPos(x, y);
-                    enemies_[this_name]->getDrawer()->setRotation(rotation);
-                    enemies_[this_name]->setHp(hp);
-                }
+            } else if (object["type"].toString() == "bullet"){
+                std::map<QString, Player*> bullets;
 
-                //qDebug() << player_->getName() << ": " << player_->getDrawer()->x() << " " << player_->getDrawer()->y();
+                for(const auto& value : array) {
+                    QJsonObject bulletObject = value.toObject();
+
+                    int id = bulletObject["id"].toInt();
+                    QString owner_name = bulletObject["name"].toString();
+                    qreal x = bulletObject["position_x"].toDouble();
+                    qreal y = bulletObject["position_y"].toDouble();
+                    qreal rotation = bulletObject["rotation"].toDouble();
+
+                    //qDebug() << id << " " << owner_name << " " << x << " " << y << " " << rotation;
+
+                    if(!bullets_.contains(id)) {
+                        Bullet *bullet = new Bullet(owner_name);
+                        bullet->getDrawer()->setPos(x, y);
+                        bullet->getDrawer()->setRotation(rotation);
+                        EntityDrawer* drawer = bullet->getDrawer();
+                        bullets_[id] = drawer;
+
+                        //qDebug() << x << " " << y;
+                        gui_->addItem(drawer);
+                    }
+                    else {
+                        //qDebug() << bullets_[id]->x() << " " << bullets_[id]->y();
+                        bullets_[id]->setPos(x, y);
+                        bullets_[id]->setRotation(rotation);
+                    }
+                }
             }
-        } else if (object["type"].toString() == "bullet"){
-            std::map<QString, Player*> bullets;
+        } else {
+            QJsonObject object = json_data.object();
+            if(object["type"].toString() == "tile") {
+                int tile_id = object["tile_id"].toInt();
+                const QString &path = object["path"].toString();
 
-            for(const auto& value : array) {
-                QJsonObject bulletObject = value.toObject();
-
-                int id = bulletObject["id"].toInt();
-                QString owner_name = bulletObject["name"].toString();
-                qreal x = bulletObject["position_x"].toDouble();
-                qreal y = bulletObject["position_y"].toDouble();
-                qreal rotation = bulletObject["rotation"].toDouble();
-
-                //qDebug() << id << " " << owner_name << " " << x << " " << y << " " << rotation;
-
-                if(!bullets_.contains(id)) {
-                    Bullet *bullet = new Bullet(owner_name);
-                    bullet->getDrawer()->setPos(x, y);
-                    bullet->getDrawer()->setRotation(rotation);
-                    EntityDrawer* drawer = bullet->getDrawer();
-                    bullets_[id] = drawer;
-
-                    //qDebug() << x << " " << y;
-                    gui_->addItem(drawer);
-                }
-                else {
-                    //qDebug() << bullets_[id]->x() << " " << bullets_[id]->y();
-                    bullets_[id]->setPos(x, y);
-                    bullets_[id]->setRotation(rotation);
-                }
+                map_->getDrawer()->change_picture(tile_id, path);
             }
         }
     }

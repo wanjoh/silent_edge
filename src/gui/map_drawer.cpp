@@ -2,8 +2,9 @@
 
 MapDrawer::MapDrawer(std::unordered_map<int, Tile*> matrix, QGraphicsItem* parent)
 {
+    matrix_ = matrix;
     group_ = new QGraphicsItemGroup();
-    initialize_group(matrix);
+    initialize_group(matrix_);
 }
 
 MapDrawer::~MapDrawer()
@@ -27,7 +28,7 @@ QGraphicsItemGroup* MapDrawer::get_group()
     return group_;
 }
 
-void MapDrawer::change_picture(Tile *tile, const QString& path)
+void MapDrawer::change_picture(int tile_id, const QString& path)
 {
-    tile->setDrawer(path);
+    matrix_[tile_id]->setDrawer(path);
 }

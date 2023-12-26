@@ -22,6 +22,7 @@ public slots:
     void broadcast(const QByteArray&);
     void stopServer();
     void updateAllSignal(const QByteArray&, const QByteArray&);
+    void tileChangedSignal(const QByteArray&);
 private slots:
     void emitTickMessage();
 signals:
