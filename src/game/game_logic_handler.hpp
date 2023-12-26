@@ -17,6 +17,7 @@ public:
     static constexpr qreal DEFAULT_PLAYER_VELOCITY = 5.0f;
     static constexpr quint32 TARGET_FPS = 60;
     static constexpr qreal EPSILON = 1e-5;
+    static constexpr qint32 AMMO_BUCKET_CAPCITY = 10;
 
     GameLogicHandler(QString = "playa", Map* = new Map(), QObject* = nullptr);
     GameLogicHandler(const GameLogicHandler&) = delete;
@@ -38,7 +39,6 @@ private slots:
     void updateMovement();
     void updateAmmo();
     void updateBullets();
-    void swingMelee();
     void checkCollisions(Bullet*);
     void reload();
 signals:
@@ -52,13 +52,16 @@ signals:
     void bulletMoved(QVariant);
     void update(QString, EntityDrawer*);
     void reloadItemSignal(QString, EntityDrawer*);
+    void meleeSwingSignal(QString, EntityDrawer*);
     void removeReload(QString);
+    void removeMelee(QString);
     void labelSignal(qint32, qint32, qint32);
 private:
     void decreaseHp(Player*,Bullet*);
     void initializeTimers();
     bool updateRotation();
     bool canEntityMove(QVector<QString> &names);
+    void swingMelee();
 
     QTimer movement_timer_;
     QTimer ammo_respawn_timer_;

@@ -18,6 +18,9 @@ Player::Player(QString name, bool enemy,qreal hp, int x, int y, QObject* parent)
     entityType_ = "player";
     hp_ = hp;
 
+    melee_weapon_->getDrawer()->setTransformOriginPoint(drawer_->boundingRect().center());
+    melee_weapon_->getDrawer()->setPos(drawer_->pos().x(), drawer_->pos().y() + melee_weapon_->getDrawer()->boundingRect().height());
+
 }
 
 

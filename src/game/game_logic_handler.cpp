@@ -15,6 +15,7 @@ GameLogicHandler::GameLogicHandler(QString name, Map *map, QObject* parent)
     reload_drawer_ = new EntityDrawer("reload", "../silent-edge/src/images/reload.png");
     reload_drawer_->setZValue(3);
 
+
 }
 
 GameLogicHandler::~GameLogicHandler()
@@ -47,7 +48,14 @@ void GameLogicHandler::updateMouseClick(Qt::MouseButton button, bool pressed)
 {
     if (button == Qt::RightButton)
     {
-        swingMelee();
+        if(pressed && !shooting_cooldown_timer_.isActive())
+        {
+            emit meleeSwingSignal(player_->getMeleeWeapon()->getName(), player_->getMeleeWeapon()->getDrawer());
+            shooting_cooldown_timer_.start();
+            QTimer::singleShot(500, this, [this]() {
+                emit removeMelee(player_->getMeleeWeapon()->getName());
+            });
+        }
     }
     else if (button == Qt::LeftButton && pressed && !shooting_cooldown_timer_.isActive() && !reload_timer_.isActive())
     {
@@ -150,7 +158,8 @@ void GameLogicHandler::updateMovement()
                 QPair<int, int> coords = map_[edge]->get_coords();
                 map_object_->remove_tile(edge);
                 map_object_->add_ground_tile_of_type_ammo(edge, coords.first, coords.second);
-
+                player_->getRangedWeapon()->setRemainingBullets(player_->getRangedWeapon()->getRemainingBullets() + AMMO_BUCKET_CAPCITY);
+                emit labelSignal(player_->getRangedWeapon()->getCapacity() - player_bullet_count_[player_->getName()], player_->getRangedWeapon()->getCapacity(), player_->getRangedWeapon()->getRemainingBullets());
                 emit tileDeleted(edge);
             }
         }
@@ -370,15 +379,8 @@ void GameLogicHandler::reload()
 
     quint32 bullets_shot = player_bullet_count_[player_->getName()];
     player_bullet_count_[player_->getName()] -= std::min(player_->getRangedWeapon()->getRemainingBullets(), static_cast<qint32>(player_bullet_count_[player_->getName()]));
-    if(player_->getRangedWeapon()->getRemainingBullets() - bullets_shot < 0)
-    {
-        qDebug() << "testing";
-    }
     player_->getRangedWeapon()->setRemainingBullets(std::max(player_->getRangedWeapon()->getRemainingBullets() - static_cast<qint32>(bullets_shot), 0));
 
-    qDebug() << player_bullet_count_[player_->getName()] << player_->getRangedWeapon()->getRemainingBullets();
-
-    qDebug() << "Reloading complete!";
 
     emit removeReload(reload_drawer_->name());
     emit labelSignal(player_->getRangedWeapon()->getCapacity() - player_bullet_count_[player_->getName()], player_->getRangedWeapon()->getCapacity(), player_->getRangedWeapon()->getRemainingBullets());
@@ -418,13 +420,12 @@ bool GameLogicHandler::updateRotation()
     QPointF top_center = (top_left + top_right) / 2;
     QPointF aim_dir = aiming_point_ - top_center;
 
-    if (aim_dir.manhattanLength() < 50)
-        return false;
     qreal angle = qAtan2(aim_dir.x(), -aim_dir.y());
     angle = qRadiansToDegrees(angle);
 
     bool rotated = qFabs(angle - player_->getDrawer()->rotation()) > EPSILON;
     player_->getDrawer()->setRotation(angle);
+
     return rotated;
 }
 

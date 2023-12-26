@@ -27,7 +27,9 @@ Game::Game(QString name, QObject *parent)
 
     connect(logic_handler_, &GameLogicHandler::newBulletSignal, gui_, &GameWindow::addEntity);
     connect(logic_handler_, &GameLogicHandler::reloadItemSignal, gui_, &GameWindow::addEntity);
+    connect(logic_handler_, &GameLogicHandler::meleeSwingSignal, gui_, &GameWindow::addEntity);
     connect(logic_handler_, &GameLogicHandler::removeReload, gui_, &GameWindow::removeEntity);
+    connect(logic_handler_, &GameLogicHandler::removeMelee, gui_, &GameWindow::removeEntity);
     connect(logic_handler_, &GameLogicHandler::destroyBullet, gui_, &GameWindow::removeEntity);
     connect(logic_handler_, &GameLogicHandler::destroyPlayer, gui_, &GameWindow::removeEntity);
     connect(gui_, &GameWindow::mousePos, logic_handler_, &GameLogicHandler::updateAimingPoint);

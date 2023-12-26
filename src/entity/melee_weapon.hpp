@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../gui/melee_drawer.hpp"
 #include "weapon.hpp"
 
 class MeleeWeapon : public Weapon
@@ -10,6 +11,7 @@ public:
     qreal getCooldown();
     QVariant toVariant() const override;
     void fromVariant(const QVariant&) override;
+
 private:
     qreal cooldown_;
 };

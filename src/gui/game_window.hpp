@@ -56,4 +56,5 @@ private:
     QGraphicsTextItem* remaining_bullets_label_;
     QGraphicsRectItem* bullets_background_;
     QGraphicsRectItem* remaining_bullets_background_;
+    QGraphicsPixmapItem* pistol_overlay_;
 };
