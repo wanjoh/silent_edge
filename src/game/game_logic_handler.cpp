@@ -1,6 +1,6 @@
 #include "game_logic_handler.hpp"
 #include <QtMath>
-#include <QPropertyAnimation>
+#include <QPen>
 
 const int IMAGE_SIZE = 64;
 
@@ -14,7 +14,6 @@ GameLogicHandler::GameLogicHandler(QString name, Map *map, QObject* parent)
     initializeTimers();
     reload_drawer_ = new EntityDrawer("reload", "../silent-edge/src/images/reload.png");
     reload_drawer_->setZValue(3);
-
 
 }
 
@@ -48,13 +47,10 @@ void GameLogicHandler::updateMouseClick(Qt::MouseButton button, bool pressed)
 {
     if (button == Qt::RightButton)
     {
-        if(pressed && !shooting_cooldown_timer_.isActive())
+        if(pressed && !swing_timer_.isActive())
         {
             emit meleeSwingSignal(player_->getMeleeWeapon()->getName(), player_->getMeleeWeapon()->getDrawer());
-            shooting_cooldown_timer_.start();
-            QTimer::singleShot(500, this, [this]() {
-                emit removeMelee(player_->getMeleeWeapon()->getName());
-            });
+            swing_timer_.start();
         }
     }
     else if (button == Qt::LeftButton && pressed && !shooting_cooldown_timer_.isActive() && !reload_timer_.isActive())
@@ -394,15 +390,21 @@ void GameLogicHandler::initializeTimers()
     shooting_cooldown_timer_.setSingleShot(true);
     reload_timer_.setInterval(player_->getRangedWeapon()->getReloadTime());
     reload_timer_.setSingleShot(true);
+    swing_timer_.setInterval(player_->getMeleeWeapon()->getSwingTime());
+    swing_timer_.setSingleShot(true);
     connect(&reload_timer_, &QTimer::timeout, this, &GameLogicHandler::reload);
     connect(&shooting_cooldown_timer_, &QTimer::timeout, this, [this]()
     {
         shooting_cooldown_timer_.stop();
     });
+    connect(&swing_timer_, &QTimer::timeout, this, [this]()
+            {
+                emit removeMelee(player_->getMeleeWeapon()->getName());
+                swing_timer_.stop();
+            });
     connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updateMovement);
     // za sad se koristi isti tajmer
     connect(&movement_timer_, &QTimer::timeout, this, &GameLogicHandler::updateBullets);
-
 
     movement_timer_.start();
 
@@ -420,11 +422,13 @@ bool GameLogicHandler::updateRotation()
     QPointF top_center = (top_left + top_right) / 2;
     QPointF aim_dir = aiming_point_ - top_center;
 
+    player_->getMeleeWeapon()->getDrawer()->setPos(top_right.x(), top_right.y());
     qreal angle = qAtan2(aim_dir.x(), -aim_dir.y());
     angle = qRadiansToDegrees(angle);
 
     bool rotated = qFabs(angle - player_->getDrawer()->rotation()) > EPSILON;
     player_->getDrawer()->setRotation(angle);
+    player_->getMeleeWeapon()->getDrawer()->setRotation(angle);
 
     return rotated;
 }

@@ -67,6 +67,7 @@ private:
     QTimer ammo_respawn_timer_;
     QTimer shooting_cooldown_timer_;
     QTimer reload_timer_;
+    QTimer swing_timer_;
     Player* player_;
     QPointF aiming_point_;
     // todo: izbaciti enemies iz game klase

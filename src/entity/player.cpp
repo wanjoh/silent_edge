@@ -10,7 +10,7 @@ Player::Player() : Entity()
 }
 Player::Player(QString name, bool enemy,qreal hp, int x, int y, QObject* parent) : Entity(name, parent)
 {
-    melee_weapon_ = new MeleeWeapon("Katana", Weapon::RarenessType::COMMON, 50.0, 20.0, 1.0);
+    melee_weapon_ = new MeleeWeapon("Katana", Weapon::RarenessType::COMMON, 50.0, 20.0, 1000.0);
     ranged_weapon_ = new RangedWeapon("Gun", Weapon::RarenessType::COMMON, 200.0, 10.0, 200.0, 10u, 1300.0, 20u);
     drawer_ = new PlayerDrawer(name,enemy ? "../silent-edge/src/images/enemy.png" : "../silent-edge/src/images/samurai.png");
     drawer_->setPos(x, y);
@@ -18,8 +18,7 @@ Player::Player(QString name, bool enemy,qreal hp, int x, int y, QObject* parent)
     entityType_ = "player";
     hp_ = hp;
 
-    melee_weapon_->getDrawer()->setTransformOriginPoint(drawer_->boundingRect().center());
-    melee_weapon_->getDrawer()->setPos(drawer_->pos().x(), drawer_->pos().y() + melee_weapon_->getDrawer()->boundingRect().height());
+    melee_weapon_->getDrawer()->setTransformOriginPoint(melee_weapon_->getDrawer()->pixmap().rect().topLeft());
 
 }
 

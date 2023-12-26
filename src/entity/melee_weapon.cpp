@@ -6,22 +6,22 @@ MeleeWeapon::MeleeWeapon()
 {
 }
 
-MeleeWeapon::MeleeWeapon(QString name, RarenessType rtype, qreal price, qreal dmg_dealt, qreal cooldown, QObject* parent)
-    : Weapon(name, rtype, price, dmg_dealt, parent), cooldown_(cooldown)
+MeleeWeapon::MeleeWeapon(QString name, RarenessType rtype, qreal price, qreal dmg_dealt, qreal swing_time, QObject* parent)
+    : Weapon(name, rtype, price, dmg_dealt, parent), swing_time_(swing_time)
 {
     drawer_ = new MeleeDrawer(name,"../silent-edge/src/images/katana.png");
 }
 
-qreal MeleeWeapon::getCooldown()
+qreal MeleeWeapon::getSwingTime() const
 {
-    return cooldown_;
+    return swing_time_;
 }
 
 
 QVariant MeleeWeapon::toVariant() const
 {
     QVariantMap weaponData = Weapon::toVariant().toMap();
-    weaponData.insert("cooldown", cooldown_);
+    weaponData.insert("swing_time", swing_time_);
 
     return weaponData;
 }
@@ -31,5 +31,5 @@ void MeleeWeapon::fromVariant(const QVariant& variant)
     Weapon::fromVariant(variant);
 
     QVariantMap weaponData = variant.toMap();
-    cooldown_ = weaponData["cooldown"].toReal();
+    swing_time_ = weaponData["swing_time"].toReal();
 }
