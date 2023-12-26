@@ -125,8 +125,8 @@ void Game::serializeData()
     json_object_["movement"] = QJsonValue(static_cast<qint64>(gui_->getMovement()));
     //json_object_["x"] = player_->getDrawer()->x();
     //json_object_["y"] = player_->getDrawer()->y();
-    json_object_["mouse_x"] = gui_->getMouseX();
-    json_object_["mouse_y"] = gui_->getMouseY();
+    json_object_["mouse_x"] = QJsonValue(static_cast<qreal>(gui_->getMouseX()));
+    json_object_["mouse_y"] = QJsonValue(static_cast<qreal>(gui_->getMouseY()));
 
     client_->sendMessage(QJsonDocument(json_object_).toJson());
 }

@@ -21,22 +21,23 @@ public:
     GameLogicHandler(Map* = new Map(), QObject* = nullptr);
     GameLogicHandler(const GameLogicHandler&) = delete;
     ~GameLogicHandler();
-    void updateBullets();
     void updatePlayerRotation(int x, int y, const QString& name);
     void updatePlayerPosition(int x, int y, const QString& name);
     void updatePlayerStats(const QByteArray&);
     void addBullet(int x, int y, const QString& name);
     void putPlayersIntoRooms();
+    void updateAll();
     void updatePlayers();
+    void updateBullets();
     QByteArray jsonify(const QString&);
 private slots:
     void updateAmmo();
 signals:
     void tileChanged(int, const QString& path);
-    void updatePlayersSignal(QByteArray& player_info);
-    void updateBulletsSignal(QByteArray& bullet_info);
+    void updateAllSignal(QByteArray& player_info, QByteArray& bullet_info);
     // videti kako ovo da se iskoristi, nesto mora da se prosledi kao param
     void playerDestroyedSignal();
+    void bulletDestroyedSignal();
 private:
     void addPlayer(Player*);
     void removePlayer(QString);
