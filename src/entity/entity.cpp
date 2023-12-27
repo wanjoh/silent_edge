@@ -9,7 +9,6 @@ Entity::Entity(QString name, QObject* parent) :
     QObject(parent)
     , name_(name)
 {
-
 }
 
 EntityDrawer* Entity::getDrawer()

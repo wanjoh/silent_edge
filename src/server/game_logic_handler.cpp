@@ -91,7 +91,13 @@ void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name)
 
     std::unordered_map<int, Tile*> active_buckets = map_->getActiveAmmoBuckets();
 
-    if(checkPlayerCollision(x, y, name))
+    qreal width = players_[name]->getDrawer()->boundingRect().width();
+    qreal height = players_[name]->getDrawer()->boundingRect().height();
+
+    if(checkPlayerCollision(x, y, name) ||
+        checkPlayerCollision(x + width, y, name) ||
+        checkPlayerCollision(x, y + height, name) ||
+        checkPlayerCollision(x + width, y + height, name))
         return;
 
     players_[name]->getDrawer()->setPos(x, y);
@@ -160,7 +166,7 @@ QByteArray GameLogicHandler::jsonify(const QString& data_type)
                 QJsonObject bulletObject;
                 bulletObject["type"] = "bullet";
                 bulletObject["id"] = bullet_id;
-                bulletObject["name"] = name;
+                bulletObject["name"] = bullet->getName();
                 bulletObject["position_x"] = bullet->getDrawer()->x();
                 bulletObject["position_y"] = bullet->getDrawer()->y();
                 bulletObject["rotation"] = bullet->getDrawer()->rotation();
@@ -236,9 +242,8 @@ void GameLogicHandler::updateBullets()
             {
                 // limun: crash
                 //delete bullet_group[i];
-
-                emit bulletDestroyedSignal();
-
+                emit bulletDestroyedSignal(bullet_group[i]->getName());
+                delete bullet_group.takeAt(i);
                 return;
             }
 

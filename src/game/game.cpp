@@ -32,6 +32,7 @@ void Game::startGame()
     startServer();
     client_->connectToServer(ServerConfig::getHost().toString(), ServerConfig::PORT);
     gui_->show(GameWindow::GamePhase::FIGHT_PHASE);
+    connect(server_, &GameServer::removeBulletSignal, gui_, &GameWindow::removeEntity);
 }
 
 void Game::startServer()
@@ -105,7 +106,8 @@ void Game::deserializeData(const QByteArray &data)
                         bullets_[id] = drawer;
 
                         //qDebug() << x << " " << y;
-                        gui_->addItem(drawer);
+                        //gui_->addItem(drawer);
+                        gui_->addEntity(owner_name, drawer);
                     }
                     else {
                         //qDebug() << bullets_[id]->x() << " " << bullets_[id]->y();

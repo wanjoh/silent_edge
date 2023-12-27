@@ -52,6 +52,7 @@ void GameServer::initializeTimers()
     connect(&server_timer_, &QTimer::timeout, this, &GameServer::emitTickMessage);
     connect(logic_handler_, &GameLogicHandler::updateAllSignal, this, &GameServer::updateAllSignal);
     connect(logic_handler_, &GameLogicHandler::tileChangedSignal, this, &GameServer::tileChangedSignal);
+    connect(logic_handler_, &GameLogicHandler::bulletDestroyedSignal, this, &GameServer::removeBulletSignal);
 
     server_timer_.start();
 }

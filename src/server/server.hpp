@@ -27,6 +27,7 @@ private slots:
     void emitTickMessage();
 signals:
     void logMessage(const QString&);
+    void removeBulletSignal(QString);
     void stopAllClients();
 private:
     void initializeTimers();

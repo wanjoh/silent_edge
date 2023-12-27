@@ -38,7 +38,7 @@ signals:
     void updateAllSignal(QByteArray& player_info, QByteArray& bullet_info);
     // videti kako ovo da se iskoristi, nesto mora da se prosledi kao param
     void playerDestroyedSignal();
-    void bulletDestroyedSignal();
+    void bulletDestroyedSignal(QString);
 private:
     void addPlayer(Player*);
     void removePlayer(QString);
