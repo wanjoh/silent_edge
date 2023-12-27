@@ -6,7 +6,7 @@
 class Room
 {
 public:
-    typedef std::unordered_map<int, QPair<int, int>> spawnpointMap;
+    typedef std::unordered_map<QString, QPair<int, int>> spawnpointMap;
 
     Room();
     Room(int, std::pair<int, int>, std::pair<int, int>);
@@ -23,7 +23,8 @@ public:
     std::pair<int, int> getEndCoords();
     int getWidth();
     int getHeight();
-    void addSpawnpoint(int id, QPair<int, int> coords);
+    void addSpawnpoint(const QString &name, QPair<int, int> coords);
+    void removePlayerFromRoom(Player *player);
 private:
     int id_;
     int width_;

@@ -33,12 +33,13 @@ GameWindow::~GameWindow()
     {
         delete item;
     }
-
 }
+
 
 void GameWindow::changeRoom(Room *new_room)
 {
     room_ = new_room;
+    setSceneUp();
 }
 
 quint32 GameWindow::getMovement()
@@ -82,6 +83,11 @@ void GameWindow::addEntity(QString name, EntityDrawer* entity)
 {
     items_[name] = entity;
     addItem(entity);
+}
+
+void GameWindow::teleportPlayer(const QString &name, qreal x, qreal y)
+{
+    items_[name]->setPos(x, y);
 }
 
 void GameWindow::removeEntity(QString name)

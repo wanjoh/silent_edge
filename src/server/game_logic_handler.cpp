@@ -25,19 +25,44 @@ GameLogicHandler::~GameLogicHandler()
     }
 }
 
-void GameLogicHandler::putPlayersIntoRooms()
+void GameLogicHandler::putPlayerIntoRoom(const QString &name)
 {
-    // todo: ovo je fobra funkcija, ako postoji neki lobby i igra se pokrece tek kad ima X igraca
-    // inace nije jer trenutno igraci ulaze jedan po jedan i potrebno je zasebno stavljati svakog igraca u sobu
-    auto player_it = players_.begin();
     for(auto it = rooms_.begin(); it != rooms_.end(); it++)
     {
         int n = it->second->getUnusedSpawnpoints().size();
 
-        for(int i = 0; i < n && player_it != players_.end(); i++)
-        {
-            it->second->addPlayerToRoom(player_it->second);
-            player_it++;
+        if(n == 0)
+            continue;
+
+        it->second->addPlayerToRoom(players_[name]);
+
+        QJsonObject object;
+        object["type"] = "refresh_camera";
+        object["name"] = name;
+        object["x"] = players_[name]->getDrawer()->x();
+        object["y"] = players_[name]->getDrawer()->y();
+        const QJsonDocument json_data(object);
+
+        QByteArray refresh_info = json_data.toJson();
+
+        emit sendRefreshCameraSignal(refresh_info);
+
+        return;
+    }
+}
+
+void GameLogicHandler::removePlayerFromRoom(const QString &name)
+{
+    for(auto it = rooms_.begin(); it != rooms_.end(); it++)
+    {
+        int n = it->second->getUnusedSpawnpoints().size();
+
+        if(n == 0)
+            continue;
+
+        if(it->second->getPlayersInRoom().contains(players_[name])) {
+            it->second->removePlayerFromRoom(players_[name]);
+            return;
         }
     }
 }
@@ -101,6 +126,7 @@ void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name)
         checkPlayerCollision(x, y + height, name) ||
         checkPlayerCollision(x + width, y + height, name))
         return;
+
 
     players_[name]->getDrawer()->setPos(x, y);
 }
@@ -209,6 +235,8 @@ void GameLogicHandler::updatePlayers()
         updatePlayerRotation(x, y, name);
         updatePlayerPosition(x, y, name);
 
+        qDebug() << "updatePlayers: " << player->getDrawer()->x() << " " << player->getDrawer()->y();
+
         if((commands_[name] & ServerConfig::PlayerActions::SHOOT))
             addBullet(x, y, name);
     }
@@ -227,6 +255,8 @@ void GameLogicHandler::addPlayer(Player* playa)
     players_[name] = playa;
     commands_[name] = 0;
     mouse_positions_[name] = {0.0, 0.0};
+
+    putPlayerIntoRoom(name);
 }
 
 void GameLogicHandler::removePlayer(QString name)
@@ -235,6 +265,8 @@ void GameLogicHandler::removePlayer(QString name)
     players_.erase(name);
     commands_.erase(name);
     mouse_positions_.erase(name);
+
+    removePlayerFromRoom(name);
 }
 
 void GameLogicHandler::updateBullets()

@@ -65,6 +65,9 @@ void Map::initializeMatrix()
 
                 int rand_index = 0;//rand() % 12;
 
+                int number_of_spawnpoints;
+                QString spawnpoint_name;
+
                 QString path = "../silent-edge/src/images/";
                 Tile::TileType type = Tile::TileType::GROUND;
                 switch(number)
@@ -87,7 +90,9 @@ void Map::initializeMatrix()
                     // spawnpoint
                     case 3:
                         path += "spawnpoint.png";
-                        rooms_[room_id]->addSpawnpoint(room_id, QPair<int, int>(i, j));
+                        number_of_spawnpoints = rooms_[room_id]->getUnusedSpawnpoints().size();
+                        spawnpoint_name = QString::number(room_id).append(" ").append(QString::number(number_of_spawnpoints));
+                        rooms_[room_id]->addSpawnpoint(spawnpoint_name, QPair<int, int>(i, j));
                         break;
                     // ammo
                     case 4:
@@ -160,13 +165,21 @@ const Room& Map::getRoomById(int id) const
     return *rooms_.at(id);
 }
 
-Room* Map::addPlayerToARoom(Player& player)
+Room* Map::findRoomForPlayer(Player& player)
 {
     qreal player_x = player.getDrawer()->x();
     qreal player_y = player.getDrawer()->y();
 
     for(auto &[_, room] : rooms_)
     {
+        QVector<Player*> players = room->getPlayersInRoom();
+        if(players.contains(&player))
+            players.removeOne(&player);
+    }
+
+    for(auto &[_, room] : rooms_)
+    {
+        qDebug() << "room";
         int start_x, start_y, end_x, end_y;
         std::tie(start_x, start_y) = room->getStartCoords();
         std::tie(end_x, end_y) = room->getEndCoords();

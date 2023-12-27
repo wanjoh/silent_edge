@@ -38,6 +38,7 @@ public:
     void make_overlay();
     void setSceneUp();
     void changeRoom(Room *new_room);
+    void teleportPlayer(const QString &name, qreal x, qreal y);
     quint32 getMovement();
     qreal getMouseX();
     qreal getMouseY();

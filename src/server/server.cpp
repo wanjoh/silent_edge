@@ -54,6 +54,7 @@ void GameServer::initializeTimers()
     connect(logic_handler_, &GameLogicHandler::tileChangedSignal, this, &GameServer::tileChangedSignal);
     connect(logic_handler_, &GameLogicHandler::bulletDestroyedSignal, this, &GameServer::removeBulletSignal);
     connect(logic_handler_, &GameLogicHandler::restockAmmoPilesSignal, this, &GameServer::restockAmmoPilesSignal);
+    connect(logic_handler_, &GameLogicHandler::sendRefreshCameraSignal, this, &GameServer::receiveRefreshCameraSignal);
 
     server_timer_.start();
 }
@@ -78,6 +79,11 @@ void GameServer::restockAmmoPilesSignal()
     QByteArray byte_array = json_data.toJson();
 
     broadcast(byte_array);
+}
+
+void GameServer::receiveRefreshCameraSignal(const QByteArray& refresh_info)
+{
+    broadcast(refresh_info);
 }
 
 void GameServer::error(QTcpSocket::SocketError error)

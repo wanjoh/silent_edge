@@ -25,7 +25,8 @@ public:
     void updatePlayerPosition(int x, int y, const QString& name);
     void updatePlayerStats(const QByteArray&);
     void addBullet(int x, int y, const QString& name);
-    void putPlayersIntoRooms();
+    void putPlayerIntoRoom(const QString &name);
+    void removePlayerFromRoom(const QString &name);
     void updateAll();
     void updatePlayers();
     void updateBullets();
@@ -40,6 +41,7 @@ signals:
     void playerDestroyedSignal();
     void bulletDestroyedSignal(QString);
     void restockAmmoPilesSignal();
+    void sendRefreshCameraSignal(QByteArray&);
 private:
     void addPlayer(Player*);
     void removePlayer(QString);

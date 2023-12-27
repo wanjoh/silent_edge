@@ -12,11 +12,11 @@ Game::Game(QString name, QObject *parent)
     , map_(new Map())
     , player_(new Player(name, false))
 {
-    Room *room = map_->addPlayerToARoom(*player_);
+    Room *room = map_->findRoomForPlayer(*player_);
     gui_ = new GameWindow(room);
     gui_->addItem(map_->getDrawer()->get_group());
-    gui_->addEntity(name, player_->getDrawer());
     json_object_["name"] = name;
+    gui_->addEntity(name, player_->getDrawer());
 
     connect(client_, &Client::serverTickReceived, this, &Game::serializeData, Qt::DirectConnection);
     connect(client_, &Client::dataReceived, this, &Game::deserializeData, Qt::DirectConnection);
@@ -131,6 +131,19 @@ void Game::deserializeData(const QByteArray &data)
 
             if(object["type"].toString() == "bucket_activation") {
                 map_->restockAmmoPiles();
+            }
+
+            if(object["type"].toString() == "refresh_camera") {
+                if(object["name"].toString() == player_->getName()) {
+                    qreal x = object["x"].toDouble();
+                    qreal y = object["y"].toDouble();
+                    player_->getDrawer()->setPos(x, y);
+                }
+
+                Room *room = map_->findRoomForPlayer(*player_);
+                gui_->changeRoom(room);
+                gui_->teleportPlayer(player_->getName(), player_->getDrawer()->x(), player_->getDrawer()->y());
+                qDebug() << "game: " << player_->getDrawer()->x() << " " << player_->getDrawer()->y();
             }
         }
     }

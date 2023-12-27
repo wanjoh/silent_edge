@@ -24,6 +24,7 @@ public slots:
     void updateAllSignal(const QByteArray&, const QByteArray&);
     void tileChangedSignal(const QByteArray&);
     void restockAmmoPilesSignal();
+    void receiveRefreshCameraSignal(const QByteArray& refresh_info);
 private slots:
     void emitTickMessage();
 signals:
