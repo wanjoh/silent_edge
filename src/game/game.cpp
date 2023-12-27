@@ -98,7 +98,13 @@ void Game::deserializeData(const QByteArray &data)
 
                     //qDebug() << id << " " << owner_name << " " << x << " " << y << " " << rotation;
 
-                    if(!bullets_.contains(id)) {
+                    if(bullets_.contains(id)) {
+                        //qDebug() << bullets_[id]->x() << " " << bullets_[id]->y();
+                        bullets_[id]->setPos(x, y);
+                        bullets_[id]->setRotation(rotation);
+                    }
+                    else {
+                        qDebug() << "new bullet";
                         Bullet *bullet = new Bullet(owner_name);
                         bullet->getDrawer()->setPos(x, y);
                         bullet->getDrawer()->setRotation(rotation);
@@ -107,22 +113,24 @@ void Game::deserializeData(const QByteArray &data)
 
                         //qDebug() << x << " " << y;
                         //gui_->addItem(drawer);
-                        gui_->addEntity(owner_name, drawer);
-                    }
-                    else {
-                        //qDebug() << bullets_[id]->x() << " " << bullets_[id]->y();
-                        bullets_[id]->setPos(x, y);
-                        bullets_[id]->setRotation(rotation);
+                        gui_->addEntity(bullet->getName(), drawer);
                     }
                 }
             }
         } else {
             QJsonObject object = json_data.object();
+            QString something = object["type"].toString();
+            qDebug() << something;
             if(object["type"].toString() == "tile") {
                 int tile_id = object["tile_id"].toInt();
                 const QString &path = object["path"].toString();
 
                 map_->getDrawer()->change_picture(tile_id, path);
+                map_->removeFromActive(tile_id);
+            }
+
+            if(object["type"].toString() == "bucket_activation") {
+                map_->restockAmmoPiles();
             }
         }
     }

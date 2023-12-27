@@ -23,6 +23,7 @@ public slots:
     void stopServer();
     void updateAllSignal(const QByteArray&, const QByteArray&);
     void tileChangedSignal(const QByteArray&);
+    void restockAmmoPilesSignal();
 private slots:
     void emitTickMessage();
 signals:

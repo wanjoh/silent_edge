@@ -48,6 +48,8 @@ void GameLogicHandler::addBullet(int x, int y, const QString& name)
 
     QString bullet_name = QString::number(bullet_id);
     bullet_id++;
+    if(bullet_id > 10000)
+        bullet_id = 1;
     Bullet* bullet = new Bullet(bullet_name);
     bullets_[name].push_back(bullet);
 
@@ -109,7 +111,7 @@ bool GameLogicHandler::checkPlayerCollision(qreal x, qreal y, const QString &nam
     int id_y = (int)y/IMAGE_SIZE;
     int tile_id = id_y * map_->getM() + id_x;
 
-    if(matrix_[tile_id]->getTileType() == Tile::TileType::AMMO_PILE) {
+    if(matrix_[tile_id]->getTileType() == Tile::TileType::AMMO_PILE && map_->getActiveAmmoBuckets().contains(tile_id)) {
         std::unordered_map<int, Tile*> active_buckets = map_->getActiveAmmoBuckets();
 
         map_->removeFromActive(tile_id);
@@ -199,13 +201,14 @@ void GameLogicHandler::updatePlayers()
 {
     for (auto& [name, player] : players_)
     {
-        qreal x = player->getDrawer()->x();//positions_[name].first;
-        qreal y = player->getDrawer()->y();//positions_[name].second;
+        qreal x = player->getDrawer()->x();
+        qreal y = player->getDrawer()->y();
 
         // limun: rotacija, pozicija, meci
 
         updatePlayerRotation(x, y, name);
         updatePlayerPosition(x, y, name);
+
         if((commands_[name] & ServerConfig::PlayerActions::SHOOT))
             addBullet(x, y, name);
     }
@@ -214,6 +217,8 @@ void GameLogicHandler::updatePlayers()
 void GameLogicHandler::updateAmmo()
 {
     map_->restockAmmoPiles();
+
+    emit restockAmmoPilesSignal();
 }
 
 void GameLogicHandler::addPlayer(Player* playa)
@@ -237,20 +242,20 @@ void GameLogicHandler::updateBullets()
     QMutexLocker locker(&mutex_);
     for(auto &[name, bullet_group] : bullets_)
     {
-        for(int i = bullet_group.size() - 1; i >= 0; i--) {
+        for(int i = bullet_group.size() - 1; i >= 0; i--)
+        {
             if (checkBulletCollisions(bullet_group[i]))
             {
-                // limun: crash
-                //delete bullet_group[i];
                 emit bulletDestroyedSignal(bullet_group[i]->getName());
                 delete bullet_group.takeAt(i);
-                return;
             }
+            else
+            {
+                qreal x_pos = bullet_group[i]->getDrawer()->x() + BULLET_SPEED * qSin(qDegreesToRadians(bullet_group[i]->getDrawer()->rotation()));
+                qreal y_pos = bullet_group[i]->getDrawer()->y() - BULLET_SPEED * qCos(qDegreesToRadians(bullet_group[i]->getDrawer()->rotation()));
 
-            qreal x_pos = bullet_group[i]->getDrawer()->x() + BULLET_SPEED * qSin(qDegreesToRadians(bullet_group[i]->getDrawer()->rotation()));
-            qreal y_pos = bullet_group[i]->getDrawer()->y() - BULLET_SPEED * qCos(qDegreesToRadians(bullet_group[i]->getDrawer()->rotation()));
-
-            bullet_group[i]->getDrawer()->setPos(x_pos, y_pos);
+                bullet_group[i]->getDrawer()->setPos(x_pos, y_pos);
+            }
         }
     }
 }

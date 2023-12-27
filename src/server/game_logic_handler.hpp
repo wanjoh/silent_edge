@@ -39,6 +39,7 @@ signals:
     // videti kako ovo da se iskoristi, nesto mora da se prosledi kao param
     void playerDestroyedSignal();
     void bulletDestroyedSignal(QString);
+    void restockAmmoPilesSignal();
 private:
     void addPlayer(Player*);
     void removePlayer(QString);

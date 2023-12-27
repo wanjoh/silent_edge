@@ -53,6 +53,7 @@ void GameServer::initializeTimers()
     connect(logic_handler_, &GameLogicHandler::updateAllSignal, this, &GameServer::updateAllSignal);
     connect(logic_handler_, &GameLogicHandler::tileChangedSignal, this, &GameServer::tileChangedSignal);
     connect(logic_handler_, &GameLogicHandler::bulletDestroyedSignal, this, &GameServer::removeBulletSignal);
+    connect(logic_handler_, &GameLogicHandler::restockAmmoPilesSignal, this, &GameServer::restockAmmoPilesSignal);
 
     server_timer_.start();
 }
@@ -66,6 +67,17 @@ void GameServer::updateAllSignal(const QByteArray& player_info, const QByteArray
 void GameServer::tileChangedSignal(const QByteArray& tile_info)
 {
     broadcast(tile_info);
+}
+
+void GameServer::restockAmmoPilesSignal()
+{
+    QJsonObject json_object;
+    QString type = "bucket_activation";
+    json_object["type"] = type;
+    QJsonDocument json_data(json_object);
+    QByteArray byte_array = json_data.toJson();
+
+    broadcast(byte_array);
 }
 
 void GameServer::error(QTcpSocket::SocketError error)
