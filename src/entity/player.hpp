@@ -23,6 +23,7 @@ public:
     RangedWeapon* getRangedWeapon() const;
 
     void setHp(qreal);
+    void setScore(qreal);
 
 private:
     qreal hp_;

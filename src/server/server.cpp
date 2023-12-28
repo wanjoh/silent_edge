@@ -14,6 +14,8 @@ GameServer::GameServer(QObject *parent)
     available_threads_.reserve(ServerConfig::MAX_USERS);
     threads_load_.reserve(ServerConfig::MAX_USERS);
 
+    connect(logic_handler_, &GameLogicHandler::gameIsOver, this, &GameServer::gameIsOver);
+
     if (!this->listen(ServerConfig::getHost(), ServerConfig::PORT))
     {
         qDebug() << "Could not start the server";
@@ -156,4 +158,10 @@ void GameServer::incomingConnection(qintptr socket_desc)
 void GameServer::emitTickMessage()
 {
     broadcast(QByteArray("tick\0"));
+}
+
+void GameServer::gameIsOver()
+{
+    qDebug() << "rang";
+//    emit showResults();
 }

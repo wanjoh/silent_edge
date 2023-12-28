@@ -25,6 +25,11 @@ qreal Player::getHp()
     return hp_;
 }
 
+qreal Player::getScore()
+{
+    return score_;
+}
+
 MeleeWeapon* Player::getMeleeWeapon() const
 {
     return meleeWeapon_;
@@ -38,4 +43,9 @@ RangedWeapon* Player::getRangedWeapon() const
 void Player::setHp(qreal hp)
 {
     hp_ = hp;
+}
+
+void Player::setScore(qreal score)
+{
+    score_ = score;
 }

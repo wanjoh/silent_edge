@@ -27,10 +27,12 @@ public slots:
     void receiveRefreshCameraSignal(const QByteArray& refresh_info);
 private slots:
     void emitTickMessage();
+    void gameIsOver();
 signals:
     void logMessage(const QString&);
     void removeBulletSignal(QString);
     void stopAllClients();
+    void showResults();
 private:
     void initializeTimers();
     void sendData(Connection*, const QByteArray&);
