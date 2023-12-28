@@ -20,6 +20,7 @@ Game::Game(QString name, QObject *parent)
 
     connect(client_, &Client::serverTickReceived, this, &Game::serializeData, Qt::DirectConnection);
     connect(client_, &Client::dataReceived, this, &Game::deserializeData, Qt::DirectConnection);
+
 }
 
 Game::~Game()
@@ -33,6 +34,12 @@ void Game::startGame()
     client_->connectToServer(ServerConfig::getHost().toString(), ServerConfig::PORT);
     gui_->show(GameWindow::GamePhase::FIGHT_PHASE);
     connect(server_, &GameServer::removeBulletSignal, gui_, &GameWindow::removeEntity);
+    connect(server_, &GameServer::reloadItemSignal, gui_, &GameWindow::addEntity);
+    connect(server_, &GameServer::meleeSwingSignal, gui_, &GameWindow::addEntity);
+    connect(server_, &GameServer::removeReload, gui_, &GameWindow::removeEntity);
+    connect(server_, &GameServer::removeMelee, gui_, &GameWindow::removeEntity);
+    connect(server_, &GameServer::labelSignal, gui_, &GameWindow::updateBulletsLabel);
+
 }
 
 void Game::startServer()
@@ -84,7 +91,8 @@ void Game::deserializeData(const QByteArray &data)
 
                     //qDebug() << player_->getName() << ": " << player_->getDrawer()->x() << " " << player_->getDrawer()->y();
                 }
-            } else if (object["type"].toString() == "bullet"){
+            } else if (object["type"].toString() == "bullet")
+            {
                 std::map<QString, Player*> bullets;
 
                 for(const auto& value : array) {

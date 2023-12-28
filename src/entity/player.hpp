@@ -5,6 +5,7 @@
 #include "melee_weapon.hpp"
 #include "ranged_weapon.hpp"
 #include<QMap>
+#include<QTimer>
 
 class Player : public Entity
 {
@@ -21,15 +22,23 @@ public:
     qreal getScore();
     MeleeWeapon* getMeleeWeapon() const;
     RangedWeapon* getRangedWeapon() const;
+    QTimer* getReloadTimer() const;
+    QTimer* getSwingTimer() const;
+
 
     void setHp(qreal);
 
 private:
+    void initializeTimers();
+
     qreal hp_;
     qreal energy_;
     qreal dpp_;
     qreal score_;
 
-    MeleeWeapon* meleeWeapon_;
-    RangedWeapon* rangedWeapon_;
+    MeleeWeapon* melee_weapon_;
+    RangedWeapon* ranged_weapon_;
+
+    QTimer* reload_timer_;
+    QTimer* swing_timer_;
 };

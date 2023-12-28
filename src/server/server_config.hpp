@@ -10,7 +10,8 @@ enum class PlayerActions : quint32
     RIGHT = 1 << 2,
     DOWN = 1 << 3,
     SHOOT = 1 << 4,
-    MELEE = 1 << 5
+    MELEE = 1 << 5,
+    RELOAD = 1 << 6
 };
 inline quint32 operator&(quint32 a, PlayerActions b)
 {

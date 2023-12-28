@@ -55,6 +55,11 @@ void GameServer::initializeTimers()
     connect(logic_handler_, &GameLogicHandler::bulletDestroyedSignal, this, &GameServer::removeBulletSignal);
     connect(logic_handler_, &GameLogicHandler::restockAmmoPilesSignal, this, &GameServer::restockAmmoPilesSignal);
     connect(logic_handler_, &GameLogicHandler::sendRefreshCameraSignal, this, &GameServer::receiveRefreshCameraSignal);
+    connect(logic_handler_, &GameLogicHandler::reloadItemSignal, this, &GameServer::reloadItemSignal);
+    connect(logic_handler_, &GameLogicHandler::meleeSwingSignal, this, &GameServer::meleeSwingSignal);
+    connect(logic_handler_, &GameLogicHandler::removeReload, this, &GameServer::removeReload);
+    connect(logic_handler_, &GameLogicHandler::removeMelee, this, &GameServer::removeMelee);
+    connect(logic_handler_, &GameLogicHandler::labelSignal, this, &GameServer::labelSignal);
 
     server_timer_.start();
 }

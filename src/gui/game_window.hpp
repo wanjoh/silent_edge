@@ -27,6 +27,7 @@ public:
 
     void addEntity(QString, EntityDrawer*);
     void removeEntity(QString);
+    void updateBulletsLabel(qint32, qint32, qint32);
 
     void keyPressEvent(QKeyEvent*) override;
     void keyReleaseEvent(QKeyEvent*) override;
@@ -59,7 +60,8 @@ private:
         {static_cast<uint>(Qt::Key_D), static_cast<uint>(ServerConfig::PlayerActions::RIGHT)},
         {static_cast<uint>(Qt::Key_S), static_cast<uint>(ServerConfig::PlayerActions::DOWN)},
         {static_cast<uint>(Qt::LeftButton), static_cast<uint>(ServerConfig::PlayerActions::SHOOT)},
-        {static_cast<uint>(Qt::RightToLeft), static_cast<uint>(ServerConfig::PlayerActions::MELEE)},
+        {static_cast<uint>(Qt::RightButton), static_cast<uint>(ServerConfig::PlayerActions::MELEE)},
+        {static_cast<uint>(Qt::Key_R), static_cast<uint>(ServerConfig::PlayerActions::RELOAD)}
     };
     quint32 movement_;
 
@@ -74,5 +76,13 @@ private:
     QGraphicsView *phase_;
     qreal start_x_;
     qreal start_y_;
+
     QGraphicsItemGroup *overlay_group_;
+
+    QGraphicsTextItem* bullets_label_;
+    QGraphicsTextItem* remaining_bullets_label_;
+    QGraphicsRectItem* bullets_background_;
+    QGraphicsRectItem* remaining_bullets_background_;
+    QGraphicsPixmapItem* pistol_overlay_;
+
 };

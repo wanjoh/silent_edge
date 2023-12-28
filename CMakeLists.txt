@@ -84,10 +84,12 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/images/spawnpoint.png
         src/images/ammo_bucket.png
         src/images/katana.png
-        src/images/bullet.png
         src/images/katana_overlay.png
         src/images/pistol_overlay.png
         src/images/pistol_overlay_2.png
+        src/images/bullet.png
+        src/images/reload.png
+
 
         src/map/map_matrix.txt
         src/gui/tile_drawer.hpp
@@ -96,6 +98,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/gui/player_drawer.cpp
         src/gui/bullet_drawer.hpp
         src/gui/bullet_drawer.cpp
+        src/gui/melee_drawer.hpp
+        src/gui/melee_drawer.cpp
 
         src/map/overlay.hpp
         src/map/overlay.cpp

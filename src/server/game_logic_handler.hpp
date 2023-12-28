@@ -17,6 +17,7 @@ public:
     static constexpr quint32 AMMO_RESPAWN_TIME = 20000;
     static constexpr quint32 TARGET_FPS = 30;
     static constexpr qreal EPSILON = 1e-5;
+    static constexpr qint32 AMMO_BUCKET_CAPACITY = 10;
 
     GameLogicHandler(Map* = new Map(), QObject* = nullptr);
     GameLogicHandler(const GameLogicHandler&) = delete;
@@ -34,6 +35,8 @@ public:
     QByteArray jsonify_tile(int, const QString &);
 private slots:
     void updateAmmo();
+    void reload(const QString &);
+    void swing(const QString &);
 signals:
     void tileChangedSignal(QByteArray&);
     void updateAllSignal(QByteArray& player_info, QByteArray& bullet_info);
@@ -42,6 +45,12 @@ signals:
     void bulletDestroyedSignal(QString);
     void restockAmmoPilesSignal();
     void sendRefreshCameraSignal(QByteArray&);
+    void reloadItemSignal(QString, EntityDrawer*);
+    void meleeSwingSignal(QString, EntityDrawer*);
+    void removeReload(QString);
+    void removeMelee(QString);
+    void labelSignal(qint32, qint32, qint32);
+
 private:
     void addPlayer(Player*);
     void removePlayer(QString);
@@ -54,7 +63,9 @@ private:
 
     QTimer movement_timer_;
     QTimer ammo_respawn_timer_;
-    QTimer shooting_timer_;
+    QTimer shooting_cooldown_timer_;
+    QTimer reload_timer_;
+    QTimer swing_timer_;
     std::map<QString, Player*> players_;
     // limun: mapa čiji je ključ ime igrača, a sadrži listu metaka
     std::map<QString, QList<Bullet*>> bullets_;
@@ -62,7 +73,12 @@ private:
     std::unordered_map<qint32, Room*> rooms_;
     std::unordered_map<qint32, Tile*> matrix_;
     QMutex mutex_;
+    QMutex reload_mutex_;
     std::map<QString, quint32> commands_;
+    std::map<QString, bool> shooting_in_progress_;
+    std::map<QString, quint32> player_bullet_count_;
+    std::map<QString, bool> melee_in_progress_;
     std::map<QString, QPair<int, int>> positions_;
     std::map<QString, QPair<qreal, qreal>> mouse_positions_;
+    EntityDrawer* reload_drawer_;
 };

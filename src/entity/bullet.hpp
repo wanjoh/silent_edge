@@ -26,9 +26,6 @@ public:
     ~Bullet();
     BulletType getBulletType();
     qreal getDamageDealt();
-    void setAim_dir(const QVector2D &newAim_dir);
-
-    QVector2D aim_dir() const;
 
     void setName(const QString &newName);
 
@@ -36,5 +33,4 @@ private:
     QString name_;
     BulletType type_;
     qreal damage_dealt_;
-    QVector2D aim_dir_;
 };

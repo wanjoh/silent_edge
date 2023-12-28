@@ -30,6 +30,12 @@ private slots:
 signals:
     void logMessage(const QString&);
     void removeBulletSignal(QString);
+    void reloadItemSignal(QString, EntityDrawer*);
+    void meleeSwingSignal(QString, EntityDrawer*);
+    void removeReload(QString);
+    void removeMelee(QString);
+    void labelSignal(qint32, qint32, qint32);
+
     void stopAllClients();
 private:
     void initializeTimers();

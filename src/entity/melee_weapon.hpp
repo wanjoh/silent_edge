@@ -1,13 +1,17 @@
 #pragma once
 
+#include "../gui/melee_drawer.hpp"
 #include "weapon.hpp"
 
 class MeleeWeapon : public Weapon
 {
 public:
     MeleeWeapon();
-    MeleeWeapon(QString, RarenessType = RarenessType::COMMON, qreal = 200.0, qreal = 10.0, qreal = 400.0, QObject* = nullptr);
-    qreal getCooldown();
+
+    MeleeWeapon(QString, RarenessType = RarenessType::COMMON, qreal = 200.0, qreal = 10.0, qreal = 1000.0, QObject* = nullptr);
+    qreal getSwingTime() const;
+
+
 private:
-    qreal cooldown_;
+    qreal swing_time_;
 };
