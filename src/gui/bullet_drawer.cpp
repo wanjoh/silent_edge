@@ -6,3 +6,8 @@ BulletDrawer::BulletDrawer(QString name,const QString &pixmap_path,
 {
 
 }
+
+BulletDrawer::~BulletDrawer()
+{
+
+}

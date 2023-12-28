@@ -1,21 +1,22 @@
 #include "bullet.hpp"
 
 
-Bullet::Bullet(QString name, qreal damage_dealt, QObject* parent)
-    : Entity(name, parent)
+Bullet::Bullet(int id, QString owner_name, qreal damage_dealt, QObject* parent)
+    : Entity(QString::number(id), parent)
 {
-
-    drawer_ = new BulletDrawer(name,"../silent-edge/src/images/bullet.png");
+    drawer_ = new BulletDrawer(QString::number(id), "../silent-edge/src/images/bullet.png");
     drawer_->setScale(2);
 
     entityType_ = "bullet";
     damage_dealt_ = damage_dealt;
-    name_ = name;
+    id_ = id;
+    owner_name_ = owner_name;
 }
 
 Bullet::~Bullet()
 {
-    qDebug() << "metak " << name_ << "unisten" << drawer_->name();
+    delete drawer_;
+    qDebug() << "metak " << name_ << "unisten";
 }
 
 
@@ -29,9 +30,12 @@ qreal Bullet::getDamageDealt()
     return damage_dealt_;
 }
 
-
-void Bullet::setName(const QString &name)
+void Bullet::setOwnerName(const QString &new_owner_name)
 {
-    name_ = name;
+    owner_name_ = new_owner_name;
 }
 
+QString Bullet::getOwnerName()
+{
+    return owner_name_;
+}

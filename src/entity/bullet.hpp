@@ -21,16 +21,18 @@ public:
     constexpr static quint32 BULLET_HEIGHT = 20;
     constexpr static quint32 BULLET_WIDTH = 10;
 
-    Bullet(QString, qreal damage_dealt = 5, QObject* = nullptr);
+    Bullet(int, QString, qreal damage_dealt = 5, QObject* = nullptr);
 
     ~Bullet();
     BulletType getBulletType();
     qreal getDamageDealt();
 
-    void setName(const QString &newName);
+    void setOwnerName(const QString &);
+    QString getOwnerName();
 
 private:
-    QString name_;
+    int id_;
+    QString owner_name_;
     BulletType type_;
     qreal damage_dealt_;
 };

@@ -104,8 +104,12 @@ void GameWindow::teleportPlayer(const QString &name, qreal x, qreal y)
 
 void GameWindow::removeEntity(QString name)
 {
-    removeItem(items_[name]);
-    items_.erase(name);
+    if(items_.contains(name)) {
+        removeItem(items_[name]);
+        items_.erase(name);
+    } else {
+        qDebug() << "removal of nonexistent entity not permitted";
+    }
 }
 
 void GameWindow::updateBulletsLabel(qint32 bullets_in_mag, qint32 capacity, qint32 remaining_bullets)
