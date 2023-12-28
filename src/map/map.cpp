@@ -179,7 +179,6 @@ Room* Map::findRoomForPlayer(Player& player)
 
     for(auto &[_, room] : rooms_)
     {
-        qDebug() << "room";
         int start_x, start_y, end_x, end_y;
         std::tie(start_x, start_y) = room->getStartCoords();
         std::tie(end_x, end_y) = room->getEndCoords();

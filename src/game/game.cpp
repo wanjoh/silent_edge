@@ -59,8 +59,6 @@ void Game::deserializeData(const QByteArray &data)
             QJsonObject object = array.first().toObject();
 
             if(object["type"].toString() == "player") {
-                std::map<QString, Player*> players;
-
                 for(const auto& value : array) {
                     QJsonObject playerObject = value.toObject();
 
@@ -75,14 +73,16 @@ void Game::deserializeData(const QByteArray &data)
                         player_->getDrawer()->setRotation(rotation);
                         player_->setHp(hp);
                     }
-                    else if(enemies_.contains(this_name))
+                    else
                     {
+                        if(!enemies_.contains(this_name)) {
+                            enemies_[this_name] = new Player(this_name);
+                            gui_->addEntity(this_name, enemies_[this_name]->getDrawer());
+                        }
                         enemies_[this_name]->getDrawer()->setPos(x, y);
                         enemies_[this_name]->getDrawer()->setRotation(rotation);
                         enemies_[this_name]->setHp(hp);
                     }
-
-                    //qDebug() << player_->getName() << ": " << player_->getDrawer()->x() << " " << player_->getDrawer()->y();
                 }
             } else if (object["type"].toString() == "bullet"){
                 std::map<QString, Player*> bullets;
@@ -96,10 +96,8 @@ void Game::deserializeData(const QByteArray &data)
                     qreal y = bulletObject["position_y"].toDouble();
                     qreal rotation = bulletObject["rotation"].toDouble();
 
-                    //qDebug() << id << " " << owner_name << " " << x << " " << y << " " << rotation;
 
                     if(bullets_.contains(id)) {
-                        //qDebug() << bullets_[id]->x() << " " << bullets_[id]->y();
                         bullets_[id]->setPos(x, y);
                         bullets_[id]->setRotation(rotation);
                     }
@@ -111,16 +109,12 @@ void Game::deserializeData(const QByteArray &data)
                         EntityDrawer* drawer = bullet->getDrawer();
                         bullets_[id] = drawer;
 
-                        //qDebug() << x << " " << y;
-                        //gui_->addItem(drawer);
                         gui_->addEntity(bullet->getName(), drawer);
                     }
                 }
             }
         } else {
             QJsonObject object = json_data.object();
-            QString something = object["type"].toString();
-            qDebug() << something;
             if(object["type"].toString() == "tile") {
                 int tile_id = object["tile_id"].toInt();
                 const QString &path = object["path"].toString();
@@ -143,7 +137,6 @@ void Game::deserializeData(const QByteArray &data)
                 Room *room = map_->findRoomForPlayer(*player_);
                 gui_->changeRoom(room);
                 gui_->teleportPlayer(player_->getName(), player_->getDrawer()->x(), player_->getDrawer()->y());
-                qDebug() << "game: " << player_->getDrawer()->x() << " " << player_->getDrawer()->y();
             }
         }
     }

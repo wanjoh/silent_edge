@@ -235,8 +235,6 @@ void GameLogicHandler::updatePlayers()
         updatePlayerRotation(x, y, name);
         updatePlayerPosition(x, y, name);
 
-        qDebug() << "updatePlayers: " << player->getDrawer()->x() << " " << player->getDrawer()->y();
-
         if((commands_[name] & ServerConfig::PlayerActions::SHOOT))
             addBullet(x, y, name);
     }
@@ -261,12 +259,12 @@ void GameLogicHandler::addPlayer(Player* playa)
 
 void GameLogicHandler::removePlayer(QString name)
 {
+    removePlayerFromRoom(name);
+
     delete players_[name];
     players_.erase(name);
     commands_.erase(name);
     mouse_positions_.erase(name);
-
-    removePlayerFromRoom(name);
 }
 
 void GameLogicHandler::updateBullets()
