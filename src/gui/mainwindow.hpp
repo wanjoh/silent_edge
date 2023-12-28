@@ -4,6 +4,7 @@
 #include "../server/server.hpp"
 #include "lobby.hpp"
 #include "../client/client_manager.hpp"
+#include "../game/game.hpp"
 #include <QHostAddress>
 #include <QString>
 
@@ -33,7 +34,10 @@ public slots:
     void onPlayerJoined(const QString&, Lobby*);
     void disconnectFromServer();
     QString getLocalIPv4Address();
+    void startGame(const QString&);
 
+signals:
+    void updateLobbySignal(const QString&);
 private:
     Ui::MainWindow *ui;
     GameServer *server_;

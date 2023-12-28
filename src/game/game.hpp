@@ -15,7 +15,7 @@ public:
     inline static const QString DEFAULT_NAME = "playa";
     explicit Game(QString = DEFAULT_NAME, QObject* = nullptr);
     ~Game();
-    void startGame();
+    void startGame(QString);
     void startServer();
     void quit();
 public slots:

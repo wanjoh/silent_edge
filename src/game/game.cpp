@@ -43,10 +43,10 @@ Game::~Game()
     }
 }
 
-void Game::startGame()
+void Game::startGame(QString server_ip)
 {
     startServer();
-    client_->connectToServer(GameServer::HOST.toString(), GameServer::PORT);
+    client_->connectToServer(server_ip, GameServer::PORT);
     gui_->show(GameWindow::GamePhase::FIGHT_PHASE);
 }
 

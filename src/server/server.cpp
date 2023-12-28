@@ -22,7 +22,7 @@ GameServer::GameServer(QObject *parent)
 }
 
 GameServer::GameServer(QString ip, QObject *parent)
-    : QTcpServer(parent), server_address_(ip), lobby(new Lobby())
+    : QTcpServer(parent), server_address_(ip), lobby(new Lobby(ip))
 {
     available_threads_.reserve(MAX_USERS);
     threads_load_.reserve(MAX_USERS);

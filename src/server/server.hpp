@@ -55,4 +55,5 @@ private:
     QMutex users_mutex_;
     QMutex server_lobbies_mutex_;
     Lobby *lobby;
+    QString username_;
 };

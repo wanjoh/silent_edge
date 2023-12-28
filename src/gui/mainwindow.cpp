@@ -53,6 +53,7 @@ QString MainWindow::getLocalIPv4Address()
 
     return QString();
 }
+
 void MainWindow::onPbCreateServer_clicked()
 {
 
@@ -108,6 +109,7 @@ void MainWindow::onPbConnect_clicked()
         QString server_address = server_list.first()->text();
         client_->connectToServer(server_address, 6969);
 
+
     }
 }
 
@@ -137,7 +139,6 @@ void MainWindow::onPbDone_clicked()
         server_ = new GameServer(server_address);
 
         connect(server_, &GameServer::playerJoined, this, &MainWindow::onPlayerJoined);
-
     }
 
     ui->stackedWidget->setCurrentIndex(0);
@@ -153,13 +154,24 @@ void MainWindow::onPlayerJoined(const QString &playerName, Lobby* lobby)
     if (lobby && !test_connection)
     {
         connect(lobby,&Lobby::closeConnection,this,&MainWindow::disconnectFromServer);
+        connect(this,&MainWindow::updateLobbySignal,lobby,&Lobby::updateLobby);
+        connect(lobby,&Lobby::startGameSignal,this,&MainWindow::startGame);
         lobby_ = lobby;
         lobby->show();
         qDebug() << playerName << "joined the game!";
         test_connection = !test_connection;
+        emit updateLobbySignal(playerName);
     }
 
 }
+
+void MainWindow::startGame(const QString& server_ip)
+{
+    Game *game = new Game("name");
+    game->startGame(server_ip);
+    game->moveToThread(new QThread);
+}
+
 
 void MainWindow::disconnectFromServer()
 {
