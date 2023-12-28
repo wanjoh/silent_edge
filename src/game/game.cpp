@@ -91,7 +91,7 @@ void Game::deserializeData(const QByteArray &data)
                     QJsonObject bulletObject = value.toObject();
 
                     int id = bulletObject["id"].toInt();
-                    QString owner_name = bulletObject["name"].toString();
+                    QString owner_name = bulletObject["owner_name"].toString();
                     qreal x = bulletObject["position_x"].toDouble();
                     qreal y = bulletObject["position_y"].toDouble();
                     qreal rotation = bulletObject["rotation"].toDouble();
@@ -102,8 +102,7 @@ void Game::deserializeData(const QByteArray &data)
                         bullets_[id]->setRotation(rotation);
                     }
                     else {
-                        qDebug() << "new bullet";
-                        Bullet *bullet = new Bullet(owner_name);
+                        Bullet *bullet = new Bullet(id, owner_name);
                         bullet->getDrawer()->setPos(x, y);
                         bullet->getDrawer()->setRotation(rotation);
                         EntityDrawer* drawer = bullet->getDrawer();

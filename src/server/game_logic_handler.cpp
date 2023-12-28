@@ -71,20 +71,20 @@ void GameLogicHandler::addBullet(int x, int y, const QString& name)
 {
     QMutexLocker locker(&mutex_);
 
-    QString bullet_name = QString::number(bullet_id);
-    bullet_id++;
-    if(bullet_id > 10000)
-        bullet_id = 1;
-    Bullet* bullet = new Bullet(bullet_name);
-    bullets_[name].push_back(bullet);
+    Bullet* bullet = new Bullet(bullet_id, name);
 
     QPointF top_left = players_[name]->getDrawer()->scenePos();
     QPointF top_right = players_[name]->getDrawer()->mapToScene(players_[name]->getDrawer()->pixmap().rect().topRight());
     QPointF top_center = (top_left + top_right) / 2;
 
-
     bullet->getDrawer()->setRotation(players_[name]->getDrawer()->rotation());
     bullet->getDrawer()->setPos(top_center.x(), top_center.y()-bullet->BULLET_HEIGHT);
+
+    bullets_[bullet_id] = bullet;
+
+    bullet_id++;
+    if(bullet_id > 10000)
+        bullet_id = 1;
 }
 
 void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name)
@@ -188,19 +188,16 @@ QByteArray GameLogicHandler::jsonify(const QString& data_type)
     else if(data_type == "bullet") {
         QJsonArray bulletsArray;
 
-        for(auto& [name, bullet_group] : bullets_)
-        {
-            for(auto& bullet : bullet_group) {
-                QJsonObject bulletObject;
-                bulletObject["type"] = "bullet";
-                bulletObject["id"] = bullet_id;
-                bulletObject["name"] = bullet->getName();
-                bulletObject["position_x"] = bullet->getDrawer()->x();
-                bulletObject["position_y"] = bullet->getDrawer()->y();
-                bulletObject["rotation"] = bullet->getDrawer()->rotation();
+        for(auto& [bullet_name, bullet] : bullets_) {
+            QJsonObject bulletObject;
+            bulletObject["type"] = "bullet";
+            bulletObject["id"] = bullet_id;
+            bulletObject["owner_name"] = bullet->getOwnerName();
+            bulletObject["position_x"] = bullet->getDrawer()->x();
+            bulletObject["position_y"] = bullet->getDrawer()->y();
+            bulletObject["rotation"] = bullet->getDrawer()->rotation();
 
-                bulletsArray.append(bulletObject);
-            }
+            bulletsArray.append(bulletObject);
         }
 
         const QJsonDocument json_data(bulletsArray);
@@ -270,22 +267,21 @@ void GameLogicHandler::removePlayer(QString name)
 void GameLogicHandler::updateBullets()
 {
     QMutexLocker locker(&mutex_);
-    for(auto &[name, bullet_group] : bullets_)
+    for(auto it = bullets_.cbegin(); it != bullets_.cend();)
     {
-        for(int i = bullet_group.size() - 1; i >= 0; i--)
+        if (checkBulletCollisions(it->second))
         {
-            if (checkBulletCollisions(bullet_group[i]))
-            {
-                emit bulletDestroyedSignal(bullet_group[i]->getName());
-                delete bullet_group.takeAt(i);
-            }
-            else
-            {
-                qreal x_pos = bullet_group[i]->getDrawer()->x() + BULLET_SPEED * qSin(qDegreesToRadians(bullet_group[i]->getDrawer()->rotation()));
-                qreal y_pos = bullet_group[i]->getDrawer()->y() - BULLET_SPEED * qCos(qDegreesToRadians(bullet_group[i]->getDrawer()->rotation()));
+            emit bulletDestroyedSignal(QString::number(it->first));
+            bullets_.erase(it++->first);
+        }
+        else
+        {
+            qreal x_pos = it->second->getDrawer()->x() + BULLET_SPEED * qSin(qDegreesToRadians(it->second->getDrawer()->rotation()));
+            qreal y_pos = it->second->getDrawer()->y() - BULLET_SPEED * qCos(qDegreesToRadians(it->second->getDrawer()->rotation()));
 
-                bullet_group[i]->getDrawer()->setPos(x_pos, y_pos);
-            }
+            it->second->getDrawer()->setPos(x_pos, y_pos);
+
+            it++;
         }
     }
 }
@@ -308,7 +304,7 @@ void GameLogicHandler::updatePlayerRotation(int x, int y, const QString& name)
     players_[name]->getDrawer()->setRotation(angle);
 }
 
-bool GameLogicHandler::checkBulletCollisions(Bullet* bullet)
+bool GameLogicHandler::checkBulletCollisions(Bullet *bullet)
 {
     // limun: dosta bolje (videćemo)
     for(auto &[name, player] : players_) {

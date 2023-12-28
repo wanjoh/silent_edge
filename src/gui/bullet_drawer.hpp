@@ -6,7 +6,7 @@ class BulletDrawer : public EntityDrawer
 public:
     BulletDrawer(QString name, const QString &pixmap_path = "path_to_pixmap",
                  QGraphicsItem * = nullptr);
-
+    ~BulletDrawer();
 private:
     QString name_;
 };

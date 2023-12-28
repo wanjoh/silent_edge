@@ -46,7 +46,7 @@ private:
     void addPlayer(Player*);
     void removePlayer(QString);
     /*Returns true on bullet collision*/
-    bool checkBulletCollisions(Bullet*);
+    bool checkBulletCollisions(Bullet *bullet);
     bool checkPlayerCollision(qreal x, qreal y,const QString &name);
     void decreaseHp(Player*, Bullet*);
     void initializeTimers();
@@ -57,7 +57,7 @@ private:
     QTimer shooting_timer_;
     std::map<QString, Player*> players_;
     // limun: mapa čiji je ključ ime igrača, a sadrži listu metaka
-    std::map<QString, QList<Bullet*>> bullets_;
+    std::map<int, Bullet*> bullets_;
     Map* map_;
     std::unordered_map<qint32, Room*> rooms_;
     std::unordered_map<qint32, Tile*> matrix_;
