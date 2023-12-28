@@ -3,9 +3,9 @@
 // pomeriti u gui
 #include "qapplication.h"
 
-Game::Game(QString name, QObject *parent)
+Game::Game(QString name, Client *client, QObject *parent)
     : QObject(parent)
-    , client_(new Client())
+    , client_(client)
     , gui_()
     , logic_handler_()
     , map_(new Map())
@@ -45,8 +45,8 @@ Game::~Game()
 
 void Game::startGame(QString server_ip)
 {
-    startServer();
-    client_->connectToServer(server_ip, GameServer::PORT);
+    //startServer();
+    //client_->connectToServer(server_ip, GameServer::PORT);
     gui_->show(GameWindow::GamePhase::FIGHT_PHASE);
 }
 

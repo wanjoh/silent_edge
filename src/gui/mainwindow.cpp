@@ -66,11 +66,11 @@ void MainWindow::onPbCreateServer_clicked()
 void MainWindow::onPbJoinGame_clicked()
 {
 
-    //QString local_ip = getLocalIPv4Address();
+    QString local_ip = getLocalIPv4Address();
 
 
     //ovo sluzi da testiram na svom racunaru
-    QString local_ip = "192.168.1.2";
+    //QString local_ip = "192.168.1.2";
     //
     qsizetype dot_position = local_ip.lastIndexOf('.');
 
@@ -167,7 +167,7 @@ void MainWindow::onPlayerJoined(const QString &playerName, Lobby* lobby)
 
 void MainWindow::startGame(const QString& server_ip)
 {
-    Game *game = new Game("name");
+    Game *game = new Game("name", client_);
     game->startGame(server_ip);
     game->moveToThread(new QThread);
 }
