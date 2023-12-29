@@ -21,19 +21,10 @@ public slots:
     void userDisconnected(Connection*, int);
     void broadcast(const QByteArray&);
     void stopServer();
-    void updateAllSignal(const QByteArray&, const QByteArray&);
-    void tileChangedSignal(const QByteArray&);
-    void restockAmmoPilesSignal();
-    void receiveRefreshCameraSignal(const QByteArray& refresh_info);
 private slots:
     void emitTickMessage();
 signals:
     void logMessage(const QString&);
-    void removeBulletSignal(QString);
-    void reloadItemSignal(QString, EntityDrawer*);
-    void meleeSwingSignal(QString, EntityDrawer*);
-    void removeReload(QString);
-    void removeMelee(QString);
     void labelSignal(qint32, qint32, qint32);
 
     void stopAllClients();

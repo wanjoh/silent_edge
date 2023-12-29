@@ -183,6 +183,8 @@ QByteArray GameLogicHandler::jsonify(const QString& data_type)
             playerObject["position_y"] = player->getDrawer()->y();
             playerObject["rotation"] = player->getDrawer()->rotation();
             playerObject["hp"] = player->getHp();
+            playerObject["swinging"] = melee_in_progress_[name];
+            playerObject["reloading"] = shooting_in_progress_[name];
 
             playersArray.append(playerObject);
         }
@@ -223,7 +225,8 @@ void GameLogicHandler::updateAll()
     QByteArray player_info = jsonify("player");
     QByteArray bullet_info = jsonify("bullet");
 
-    emit updateAllSignal(player_info, bullet_info);
+    emit updatePlayersSignal(player_info);
+    emit updateBulletsSignal(bullet_info);
 }
 
 void GameLogicHandler::updatePlayers()
@@ -257,7 +260,6 @@ void GameLogicHandler::updatePlayers()
             if(!melee_in_progress_[name])
             {
                 melee_in_progress_[name] = true;
-                emit meleeSwingSignal(player->getMeleeWeapon()->getName(), player->getMeleeWeapon()->getDrawer());
                 players_[name]->getSwingTimer()->start();
             }
         }
@@ -265,17 +267,8 @@ void GameLogicHandler::updatePlayers()
             melee_in_progress_[name] = false;
 
         if(commands_[name] & ServerConfig::PlayerActions::RELOAD)
-        {
             if(player_bullet_count_[name] != 0 && players_[name]->getRangedWeapon()->getRemainingBullets() != 0)
-            {
                 players_[name]->getReloadTimer()->start();
-                if(!reload_drawer_->isActive())
-                {
-                    emit reloadItemSignal(reload_drawer_->name(), reload_drawer_);
-                }
-
-            }
-        }
     }
 }
 
@@ -283,7 +276,13 @@ void GameLogicHandler::updateAmmo()
 {
     map_->restockAmmoPiles();
 
-    emit restockAmmoPilesSignal();
+    QJsonObject json_object;
+    QString type = "bucket_activation";
+    json_object["type"] = type;
+    QJsonDocument json_data(json_object);
+    QByteArray byte_array = json_data.toJson();
+
+    emit restockAmmoPilesSignal(byte_array);
 }
 
 void GameLogicHandler::addPlayer(Player* playa)
@@ -323,7 +322,7 @@ void GameLogicHandler::updateBullets()
     {
         if (checkBulletCollisions(it->second))
         {
-            emit bulletDestroyedSignal(QString::number(it->first));
+            // limun: neki emit treba ovde ili prosto da brišemo svaki metak koji se ne pojavljuje više u poruci od servera
             bullets_.erase(it++->first);
         }
         else
@@ -371,7 +370,7 @@ bool GameLogicHandler::checkBulletCollisions(Bullet *bullet)
             {
                 qDebug() << "igrac unisten";
                 removePlayer(name);
-                emit playerDestroyedSignal();
+                // limun: ko zna, zna
             }
 
             return true;
@@ -407,18 +406,12 @@ void GameLogicHandler::reload(const QString& name)
     player_bullet_count_[name] -= std::min(players_[name]->getRangedWeapon()->getRemainingBullets(), static_cast<qint32>(player_bullet_count_[name]));
     players_[name]->getRangedWeapon()->setRemainingBullets(std::max(players_[name]->getRangedWeapon()->getRemainingBullets() - static_cast<qint32>(bullets_shot), 0));
 
-
-
-    emit removeReload(reload_drawer_->name());
     emit labelSignal(players_[name]->getRangedWeapon()->getCapacity() - player_bullet_count_[name], players_[name]->getRangedWeapon()->getCapacity(), players_[name]->getRangedWeapon()->getRemainingBullets());
-
 }
 
 void GameLogicHandler::swing(const QString &name)
 {
-    emit removeMelee(players_[name]->getMeleeWeapon()->getName());
     players_[name]->getSwingTimer()->stop();
-
 }
 
 
@@ -427,13 +420,10 @@ void GameLogicHandler::initializeTimers()
     ammo_respawn_timer_.setInterval(AMMO_RESPAWN_TIME);
     connect(&ammo_respawn_timer_, &QTimer::timeout, this, &GameLogicHandler::updateAmmo);
     ammo_respawn_timer_.start();
-
 }
 
 void GameLogicHandler::updatePlayerStats(const QByteArray &player_info)
 {
-    // limun: evo
-    // limun: 8 + 4 + 2 * 8 = 28 bajtova
     QJsonParseError parse_error;
     const QJsonDocument json_data = QJsonDocument::fromJson(player_info, &parse_error);
     if (parse_error.error == QJsonParseError::NoError && json_data.isObject())
@@ -443,15 +433,8 @@ void GameLogicHandler::updatePlayerStats(const QByteArray &player_info)
         {
             Player* playa = new Player(name);
             addPlayer(playa);
-            // if (commands_.size() >= 2)
-            // {
-            //     // todo: ovo je privremeni fix jer nemamo lobby
-            //     // kad ubacimo lobby, ovo ce se vratiti u konstruktor
-            //     putPlayersIntoRooms();
-            // }
         }
         commands_[name] = static_cast<quint32>(json_data["movement"].toInteger());
-        //positions_[name] = QPair<int, int>(json_data["x"].toInteger(), json_data["y"].toInteger());
         mouse_positions_[name] = QPair<qreal, qreal>(json_data["mouse_x"].toDouble(), json_data["mouse_y"].toDouble());
     }
     else

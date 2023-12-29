@@ -39,16 +39,10 @@ private slots:
     void swing(const QString &);
 signals:
     void tileChangedSignal(QByteArray&);
-    void updateAllSignal(QByteArray& player_info, QByteArray& bullet_info);
-    // videti kako ovo da se iskoristi, nesto mora da se prosledi kao param
-    void playerDestroyedSignal();
-    void bulletDestroyedSignal(QString);
-    void restockAmmoPilesSignal();
+    void updatePlayersSignal(QByteArray&);
+    void updateBulletsSignal(QByteArray&);
+    void restockAmmoPilesSignal(QByteArray&);
     void sendRefreshCameraSignal(QByteArray&);
-    void reloadItemSignal(QString, EntityDrawer*);
-    void meleeSwingSignal(QString, EntityDrawer*);
-    void removeReload(QString);
-    void removeMelee(QString);
     void labelSignal(qint32, qint32, qint32);
 
 private:

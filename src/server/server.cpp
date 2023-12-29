@@ -50,45 +50,14 @@ void GameServer::initializeTimers()
     server_timer_.setInterval(ServerConfig::TICK_TIME);
     connect(&server_timer_, &QTimer::timeout, logic_handler_, &GameLogicHandler::updateAll);
     connect(&server_timer_, &QTimer::timeout, this, &GameServer::emitTickMessage);
-    connect(logic_handler_, &GameLogicHandler::updateAllSignal, this, &GameServer::updateAllSignal);
-    connect(logic_handler_, &GameLogicHandler::tileChangedSignal, this, &GameServer::tileChangedSignal);
-    connect(logic_handler_, &GameLogicHandler::bulletDestroyedSignal, this, &GameServer::removeBulletSignal);
-    connect(logic_handler_, &GameLogicHandler::restockAmmoPilesSignal, this, &GameServer::restockAmmoPilesSignal);
-    connect(logic_handler_, &GameLogicHandler::sendRefreshCameraSignal, this, &GameServer::receiveRefreshCameraSignal);
-    connect(logic_handler_, &GameLogicHandler::reloadItemSignal, this, &GameServer::reloadItemSignal);
-    connect(logic_handler_, &GameLogicHandler::meleeSwingSignal, this, &GameServer::meleeSwingSignal);
-    connect(logic_handler_, &GameLogicHandler::removeReload, this, &GameServer::removeReload);
-    connect(logic_handler_, &GameLogicHandler::removeMelee, this, &GameServer::removeMelee);
+    connect(logic_handler_, &GameLogicHandler::updatePlayersSignal, this, &GameServer::broadcast);
+    connect(logic_handler_, &GameLogicHandler::updateBulletsSignal, this, &GameServer::broadcast);
+    connect(logic_handler_, &GameLogicHandler::tileChangedSignal, this, &GameServer::broadcast);
+    connect(logic_handler_, &GameLogicHandler::restockAmmoPilesSignal, this, &GameServer::broadcast);
+    connect(logic_handler_, &GameLogicHandler::sendRefreshCameraSignal, this, &GameServer::broadcast);
     connect(logic_handler_, &GameLogicHandler::labelSignal, this, &GameServer::labelSignal);
 
     server_timer_.start();
-}
-
-void GameServer::updateAllSignal(const QByteArray& player_info, const QByteArray& bullet_info)
-{
-    broadcast(player_info);
-    broadcast(bullet_info);
-}
-
-void GameServer::tileChangedSignal(const QByteArray& tile_info)
-{
-    broadcast(tile_info);
-}
-
-void GameServer::restockAmmoPilesSignal()
-{
-    QJsonObject json_object;
-    QString type = "bucket_activation";
-    json_object["type"] = type;
-    QJsonDocument json_data(json_object);
-    QByteArray byte_array = json_data.toJson();
-
-    broadcast(byte_array);
-}
-
-void GameServer::receiveRefreshCameraSignal(const QByteArray& refresh_info)
-{
-    broadcast(refresh_info);
 }
 
 void GameServer::error(QTcpSocket::SocketError error)
