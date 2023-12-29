@@ -13,6 +13,7 @@ public:
     ~Connection();
 
     void sendData(const QByteArray&);
+    QString username() const;
 
 public slots:
     void receiveData();

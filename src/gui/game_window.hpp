@@ -25,10 +25,6 @@ public:
     };
     void show(GamePhase);
 
-    void addEntity(QString, EntityDrawer*);
-    void removeEntity(QString);
-    void updateBulletsLabel(qint32, qint32, qint32);
-
     void keyPressEvent(QKeyEvent*) override;
     void keyReleaseEvent(QKeyEvent*) override;
     void mouseMoveEvent(QGraphicsSceneMouseEvent*) override;
@@ -45,6 +41,9 @@ public:
     qreal getMouseY();
 public slots:
     void resetMovement();
+    void addEntity(QString, EntityDrawer*);
+    void removeEntity(QString);
+    void updateBulletsLabel(qint32, qint32, qint32);
 signals:
     void focusedOutSignal();
     void mousePos(QPointF);

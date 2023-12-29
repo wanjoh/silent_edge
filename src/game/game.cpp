@@ -6,9 +6,9 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 
-Game::Game(QString name, QObject *parent)
+Game::Game(QString name, Client *client, QObject *parent)
     : QObject(parent)
-    , client_(new Client())
+    , client_(client)
     , map_(new Map())
     , player_(new Player(name, false))
 {
@@ -28,17 +28,18 @@ Game::~Game()
 
 }
 
-void Game::startGame()
+void Game::startGame(QString server_ip)
 {
-    startServer();
-    client_->connectToServer(ServerConfig::getHost().toString(), ServerConfig::PORT);
+    //startServer();
+    //client_->connectToServer(ServerConfig::getHost().toString(), ServerConfig::PORT);
+
     gui_->show(GameWindow::GamePhase::FIGHT_PHASE);
-    connect(server_, &GameServer::removeBulletSignal, gui_, &GameWindow::removeEntity);
-    connect(server_, &GameServer::reloadItemSignal, gui_, &GameWindow::addEntity);
-    connect(server_, &GameServer::meleeSwingSignal, gui_, &GameWindow::addEntity);
-    connect(server_, &GameServer::removeReload, gui_, &GameWindow::removeEntity);
-    connect(server_, &GameServer::removeMelee, gui_, &GameWindow::removeEntity);
-    connect(server_, &GameServer::labelSignal, gui_, &GameWindow::updateBulletsLabel);
+    //connect(server_, &GameServer::removeBulletSignal, gui_, &GameWindow::removeEntity);
+    //connect(server_, &GameServer::reloadItemSignal, gui_, &GameWindow::addEntity);
+    //connect(server_, &GameServer::meleeSwingSignal, gui_, &GameWindow::addEntity);
+    //connect(server_, &GameServer::removeReload, gui_, &GameWindow::removeEntity);
+    //connect(server_, &GameServer::removeMelee, gui_, &GameWindow::removeEntity);
+    //connect(server_, &GameServer::labelSignal, gui_, &GameWindow::updateBulletsLabel);
 
 }
 

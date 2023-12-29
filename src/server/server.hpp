@@ -2,7 +2,7 @@
 
 #include "connection.hpp"
 #include "game_logic_handler.hpp"
-
+#include "../gui/lobby.hpp"
 #include <QTcpServer>
 #include <QVector>
 
@@ -11,11 +11,26 @@ class QByteArray;
 class GameServer : public QTcpServer {
   Q_OBJECT
 public:
+    // za testiranje sa vise racunara
+    static constexpr bool remoteServer = false;
+    inline static const QHostAddress remoteIP = QHostAddress("192.168.0.23");
+    //
+    static constexpr qint32 PORT = 6969;
+    static constexpr qint32 MAX_USERS = 8;
+    static constexpr qint32 MAX_ROOMS = MAX_USERS / 2;
+    //static QHostAddress HOST;
+    inline static const QHostAddress HOST = remoteServer ? remoteIP : QHostAddress::LocalHost;
+
     GameServer(QObject* = nullptr);
+    GameServer(QString,QObject* = nullptr);
     GameServer(const GameServer&) = delete;
     ~GameServer();
 
     void startGame();
+    QString server_address() const;
+
+    Lobby *getLobby() const;
+
 public slots:
     void error(QTcpSocket::SocketError);
     void userDisconnected(Connection*, int);
@@ -25,6 +40,7 @@ public slots:
     void tileChangedSignal(const QByteArray&);
     void restockAmmoPilesSignal();
     void receiveRefreshCameraSignal(const QByteArray& refresh_info);
+
 private slots:
     void emitTickMessage();
 signals:
@@ -37,6 +53,7 @@ signals:
     void labelSignal(qint32, qint32, qint32);
 
     void stopAllClients();
+    void playerJoined(const QString&, Lobby* lobby);
 private:
     void initializeTimers();
     void sendData(Connection*, const QByteArray&);
@@ -47,4 +64,11 @@ private:
     QVector<Connection*> users_;
     QTimer server_timer_;
     QVector<QByteArray> player_datas_;
+    QMap<Connection*, QString> user_servers_;
+    QString server_address_;
+    QMutex users_mutex_;
+    QMutex server_lobbies_mutex_;
+    Lobby *lobby;
+    QString username_;
+
 };

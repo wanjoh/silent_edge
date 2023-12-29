@@ -9,13 +9,13 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
-    //w.show();
+    w.show();
 
-    QRandomGenerator q(QDateTime::currentMSecsSinceEpoch());
+    /*QRandomGenerator q(QDateTime::currentMSecsSinceEpoch());
     QString name = QString("playa") + QString::number(q.generate());
     qDebug() << "ime: " << name;
     Game *game = new Game(name);
     game->startGame();
-    game->moveToThread(new QThread);
+    game->moveToThread(new QThread);*/
     return a.exec();
 }

@@ -14,6 +14,7 @@ GameServer::GameServer(QObject *parent)
     available_threads_.reserve(ServerConfig::MAX_USERS);
     threads_load_.reserve(ServerConfig::MAX_USERS);
 
+
     if (!this->listen(ServerConfig::getHost(), ServerConfig::PORT))
     {
         qDebug() << "Could not start the server";
@@ -23,6 +24,29 @@ GameServer::GameServer(QObject *parent)
         qDebug() << "Server started on " << ServerConfig::getHost() <<  ", port" << ServerConfig::PORT;
         initializeTimers();
     }
+}
+
+GameServer::GameServer(QString ip, QObject *parent)
+    : QTcpServer(parent), server_address_(ip),
+    lobby(new Lobby(ip)),
+    logic_handler_(new GameLogicHandler)
+{
+    available_threads_.reserve(MAX_USERS);
+    threads_load_.reserve(MAX_USERS);
+
+
+    const QHostAddress ip_address = QHostAddress(ip);
+
+    if (!this->listen(ip_address,PORT))
+    {
+        qDebug() << "Could not start the server";
+    }
+    else
+    {
+        qDebug() << "Server started on " << ip_address <<  ", port" << PORT;
+        initializeTimers();
+    }
+
 }
 
 GameServer::~GameServer()
@@ -98,10 +122,16 @@ void GameServer::error(QTcpSocket::SocketError error)
 
 void GameServer::userDisconnected(Connection* user, int thread_idx)
 {
+    QMutexLocker locker(&users_mutex_);
+    QMutexLocker lobby_locker(&server_lobbies_mutex_);
     Q_ASSERT(user);
     // videti da li nam ovo treba i kako ga azurirati
 //    --threads_load_[thread_idx];
     users_.removeAll(user);
+//    user_to_server_map_.remove(user);
+//    if (server_lobbies_[user_to_server_map_[user]]->isEmpty()) {
+//        delete server_lobbies_[user_to_server_map_[user]];
+//    }
 }
 
 void GameServer::broadcast(const QByteArray& msg)
@@ -122,6 +152,7 @@ void GameServer::sendData(Connection *user, const QByteArray& msg)
 
 void GameServer::incomingConnection(qintptr socket_desc)
 {
+    QMutexLocker lobby_locker(&server_lobbies_mutex_);
     if (users_.size() < ServerConfig::MAX_USERS)
     {
         // ovo treba da se razmotri, nismo sigurni da li će ovo praviti siročiće
@@ -154,6 +185,8 @@ void GameServer::incomingConnection(qintptr socket_desc)
         connect(available_threads_.last(), &QThread::finished, user, &QObject::deleteLater);
 
         users_.push_back(user);
+        user_servers_[user] = server_address_;
+        emit playerJoined(user->username(), lobby);
         qDebug() << "thread created";
     }
 }
@@ -161,4 +194,17 @@ void GameServer::incomingConnection(qintptr socket_desc)
 void GameServer::emitTickMessage()
 {
     broadcast(QByteArray("tick\0"));
+}
+Lobby *GameServer::getLobby() const
+{
+    return lobby;
+}
+
+
+
+
+QString GameServer::server_address() const
+{
+    return server_address_;
+
 }
