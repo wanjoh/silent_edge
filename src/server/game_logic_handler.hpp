@@ -72,7 +72,7 @@ private:
     std::map<QString, bool> shooting_in_progress_;
     std::map<QString, quint32> player_bullet_count_;
     std::map<QString, bool> melee_in_progress_;
+    std::map<QString, bool> reloading_in_progress_;
     std::map<QString, QPair<int, int>> positions_;
     std::map<QString, QPair<qreal, qreal>> mouse_positions_;
-    EntityDrawer* reload_drawer_;
 };

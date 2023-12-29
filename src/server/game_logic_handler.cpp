@@ -15,8 +15,6 @@ GameLogicHandler::GameLogicHandler(Map *map, QObject* parent)
     , rooms_(map_->getRooms())
 {
     initializeTimers();
-    reload_drawer_ = new EntityDrawer("reload", "../silent-edge/src/images/reload.png");
-    reload_drawer_->setZValue(5);
 }
 
 GameLogicHandler::~GameLogicHandler()
@@ -132,7 +130,6 @@ void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name)
 
 
     players_[name]->getDrawer()->setPos(x, y);
-    reload_drawer_->setPos(x, y);
 }
 
 bool GameLogicHandler::checkPlayerCollision(qreal x, qreal y, const QString &name)
@@ -184,7 +181,7 @@ QByteArray GameLogicHandler::jsonify(const QString& data_type)
             playerObject["rotation"] = player->getDrawer()->rotation();
             playerObject["hp"] = player->getHp();
             playerObject["swinging"] = melee_in_progress_[name];
-            playerObject["reloading"] = shooting_in_progress_[name];
+            playerObject["reloading"] = reloading_in_progress_[name];
 
             playersArray.append(playerObject);
         }
@@ -267,8 +264,16 @@ void GameLogicHandler::updatePlayers()
             melee_in_progress_[name] = false;
 
         if(commands_[name] & ServerConfig::PlayerActions::RELOAD)
+        {
             if(player_bullet_count_[name] != 0 && players_[name]->getRangedWeapon()->getRemainingBullets() != 0)
-                players_[name]->getReloadTimer()->start();
+            {
+                if(!reloading_in_progress_[name])
+                {
+                    reloading_in_progress_[name] = true;
+                    players_[name]->getReloadTimer()->start();
+                }
+            }
+        }
     }
 }
 
@@ -293,6 +298,7 @@ void GameLogicHandler::addPlayer(Player* playa)
     mouse_positions_[name] = {0.0, 0.0};
     shooting_in_progress_[name] = false;
     melee_in_progress_[name] = false;
+    reloading_in_progress_[name] = false;
     player_bullet_count_[name] = 0;
     connect(playa->getReloadTimer(), &QTimer::timeout, std::bind(&GameLogicHandler::reload, this, name));
     connect(playa->getSwingTimer(), &QTimer::timeout, std::bind(&GameLogicHandler::swing, this, name));
@@ -312,6 +318,7 @@ void GameLogicHandler::removePlayer(QString name)
 
     shooting_in_progress_.erase(name);
     melee_in_progress_.erase(name);
+    reloading_in_progress_.erase(name);
     player_bullet_count_.erase(name);
 }
 
@@ -401,6 +408,7 @@ void GameLogicHandler::decreaseHp(Player* player, Bullet* bullet)
 void GameLogicHandler::reload(const QString& name)
 {
     players_[name]->getReloadTimer()->stop();
+    reloading_in_progress_[name] = false;
 
     quint32 bullets_shot = player_bullet_count_[name];
     player_bullet_count_[name] -= std::min(players_[name]->getRangedWeapon()->getRemainingBullets(), static_cast<qint32>(player_bullet_count_[name]));

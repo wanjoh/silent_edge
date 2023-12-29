@@ -5,7 +5,7 @@ Bullet::Bullet(int id, QString owner_name, qreal damage_dealt, QObject* parent)
     : Entity(QString::number(id), parent)
 {
     drawer_ = new BulletDrawer(QString::number(id), "../silent-edge/src/images/bullet.png");
-    drawer_->setScale(2);
+    drawer_->setScale(1.5);
 
     entityType_ = "bullet";
     damage_dealt_ = damage_dealt;

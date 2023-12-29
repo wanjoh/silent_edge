@@ -10,6 +10,7 @@ Player::Player() : Entity()
     reload_ = new Entity("reload");
     EntityDrawer* reload_drawer = new EntityDrawer(reload_->getName(), "../silent-edge/src/images/reload.png");
     reload_->setDrawer(reload_drawer);
+    reload_drawer->setScale(0.5);
 }
 
 Player::Player(QString name, bool enemy, qreal hp, int x, int y, QObject* parent) : Entity(name, parent)
@@ -22,9 +23,10 @@ Player::Player(QString name, bool enemy, qreal hp, int x, int y, QObject* parent
     reload_ = new Entity("reload");
     EntityDrawer* reload_drawer = new EntityDrawer(reload_->getName(), "../silent-edge/src/images/reload.png");
     reload_->setDrawer(reload_drawer);
+    reload_drawer->setScale(0.5);
 
     drawer_->setPos(x, y);
-    drawer_->setZValue(2);
+    drawer_->setZValue(6);
     entityType_ = "player";
     hp_ = hp;
 

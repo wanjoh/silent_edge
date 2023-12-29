@@ -83,12 +83,12 @@ void Game::deserializeData(const QByteArray &data)
                         if(is_swinging)
                             player_->getMeleeWeapon()->getDrawer()->setZValue(5);
                         else
-                            player_->getMeleeWeapon()->getDrawer()->setZValue(-5);
+                            player_->getMeleeWeapon()->getDrawer()->setZValue(-1);
 
                         if(is_reloading)
-                            player_->getReload()->getDrawer()->setZValue(5);
+                            player_->getReload()->getDrawer()->setZValue(7);
                         else
-                            player_->getReload()->getDrawer()->setZValue(-5);
+                            player_->getReload()->getDrawer()->setZValue(-1);
                     }
                     else
                     {
@@ -108,12 +108,12 @@ void Game::deserializeData(const QByteArray &data)
                         if(is_swinging)
                             enemies_[this_name]->getMeleeWeapon()->getDrawer()->setZValue(5);
                         else
-                            enemies_[this_name]->getMeleeWeapon()->getDrawer()->setZValue(-5);
+                            enemies_[this_name]->getMeleeWeapon()->getDrawer()->setZValue(-1);
 
                         if(is_reloading)
-                            enemies_[this_name]->getReload()->getDrawer()->setZValue(5);
+                            enemies_[this_name]->getReload()->getDrawer()->setZValue(7);
                         else
-                            enemies_[this_name]->getReload()->getDrawer()->setZValue(-5);
+                            enemies_[this_name]->getReload()->getDrawer()->setZValue(-1);
                     }
                 }
             } else if (object["type"].toString() == "bullet")
