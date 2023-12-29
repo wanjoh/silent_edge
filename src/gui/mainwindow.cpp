@@ -106,13 +106,20 @@ void MainWindow::onPlayerJoined(const QString &playerName, Lobby* lobby)
 {
     if (lobby)
     {
-        connect(lobby,&Lobby::closeConnection,this,&MainWindow::disconnectFromServer);
-        connect(this,&MainWindow::updateLobbySignal,lobby,&Lobby::updateLobby);
-        connect(lobby,&Lobby::startGameSignal,this,&MainWindow::startGame);
-        lobby_ = lobby;
-        lobby->show();
-        qDebug() << playerName << "joined the game!";
-        emit updateLobbySignal(playerName);
+        if(!lobby->isVisible())
+        {
+            connect(lobby,&Lobby::closeConnection,this,&MainWindow::disconnectFromServer);
+            connect(this,&MainWindow::updateLobbySignal,lobby,&Lobby::updateLobby);
+            connect(lobby,&Lobby::startGameSignal,this,&MainWindow::startGame);
+            lobby_ = lobby;
+            lobby->show();
+            qDebug() << playerName << "joined the game!";
+            emit updateLobbySignal(playerName);
+        }
+        else
+        {
+            emit updateLobbySignal(playerName);
+        }
     }
 
 }
