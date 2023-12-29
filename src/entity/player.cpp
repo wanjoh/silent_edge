@@ -6,6 +6,11 @@ Player::Player() : Entity()
 {
     melee_weapon_ = new MeleeWeapon("Katana", Weapon::RarenessType::COMMON, 50.0, 20.0, 400.0);
     ranged_weapon_ = new RangedWeapon("Gun", Weapon::RarenessType::COMMON, 200.0, 10.0, 200.0, 10u, 1300.0, 30u);
+
+    reload_ = new Entity("reload");
+    EntityDrawer* reload_drawer = new EntityDrawer(reload_->getName(), "../silent-edge/src/images/reload.png");
+    reload_->setDrawer(reload_drawer);
+    reload_drawer->setScale(0.5);
 }
 
 Player::Player(QString name, bool enemy, qreal hp, int x, int y, QObject* parent) : Entity(name, parent)
@@ -13,10 +18,15 @@ Player::Player(QString name, bool enemy, qreal hp, int x, int y, QObject* parent
 
     melee_weapon_ = new MeleeWeapon("Katana", Weapon::RarenessType::COMMON, 50.0, 20.0, 1000.0);
     ranged_weapon_ = new RangedWeapon("Gun", Weapon::RarenessType::COMMON, 200.0, 10.0, 200.0, 10u, 1300.0, 20u);
-    drawer_ = new PlayerDrawer(name,enemy ? "../silent-edge/src/images/enemy.png" : "../silent-edge/src/images/samurai.png");
+    drawer_ = new PlayerDrawer(name, enemy ? "../silent-edge/src/images/enemy.png" : "../silent-edge/src/images/samurai.png");
+
+    reload_ = new Entity("reload");
+    EntityDrawer* reload_drawer = new EntityDrawer(reload_->getName(), "../silent-edge/src/images/reload.png");
+    reload_->setDrawer(reload_drawer);
+    reload_drawer->setScale(0.5);
 
     drawer_->setPos(x, y);
-    drawer_->setZValue(2);
+    drawer_->setZValue(6);
     entityType_ = "player";
     hp_ = hp;
 
@@ -41,6 +51,11 @@ MeleeWeapon* Player::getMeleeWeapon() const
 RangedWeapon* Player::getRangedWeapon() const
 {
     return ranged_weapon_;
+}
+
+Entity* Player::getReload() const
+{
+    return reload_;
 }
 
 void Player::initializeTimers()

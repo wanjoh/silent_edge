@@ -22,9 +22,9 @@ public:
     qreal getScore();
     MeleeWeapon* getMeleeWeapon() const;
     RangedWeapon* getRangedWeapon() const;
+    Entity* getReload() const;
     QTimer* getReloadTimer() const;
     QTimer* getSwingTimer() const;
-
 
     void setHp(qreal);
 
@@ -38,6 +38,7 @@ private:
 
     MeleeWeapon* melee_weapon_;
     RangedWeapon* ranged_weapon_;
+    Entity* reload_;
 
     QTimer* reload_timer_;
     QTimer* swing_timer_;

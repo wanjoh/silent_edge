@@ -12,7 +12,12 @@ Map::Map()
 
 Map::~Map()
 {
+    for(auto &[name, bucket] : active_ammo_buckets_)
+        active_ammo_buckets_.erase(name);
     active_ammo_buckets_.clear();
+
+    for(auto &[id, tile] : matrix_)
+        matrix_.erase(id);
     matrix_.clear();
 }
 

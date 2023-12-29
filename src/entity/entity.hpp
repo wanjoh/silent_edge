@@ -13,6 +13,7 @@ public:
     virtual ~Entity() = default;
     QString getName();
     EntityDrawer* getDrawer();
+    void setDrawer(EntityDrawer*);
     QString getEtityType();
 protected:
     EntityDrawer* drawer_;

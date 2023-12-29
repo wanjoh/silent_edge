@@ -15,8 +15,6 @@ GameLogicHandler::GameLogicHandler(Map *map, QObject* parent)
     , rooms_(map_->getRooms())
 {
     initializeTimers();
-    reload_drawer_ = new EntityDrawer("reload", "../silent-edge/src/images/reload.png");
-    reload_drawer_->setZValue(5);
 }
 
 GameLogicHandler::~GameLogicHandler()
@@ -132,7 +130,7 @@ void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name)
 
 
     players_[name]->getDrawer()->setPos(x, y);
-    reload_drawer_->setPos(x, y);
+    players_[name]->getMeleeWeapon()->getDrawer()->setPos(x+IMAGE_SIZE/2, y+IMAGE_SIZE/2);
 }
 
 bool GameLogicHandler::checkPlayerCollision(qreal x, qreal y, const QString &name)
@@ -141,12 +139,13 @@ bool GameLogicHandler::checkPlayerCollision(qreal x, qreal y, const QString &nam
     int id_y = (int)y/IMAGE_SIZE;
     int tile_id = id_y * map_->getM() + id_x;
 
-    if(matrix_[tile_id]->getTileType() == Tile::TileType::AMMO_PILE && map_->getActiveAmmoBuckets().contains(tile_id)) {
+    if(matrix_[tile_id]->getTileType() == Tile::TileType::AMMO_PILE && map_->getActiveAmmoBuckets().contains(tile_id))
+    {
         std::unordered_map<int, Tile*> active_buckets = map_->getActiveAmmoBuckets();
 
         map_->removeFromActive(tile_id);
         players_[name]->getRangedWeapon()->setRemainingBullets(players_[name]->getRangedWeapon()->getRemainingBullets() + AMMO_BUCKET_CAPACITY);
-        emit labelSignal(players_[name]->getRangedWeapon()->getCapacity() - player_bullet_count_[name], players_[name]->getRangedWeapon()->getCapacity(), players_[name]->getRangedWeapon()->getRemainingBullets());
+        //emit labelSignal(players_[name]->getRangedWeapon()->getCapacity() - player_bullet_count_[name], players_[name]->getRangedWeapon()->getCapacity(), players_[name]->getRangedWeapon()->getRemainingBullets());
 
         QByteArray tile_info = jsonify_tile(tile_id, "../silent-edge/src/images/ground.png");
         emit tileChangedSignal(tile_info);
@@ -183,6 +182,8 @@ QByteArray GameLogicHandler::jsonify(const QString& data_type)
             playerObject["position_y"] = player->getDrawer()->y();
             playerObject["rotation"] = player->getDrawer()->rotation();
             playerObject["hp"] = player->getHp();
+            playerObject["swinging"] = melee_in_progress_[name];
+            playerObject["reloading"] = reloading_in_progress_[name];
 
             playersArray.append(playerObject);
         }
@@ -194,7 +195,7 @@ QByteArray GameLogicHandler::jsonify(const QString& data_type)
     else if(data_type == "bullet") {
         QJsonArray bulletsArray;
 
-        for(auto& [bullet_name, bullet] : bullets_) {
+        for(auto& [bullet_id, bullet] : bullets_) {
             QJsonObject bulletObject;
             bulletObject["type"] = "bullet";
             bulletObject["id"] = bullet_id;
@@ -223,7 +224,8 @@ void GameLogicHandler::updateAll()
     QByteArray player_info = jsonify("player");
     QByteArray bullet_info = jsonify("bullet");
 
-    emit updateAllSignal(player_info, bullet_info);
+    emit updatePlayersSignal(player_info);
+    emit updateBulletsSignal(bullet_info);
 }
 
 void GameLogicHandler::updatePlayers()
@@ -234,7 +236,23 @@ void GameLogicHandler::updatePlayers()
         qreal y = player->getDrawer()->y();
 
 
-        // limun: rotacija, pozicija, meci
+        // limun: kolizija, rotacija, pozicija, meci
+
+        for(auto &[other_name, other_player] : players_)
+        {
+            if(name == other_name)
+                continue;
+
+            auto melee_drawer = other_player->getMeleeWeapon()->getDrawer();
+            if(melee_drawer->zValue() < 0)
+                continue;
+            if(melee_drawer->collidesWithItem(players_[name]->getDrawer()))
+            {
+                players_[name]->setHp(players_[name]->getHp() - 100);
+                qDebug() << "Player " << name << " was cut into pieces! by " << other_name << "!";
+                removePlayer(name);
+            }
+        }
 
         updatePlayerRotation(x, y, name);
         updatePlayerPosition(x, y, name);
@@ -246,7 +264,7 @@ void GameLogicHandler::updatePlayers()
                 addBullet(x, y, name);
                 shooting_in_progress_[name] = true;
                 ++player_bullet_count_[name];
-                emit labelSignal(player->getRangedWeapon()->getCapacity() - player_bullet_count_[name], player->getRangedWeapon()->getCapacity(), player->getRangedWeapon()->getRemainingBullets());
+                //emit labelSignal(player->getRangedWeapon()->getCapacity() - player_bullet_count_[name], player->getRangedWeapon()->getCapacity(), player->getRangedWeapon()->getRemainingBullets());
             }
         }
         else
@@ -257,23 +275,25 @@ void GameLogicHandler::updatePlayers()
             if(!melee_in_progress_[name])
             {
                 melee_in_progress_[name] = true;
-                emit meleeSwingSignal(player->getMeleeWeapon()->getName(), player->getMeleeWeapon()->getDrawer());
+                players_[name]->getMeleeWeapon()->getDrawer()->setZValue(1);
                 players_[name]->getSwingTimer()->start();
             }
         }
         else
+        {
+            players_[name]->getMeleeWeapon()->getDrawer()->setZValue(-1);
             melee_in_progress_[name] = false;
+        }
 
         if(commands_[name] & ServerConfig::PlayerActions::RELOAD)
         {
             if(player_bullet_count_[name] != 0 && players_[name]->getRangedWeapon()->getRemainingBullets() != 0)
             {
-                players_[name]->getReloadTimer()->start();
-                if(!reload_drawer_->isActive())
+                if(!reloading_in_progress_[name])
                 {
-                    emit reloadItemSignal(reload_drawer_->name(), reload_drawer_);
+                    reloading_in_progress_[name] = true;
+                    players_[name]->getReloadTimer()->start();
                 }
-
             }
         }
     }
@@ -283,7 +303,13 @@ void GameLogicHandler::updateAmmo()
 {
     map_->restockAmmoPiles();
 
-    emit restockAmmoPilesSignal();
+    QJsonObject json_object;
+    QString type = "bucket_activation";
+    json_object["type"] = type;
+    QJsonDocument json_data(json_object);
+    QByteArray byte_array = json_data.toJson();
+
+    emit restockAmmoPilesSignal(byte_array);
 }
 
 void GameLogicHandler::addPlayer(Player* playa)
@@ -294,6 +320,7 @@ void GameLogicHandler::addPlayer(Player* playa)
     mouse_positions_[name] = {0.0, 0.0};
     shooting_in_progress_[name] = false;
     melee_in_progress_[name] = false;
+    reloading_in_progress_[name] = false;
     player_bullet_count_[name] = 0;
     connect(playa->getReloadTimer(), &QTimer::timeout, std::bind(&GameLogicHandler::reload, this, name));
     connect(playa->getSwingTimer(), &QTimer::timeout, std::bind(&GameLogicHandler::swing, this, name));
@@ -305,15 +332,9 @@ void GameLogicHandler::addPlayer(Player* playa)
 void GameLogicHandler::removePlayer(QString name)
 {
     removePlayerFromRoom(name);
+    players_[name]->setHp(100);
 
-    delete players_[name];
-    players_.erase(name);
-    commands_.erase(name);
-    mouse_positions_.erase(name);
-
-    shooting_in_progress_.erase(name);
-    melee_in_progress_.erase(name);
-    player_bullet_count_.erase(name);
+    putPlayerIntoRoom(name);
 }
 
 void GameLogicHandler::updateBullets()
@@ -323,7 +344,7 @@ void GameLogicHandler::updateBullets()
     {
         if (checkBulletCollisions(it->second))
         {
-            emit bulletDestroyedSignal(QString::number(it->first));
+            // limun: neki emit treba ovde ili prosto da brišemo svaki metak koji se ne pojavljuje više u poruci od servera
             bullets_.erase(it++->first);
         }
         else
@@ -367,11 +388,11 @@ bool GameLogicHandler::checkBulletCollisions(Bullet *bullet)
 
             qDebug() << name << " has " << player->getHp() << "hp";
 
-            if(player->getHp() == 0)
+            if(player->getHp() <= 0)
             {
                 qDebug() << "igrac unisten";
                 removePlayer(name);
-                emit playerDestroyedSignal();
+                // limun: ko zna, zna
             }
 
             return true;
@@ -402,23 +423,18 @@ void GameLogicHandler::decreaseHp(Player* player, Bullet* bullet)
 void GameLogicHandler::reload(const QString& name)
 {
     players_[name]->getReloadTimer()->stop();
+    reloading_in_progress_[name] = false;
 
     quint32 bullets_shot = player_bullet_count_[name];
     player_bullet_count_[name] -= std::min(players_[name]->getRangedWeapon()->getRemainingBullets(), static_cast<qint32>(player_bullet_count_[name]));
     players_[name]->getRangedWeapon()->setRemainingBullets(std::max(players_[name]->getRangedWeapon()->getRemainingBullets() - static_cast<qint32>(bullets_shot), 0));
 
-
-
-    emit removeReload(reload_drawer_->name());
-    emit labelSignal(players_[name]->getRangedWeapon()->getCapacity() - player_bullet_count_[name], players_[name]->getRangedWeapon()->getCapacity(), players_[name]->getRangedWeapon()->getRemainingBullets());
-
+    //emit labelSignal(players_[name]->getRangedWeapon()->getCapacity() - player_bullet_count_[name], players_[name]->getRangedWeapon()->getCapacity(), players_[name]->getRangedWeapon()->getRemainingBullets());
 }
 
 void GameLogicHandler::swing(const QString &name)
 {
-    emit removeMelee(players_[name]->getMeleeWeapon()->getName());
     players_[name]->getSwingTimer()->stop();
-
 }
 
 
@@ -427,13 +443,10 @@ void GameLogicHandler::initializeTimers()
     ammo_respawn_timer_.setInterval(AMMO_RESPAWN_TIME);
     connect(&ammo_respawn_timer_, &QTimer::timeout, this, &GameLogicHandler::updateAmmo);
     ammo_respawn_timer_.start();
-
 }
 
 void GameLogicHandler::updatePlayerStats(const QByteArray &player_info)
 {
-    // limun: evo
-    // limun: 8 + 4 + 2 * 8 = 28 bajtova
     QJsonParseError parse_error;
     const QJsonDocument json_data = QJsonDocument::fromJson(player_info, &parse_error);
     if (parse_error.error == QJsonParseError::NoError && json_data.isObject())
@@ -443,15 +456,8 @@ void GameLogicHandler::updatePlayerStats(const QByteArray &player_info)
         {
             Player* playa = new Player(name);
             addPlayer(playa);
-            // if (commands_.size() >= 2)
-            // {
-            //     // todo: ovo je privremeni fix jer nemamo lobby
-            //     // kad ubacimo lobby, ovo ce se vratiti u konstruktor
-            //     putPlayersIntoRooms();
-            // }
         }
         commands_[name] = static_cast<quint32>(json_data["movement"].toInteger());
-        //positions_[name] = QPair<int, int>(json_data["x"].toInteger(), json_data["y"].toInteger());
         mouse_positions_[name] = QPair<qreal, qreal>(json_data["mouse_x"].toDouble(), json_data["mouse_y"].toDouble());
     }
     else

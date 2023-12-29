@@ -17,10 +17,11 @@ Game::Game(QString name, Client *client, QObject *parent)
     gui_->addItem(map_->getDrawer()->get_group());
     json_object_["name"] = name;
     gui_->addEntity(name, player_->getDrawer());
+    gui_->addEntity(player_->getMeleeWeapon()->getDrawer()->name(), player_->getMeleeWeapon()->getDrawer());
+    gui_->addEntity(player_->getReload()->getDrawer()->name(), player_->getReload()->getDrawer());
 
     connect(client_, &Client::serverTickReceived, this, &Game::serializeData, Qt::DirectConnection);
     connect(client_, &Client::dataReceived, this, &Game::deserializeData, Qt::DirectConnection);
-
 }
 
 Game::~Game()
@@ -34,13 +35,6 @@ void Game::startGame(QString server_ip)
     //client_->connectToServer(ServerConfig::getHost().toString(), ServerConfig::PORT);
 
     gui_->show(GameWindow::GamePhase::FIGHT_PHASE);
-    //connect(server_, &GameServer::removeBulletSignal, gui_, &GameWindow::removeEntity);
-    //connect(server_, &GameServer::reloadItemSignal, gui_, &GameWindow::addEntity);
-    //connect(server_, &GameServer::meleeSwingSignal, gui_, &GameWindow::addEntity);
-    //connect(server_, &GameServer::removeReload, gui_, &GameWindow::removeEntity);
-    //connect(server_, &GameServer::removeMelee, gui_, &GameWindow::removeEntity);
-    //connect(server_, &GameServer::labelSignal, gui_, &GameWindow::updateBulletsLabel);
-
 }
 
 void Game::startServer()
@@ -75,27 +69,55 @@ void Game::deserializeData(const QByteArray &data)
                     qreal y = playerObject["position_y"].toDouble();
                     qreal rotation = playerObject["rotation"].toDouble();
                     qreal hp = playerObject["hp"].toDouble();
+                    bool is_swinging = playerObject["swinging"].toBool();
+                    bool is_reloading = playerObject["reloading"].toBool();
 
                     if(player_->getName() == this_name) {
                         player_->getDrawer()->setPos(x, y);
                         player_->getDrawer()->setRotation(rotation);
+                        player_->getMeleeWeapon()->getDrawer()->setPos(x+IMAGE_SIZE/2, y+IMAGE_SIZE/2);
+                        player_->getMeleeWeapon()->getDrawer()->setRotation(rotation);
+                        player_->getReload()->getDrawer()->setPos(x, y);
                         player_->setHp(hp);
+
+                        if(is_swinging)
+                            player_->getMeleeWeapon()->getDrawer()->setZValue(5);
+                        else
+                            player_->getMeleeWeapon()->getDrawer()->setZValue(-1);
+
+                        if(is_reloading)
+                            player_->getReload()->getDrawer()->setZValue(7);
+                        else
+                            player_->getReload()->getDrawer()->setZValue(-1);
                     }
                     else
                     {
                         if(!enemies_.contains(this_name)) {
                             enemies_[this_name] = new Player(this_name);
                             gui_->addEntity(this_name, enemies_[this_name]->getDrawer());
+                            gui_->addEntity(enemies_[this_name]->getMeleeWeapon()->getDrawer()->name(), enemies_[this_name]->getMeleeWeapon()->getDrawer());
+                            gui_->addEntity(enemies_[this_name]->getReload()->getDrawer()->name(), enemies_[this_name]->getReload()->getDrawer());
                         }
                         enemies_[this_name]->getDrawer()->setPos(x, y);
                         enemies_[this_name]->getDrawer()->setRotation(rotation);
+                        enemies_[this_name]->getMeleeWeapon()->getDrawer()->setPos(x+IMAGE_SIZE/2, y+IMAGE_SIZE/2);
+                        enemies_[this_name]->getMeleeWeapon()->getDrawer()->setRotation(rotation);
+                        enemies_[this_name]->getReload()->getDrawer()->setPos(x, y);
                         enemies_[this_name]->setHp(hp);
+
+                        if(is_swinging)
+                            enemies_[this_name]->getMeleeWeapon()->getDrawer()->setZValue(5);
+                        else
+                            enemies_[this_name]->getMeleeWeapon()->getDrawer()->setZValue(-1);
+
+                        if(is_reloading)
+                            enemies_[this_name]->getReload()->getDrawer()->setZValue(7);
+                        else
+                            enemies_[this_name]->getReload()->getDrawer()->setZValue(-1);
                     }
                 }
             } else if (object["type"].toString() == "bullet")
             {
-                std::map<QString, Player*> bullets;
-
                 for(const auto& value : array) {
                     QJsonObject bulletObject = value.toObject();
 
@@ -106,19 +128,15 @@ void Game::deserializeData(const QByteArray &data)
                     qreal rotation = bulletObject["rotation"].toDouble();
 
 
-                    if(bullets_.contains(id)) {
-                        bullets_[id]->setPos(x, y);
-                        bullets_[id]->setRotation(rotation);
-                    }
-                    else {
+                    if(!bullets_.contains(id))
+                    {
                         Bullet *bullet = new Bullet(id, owner_name);
-                        bullet->getDrawer()->setPos(x, y);
-                        bullet->getDrawer()->setRotation(rotation);
-                        EntityDrawer* drawer = bullet->getDrawer();
-                        bullets_[id] = drawer;
-
-                        gui_->addEntity(bullet->getName(), drawer);
+                        bullets_[id] = bullet;
+                        gui_->addEntity(bullets_[id]->getDrawer()->name(), bullets_[id]->getDrawer());
                     }
+
+                    bullets_[id]->getDrawer()->setPos(x, y);
+                    bullets_[id]->getDrawer()->setRotation(rotation);
                 }
             }
         } else {

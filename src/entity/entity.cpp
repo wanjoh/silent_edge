@@ -16,6 +16,11 @@ EntityDrawer* Entity::getDrawer()
     return drawer_;
 }
 
+void Entity::setDrawer(EntityDrawer* drawer)
+{
+    drawer_ = drawer;
+}
+
 QString Entity::getEtityType()
 {
     return entityType_;
