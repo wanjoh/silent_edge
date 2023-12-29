@@ -145,7 +145,7 @@ bool GameLogicHandler::checkPlayerCollision(qreal x, qreal y, const QString &nam
 
         map_->removeFromActive(tile_id);
         players_[name]->getRangedWeapon()->setRemainingBullets(players_[name]->getRangedWeapon()->getRemainingBullets() + AMMO_BUCKET_CAPACITY);
-        //emit labelSignal(players_[name]->getRangedWeapon()->getCapacity() - player_bullet_count_[name], players_[name]->getRangedWeapon()->getCapacity(), players_[name]->getRangedWeapon()->getRemainingBullets());
+
 
         QByteArray tile_info = jsonify_tile(tile_id, "../silent-edge/src/images/ground.png");
         emit tileChangedSignal(tile_info);
@@ -184,6 +184,9 @@ QByteArray GameLogicHandler::jsonify(const QString& data_type)
             playerObject["hp"] = player->getHp();
             playerObject["swinging"] = melee_in_progress_[name];
             playerObject["reloading"] = reloading_in_progress_[name];
+            playerObject["shooting"] = shooting_in_progress_[name];
+            playerObject["bullet_count"] = static_cast<qint32>(player_bullet_count_[name]);
+            playerObject["remaining_bullets"] = player->getRangedWeapon()->getRemainingBullets();
 
             playersArray.append(playerObject);
         }
@@ -264,7 +267,7 @@ void GameLogicHandler::updatePlayers()
                 addBullet(x, y, name);
                 shooting_in_progress_[name] = true;
                 ++player_bullet_count_[name];
-                //emit labelSignal(player->getRangedWeapon()->getCapacity() - player_bullet_count_[name], player->getRangedWeapon()->getCapacity(), player->getRangedWeapon()->getRemainingBullets());
+
             }
         }
         else
@@ -441,7 +444,6 @@ void GameLogicHandler::reload(const QString& name)
     player_bullet_count_[name] -= std::min(players_[name]->getRangedWeapon()->getRemainingBullets(), static_cast<qint32>(player_bullet_count_[name]));
     players_[name]->getRangedWeapon()->setRemainingBullets(std::max(players_[name]->getRangedWeapon()->getRemainingBullets() - static_cast<qint32>(bullets_shot), 0));
 
-    //emit labelSignal(players_[name]->getRangedWeapon()->getCapacity() - player_bullet_count_[name], players_[name]->getRangedWeapon()->getCapacity(), players_[name]->getRangedWeapon()->getRemainingBullets());
 }
 
 void GameLogicHandler::swing(const QString &name)
