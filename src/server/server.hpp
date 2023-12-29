@@ -11,15 +11,6 @@ class QByteArray;
 class GameServer : public QTcpServer {
   Q_OBJECT
 public:
-    // za testiranje sa vise racunara
-    static constexpr bool remoteServer = false;
-    inline static const QHostAddress remoteIP = QHostAddress("192.168.0.23");
-    //
-    static constexpr qint32 PORT = 6969;
-    static constexpr qint32 MAX_USERS = 8;
-    static constexpr qint32 MAX_ROOMS = MAX_USERS / 2;
-    //static QHostAddress HOST;
-    inline static const QHostAddress HOST = remoteServer ? remoteIP : QHostAddress::LocalHost;
 
     GameServer(QObject* = nullptr);
     GameServer(QString,QObject* = nullptr);
@@ -64,7 +55,6 @@ private:
     QVector<Connection*> users_;
     QTimer server_timer_;
     QVector<QByteArray> player_datas_;
-    QMap<Connection*, QString> user_servers_;
     QString server_address_;
     QMutex users_mutex_;
     QMutex server_lobbies_mutex_;

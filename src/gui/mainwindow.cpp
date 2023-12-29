@@ -41,18 +41,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-QString MainWindow::getLocalIPv4Address()
-{
-    QList<QHostAddress> ip_addresses_list = QNetworkInterface::allAddresses();
-
-    for (const QHostAddress &address : ip_addresses_list) {
-        if (address.protocol() == QAbstractSocket::IPv4Protocol && !address.isLoopback()) {
-            return address.toString();
-        }
-    }
-
-    return QString();
-}
 
 void MainWindow::onPbCreateServer_clicked()
 {
@@ -66,35 +54,6 @@ void MainWindow::onPbCreateServer_clicked()
 void MainWindow::onPbJoinGame_clicked()
 {
 
-    QString local_ip = getLocalIPv4Address();
-
-
-    //ovo sluzi da testiram na svom racunaru
-    //QString local_ip = "192.168.1.2";
-    //
-    qsizetype dot_position = local_ip.lastIndexOf('.');
-
-    QString base_ip = local_ip.sliced(0,dot_position+1);
-
-    test_connection = true;
-
-    for(int j=1;j<=255;j++)
-    {
-        QTcpSocket tcp_socket;
-        QString ip_address = base_ip + QString::number(j);
-        tcp_socket.connectToHost(QHostAddress(ip_address),6969);
-
-        if(tcp_socket.waitForConnected(5))
-        {
-            qDebug() << "Server found at" << ip_address << "on port" << 6969;
-            ui->serverList->addItem(ip_address);
-            tcp_socket.disconnectFromHost();
-        }
-
-
-    }
-
-
     ui->stackedWidget->setCurrentIndex(2);
 
 }
@@ -102,15 +61,9 @@ void MainWindow::onPbJoinGame_clicked()
 void MainWindow::onPbConnect_clicked()
 {
 
-    test_connection = false;
-    QList<QListWidgetItem*> server_list = ui->serverList->selectedItems();
-    if (!server_list.isEmpty())
-    {
-        QString server_address = server_list.first()->text();
-        client_->connectToServer(server_address, 6969);
+    QString server_address = ui->serverIP_line->text();
+    client_->connectToServer(server_address, ServerConfig::PORT);
 
-
-    }
 }
 
 void MainWindow::onPbSettings_clicked()
@@ -151,7 +104,7 @@ void MainWindow::onPbQuit_clicked()
 
 void MainWindow::onPlayerJoined(const QString &playerName, Lobby* lobby)
 {
-    if (lobby && !test_connection)
+    if (lobby)
     {
         connect(lobby,&Lobby::closeConnection,this,&MainWindow::disconnectFromServer);
         connect(this,&MainWindow::updateLobbySignal,lobby,&Lobby::updateLobby);
@@ -159,7 +112,6 @@ void MainWindow::onPlayerJoined(const QString &playerName, Lobby* lobby)
         lobby_ = lobby;
         lobby->show();
         qDebug() << playerName << "joined the game!";
-        test_connection = !test_connection;
         emit updateLobbySignal(playerName);
     }
 

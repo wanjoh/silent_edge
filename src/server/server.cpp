@@ -31,19 +31,19 @@ GameServer::GameServer(QString ip, QObject *parent)
     lobby(new Lobby(ip)),
     logic_handler_(new GameLogicHandler)
 {
-    available_threads_.reserve(MAX_USERS);
-    threads_load_.reserve(MAX_USERS);
+    available_threads_.reserve(ServerConfig::MAX_USERS);
+    threads_load_.reserve(ServerConfig::MAX_USERS);
 
 
     const QHostAddress ip_address = QHostAddress(ip);
 
-    if (!this->listen(ip_address,PORT))
+    if (!this->listen(ip_address,ServerConfig::PORT))
     {
         qDebug() << "Could not start the server";
     }
     else
     {
-        qDebug() << "Server started on " << ip_address <<  ", port" << PORT;
+        qDebug() << "Server started on " << ip_address <<  ", port" << ServerConfig::PORT;
         initializeTimers();
     }
 
@@ -185,7 +185,6 @@ void GameServer::incomingConnection(qintptr socket_desc)
         connect(available_threads_.last(), &QThread::finished, user, &QObject::deleteLater);
 
         users_.push_back(user);
-        user_servers_[user] = server_address_;
         emit playerJoined(user->username(), lobby);
         qDebug() << "thread created";
     }
@@ -199,8 +198,6 @@ Lobby *GameServer::getLobby() const
 {
     return lobby;
 }
-
-
 
 
 QString GameServer::server_address() const
