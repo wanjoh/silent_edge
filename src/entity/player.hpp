@@ -11,7 +11,6 @@ class Player : public Entity
 {
     Q_OBJECT
 public:
-    // ovo ce leteti odavde
     constexpr static qint32 VELOCITY = 3;
     Player();
     Player(QString, bool = true, qreal hp = 100, int x = 128, int y = 128, QObject* = nullptr);

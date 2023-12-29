@@ -128,20 +128,23 @@ void Game::deserializeData(const QByteArray &data)
                     qreal rotation = bulletObject["rotation"].toDouble();
 
 
-                    if(!bullets_.contains(id))
+                    if(!bullet_drawers_.contains(id))
                     {
                         Bullet *bullet = new Bullet(id, owner_name);
-                        bullets_[id] = bullet;
-                        gui_->addEntity(bullets_[id]->getDrawer()->name(), bullets_[id]->getDrawer());
+                        bullet_drawers_[id] = bullet->getDrawer();
+                        gui_->addEntity(bullet_drawers_[id]->name(), bullet_drawers_[id]);
                     }
 
-                    bullets_[id]->getDrawer()->setPos(x, y);
-                    bullets_[id]->getDrawer()->setRotation(rotation);
+                    bullet_drawers_[id]->setPos(x, y);
+                    bullet_drawers_[id]->setRotation(rotation);
                 }
             }
-        } else {
+        }
+        else
+        {
             QJsonObject object = json_data.object();
-            if(object["type"].toString() == "tile") {
+            if(object["type"].toString() == "tile")
+            {
                 int tile_id = object["tile_id"].toInt();
                 const QString &path = object["path"].toString();
 
@@ -149,12 +152,15 @@ void Game::deserializeData(const QByteArray &data)
                 map_->removeFromActive(tile_id);
             }
 
-            if(object["type"].toString() == "bucket_activation") {
+            if(object["type"].toString() == "bucket_activation")
+            {
                 map_->restockAmmoPiles();
             }
 
-            if(object["type"].toString() == "refresh_camera") {
-                if(object["name"].toString() == player_->getName()) {
+            if(object["type"].toString() == "refresh_camera")
+            {
+                if(object["name"].toString() == player_->getName())
+                {
                     qreal x = object["x"].toDouble();
                     qreal y = object["y"].toDouble();
                     player_->getDrawer()->setPos(x, y);
@@ -163,6 +169,13 @@ void Game::deserializeData(const QByteArray &data)
                 Room *room = map_->findRoomForPlayer(*player_);
                 gui_->changeRoom(room);
                 gui_->teleportPlayer(player_->getName(), player_->getDrawer()->x(), player_->getDrawer()->y());
+            }
+            if(object["type"].toString() == "delete_bullet")
+            {
+                qDebug() << "erasing bullet";
+                int id = object["id"].toInt();
+                bullet_drawers_.erase(id);
+                gui_->removeEntity(QString::number(id));
             }
         }
     }
@@ -175,8 +188,6 @@ void Game::deserializeData(const QByteArray &data)
 void Game::serializeData()
 {
     json_object_["movement"] = QJsonValue(static_cast<qint64>(gui_->getMovement()));
-    //json_object_["x"] = player_->getDrawer()->x();
-    //json_object_["y"] = player_->getDrawer()->y();
     json_object_["mouse_x"] = QJsonValue(static_cast<qreal>(gui_->getMouseX()));
     json_object_["mouse_y"] = QJsonValue(static_cast<qreal>(gui_->getMouseY()));
 

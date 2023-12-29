@@ -79,6 +79,7 @@ void GameServer::initializeTimers()
     connect(logic_handler_, &GameLogicHandler::tileChangedSignal, this, &GameServer::broadcast);
     connect(logic_handler_, &GameLogicHandler::restockAmmoPilesSignal, this, &GameServer::broadcast);
     connect(logic_handler_, &GameLogicHandler::sendRefreshCameraSignal, this, &GameServer::broadcast);
+    connect(logic_handler_, &GameLogicHandler::bulletDestroyedSignal, this, &GameServer::broadcast);
     //connect(logic_handler_, &GameLogicHandler::labelSignal, this, &GameServer::labelSignal);
 
     server_timer_.start();

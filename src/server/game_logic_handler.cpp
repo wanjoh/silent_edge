@@ -345,6 +345,16 @@ void GameLogicHandler::updateBullets()
         if (checkBulletCollisions(it->second))
         {
             // limun: neki emit treba ovde ili prosto da brišemo svaki metak koji se ne pojavljuje više u poruci od servera
+
+            QJsonObject object;
+            object["type"] = "delete_bullet";
+            object["id"] = it->first;
+            const QJsonDocument json_data(object);
+
+            QByteArray bullet_info = json_data.toJson();
+
+            emit bulletDestroyedSignal(bullet_info);
+
             bullets_.erase(it++->first);
         }
         else
@@ -383,6 +393,8 @@ bool GameLogicHandler::checkBulletCollisions(Bullet *bullet)
 {
     // limun: dosta bolje (videćemo)
     for(auto &[name, player] : players_) {
+        if(name == bullet->getOwnerName())
+            continue;
         if(bullet->getDrawer()->collidesWithItem(player->getDrawer())) {
             decreaseHp(player, bullet);
 

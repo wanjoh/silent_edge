@@ -22,17 +22,9 @@ GameWindow::GameWindow(Room* room, qreal width, qreal height, QObject *parent)
 
     setSceneUp();
 
-
     overlay_group_ = new QGraphicsItemGroup();
     make_overlay();
     addItem(overlay_group_);
-
-
-
-    // todo: promeniti
-
-
-
 }
 
 GameWindow::~GameWindow()

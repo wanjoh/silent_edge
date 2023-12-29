@@ -43,6 +43,7 @@ signals:
     void updateBulletsSignal(QByteArray&);
     void restockAmmoPilesSignal(QByteArray&);
     void sendRefreshCameraSignal(QByteArray&);
+    void bulletDestroyedSignal(QByteArray&);
     void labelSignal(qint32, qint32, qint32);
 
 private:
