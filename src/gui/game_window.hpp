@@ -76,12 +76,11 @@ private:
     qreal start_x_;
     qreal start_y_;
 
+    QGraphicsPixmapItem *pistol_overlay_;
     QGraphicsItemGroup *overlay_group_;
+    QGraphicsTextItem *bullets_label_;
+    QGraphicsTextItem *remaining_bullets_label_;
+    QGraphicsRectItem *hp_overlay_;
 
-    QGraphicsTextItem* bullets_label_;
-    QGraphicsTextItem* remaining_bullets_label_;
-    QGraphicsRectItem* bullets_background_;
-    QGraphicsRectItem* remaining_bullets_background_;
-    QGraphicsPixmapItem* pistol_overlay_;
 
 };

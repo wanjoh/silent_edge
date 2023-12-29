@@ -23,11 +23,13 @@ GameWindow::GameWindow(Room* room, qreal width, qreal height, QObject *parent)
     setSceneUp();
 
 
+    bullets_label_ = new QGraphicsTextItem();
+    remaining_bullets_label_ = new QGraphicsTextItem();
+    pistol_overlay_ = new QGraphicsPixmapItem(QPixmap("../silent-edge/src/images/pistol_overlay.png"));
+    hp_overlay_ = new QGraphicsRectItem();
     overlay_group_ = new QGraphicsItemGroup();
     make_overlay();
     addItem(overlay_group_);
-
-
 
     // todo: promeniti
 
@@ -187,39 +189,14 @@ bool GameWindow::eventFilter(QObject *obj, QEvent *event)
 
 void GameWindow::make_overlay()
 {
-    QString base_path = "../silent-edge/src/images/";
-//    QVector<QString> weapon_overlay_paths = {base_path + "pistol_overlay.png", base_path + "pistol_overlay_2.png"};
 
 
-//    int x_pos = 0;
-//    int y_pos = start_y_ + window_height_ - 3 * IMAGE_SIZE;
-
-//    int n = weapon_overlay_paths.size();
-//    for(int i = 0; i < n; i++) {
-//        Overlay *overlay = new Overlay(i, weapon_overlay_paths[i], {start_x_/IMAGE_SIZE + x_pos/IMAGE_SIZE, start_y_/IMAGE_SIZE + y_pos/IMAGE_SIZE});
-//        OverlayDrawer *drawer = overlay->getDrawer();
-//        drawer->setPos(start_x_+ x_pos, start_y_ + y_pos);
-
-//        if(i != 0)
-//            drawer->setVisible(false);
-//        overlay_group_->addToGroup(drawer);
-//    }
-    int hp_x_pos = start_x_ + window_width_ - 1 * IMAGE_SIZE;
-    int hp_y_pos = start_y_ + window_height_ - 1 * IMAGE_SIZE;
-    QGraphicsRectItem *hp_overlay = new QGraphicsRectItem(hp_x_pos, hp_y_pos, IMAGE_SIZE, IMAGE_SIZE);
-    hp_overlay->setBrush(Qt::green);
-
-    overlay_group_->addToGroup(hp_overlay);
-
-
-
-    pistol_overlay_ = new QGraphicsPixmapItem(QPixmap("../silent-edge/src/images/pistol_overlay.png"));
     pistol_overlay_->setPos(phase_->sceneRect().width() - pistol_overlay_->boundingRect().width() + start_x_,
                             phase_->sceneRect().height() - pistol_overlay_->boundingRect().height() + start_y_);
     pistol_overlay_->setZValue(4);
 
+    overlay_group_->addToGroup(pistol_overlay_);
 
-    addItem(pistol_overlay_);
     bullets_label_ = addText("99/99");
     bullets_label_->setFont(QFont("Arial", 30));
     bullets_label_->setZValue(5);
@@ -238,6 +215,17 @@ void GameWindow::make_overlay()
     remaining_bullets_label_->setTextWidth(pistol_overlay_->boundingRect().width());
 
     overlay_group_->addToGroup(remaining_bullets_label_);
+
+    qreal hp_x_pos = start_x_;
+    qreal hp_y_pos = start_y_ + window_height_ - 1 * IMAGE_SIZE;
+    qDebug() << 1* IMAGE_SIZE;
+    qDebug() << "UPON SETTING UP HP X AND Y POS " << hp_x_pos << hp_y_pos;
+    hp_overlay_->setRect(hp_x_pos, hp_y_pos, IMAGE_SIZE, IMAGE_SIZE);
+    hp_overlay_->setBrush(Qt::green);
+    hp_overlay_->setZValue(5);
+
+    overlay_group_->addToGroup(hp_overlay_);
+
 
     overlay_group_->setZValue(2);
 
@@ -262,14 +250,11 @@ void GameWindow::change_weapon(int id)
 
 void GameWindow::update_hp_overlay(qreal hp)
 {
-    qreal percentage = hp/100;
+    qreal percentage = hp / 100.0;
+    qreal hp_x_pos = start_x_;
+    qreal hp_y_pos = start_y_ + window_height_ - percentage*IMAGE_SIZE;
+    hp_overlay_->setRect(hp_x_pos, hp_y_pos, IMAGE_SIZE, IMAGE_SIZE);
 
-    QList<QGraphicsItem*> childItems = overlay_group_->childItems();
-    if (!childItems.isEmpty()) {
-        qreal x_pos = childItems.last()->x();
-        qreal y_pos = childItems.last()->y();
-        childItems.last()->setPos(x_pos, y_pos + percentage);
-    }
 }
 qreal GameWindow::getMouseX()
 {

@@ -71,6 +71,9 @@ void Game::deserializeData(const QByteArray &data)
                     qreal hp = playerObject["hp"].toDouble();
                     bool is_swinging = playerObject["swinging"].toBool();
                     bool is_reloading = playerObject["reloading"].toBool();
+                    bool is_shooting = playerObject["shooting"].toBool();
+                    qint32 bullet_count = playerObject["bullet_count"].toInt();
+                    qint32 remaining_bullets = playerObject["remaining_bullets"].toInt();
 
                     if(player_->getName() == this_name) {
                         player_->getDrawer()->setPos(x, y);
@@ -79,6 +82,13 @@ void Game::deserializeData(const QByteArray &data)
                         player_->getMeleeWeapon()->getDrawer()->setRotation(rotation);
                         player_->getReload()->getDrawer()->setPos(x, y);
                         player_->setHp(hp);
+                        gui_->update_hp_overlay(hp);
+
+                        if(is_shooting)
+                            gui_->updateBulletsLabel(player_->getRangedWeapon()->getCapacity() - bullet_count, player_->getRangedWeapon()->getCapacity(), remaining_bullets);
+
+                        if(!player_->getReloadTimer()->isActive())
+                            gui_->updateBulletsLabel(player_->getRangedWeapon()->getCapacity() - bullet_count, player_->getRangedWeapon()->getCapacity(), remaining_bullets);
 
                         if(is_swinging)
                             player_->getMeleeWeapon()->getDrawer()->setZValue(5);
@@ -86,7 +96,9 @@ void Game::deserializeData(const QByteArray &data)
                             player_->getMeleeWeapon()->getDrawer()->setZValue(-1);
 
                         if(is_reloading)
+                        {
                             player_->getReload()->getDrawer()->setZValue(7);
+                        }
                         else
                             player_->getReload()->getDrawer()->setZValue(-1);
                     }
