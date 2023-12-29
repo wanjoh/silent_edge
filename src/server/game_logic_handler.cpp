@@ -130,6 +130,7 @@ void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name)
 
 
     players_[name]->getDrawer()->setPos(x, y);
+    players_[name]->getMeleeWeapon()->getDrawer()->setPos(x+IMAGE_SIZE/2, y+IMAGE_SIZE/2);
 }
 
 bool GameLogicHandler::checkPlayerCollision(qreal x, qreal y, const QString &name)
@@ -138,7 +139,8 @@ bool GameLogicHandler::checkPlayerCollision(qreal x, qreal y, const QString &nam
     int id_y = (int)y/IMAGE_SIZE;
     int tile_id = id_y * map_->getM() + id_x;
 
-    if(matrix_[tile_id]->getTileType() == Tile::TileType::AMMO_PILE && map_->getActiveAmmoBuckets().contains(tile_id)) {
+    if(matrix_[tile_id]->getTileType() == Tile::TileType::AMMO_PILE && map_->getActiveAmmoBuckets().contains(tile_id))
+    {
         std::unordered_map<int, Tile*> active_buckets = map_->getActiveAmmoBuckets();
 
         map_->removeFromActive(tile_id);
@@ -193,7 +195,7 @@ QByteArray GameLogicHandler::jsonify(const QString& data_type)
     else if(data_type == "bullet") {
         QJsonArray bulletsArray;
 
-        for(auto& [bullet_name, bullet] : bullets_) {
+        for(auto& [bullet_id, bullet] : bullets_) {
             QJsonObject bulletObject;
             bulletObject["type"] = "bullet";
             bulletObject["id"] = bullet_id;
@@ -234,7 +236,23 @@ void GameLogicHandler::updatePlayers()
         qreal y = player->getDrawer()->y();
 
 
-        // limun: rotacija, pozicija, meci
+        // limun: kolizija, rotacija, pozicija, meci
+
+        for(auto &[other_name, other_player] : players_)
+        {
+            if(name == other_name)
+                continue;
+
+            auto melee_drawer = other_player->getMeleeWeapon()->getDrawer();
+            if(melee_drawer->zValue() < 0)
+                continue;
+            if(melee_drawer->collidesWithItem(players_[name]->getDrawer()))
+            {
+                players_[name]->setHp(players_[name]->getHp() - 100);
+                qDebug() << "Player " << name << " was cut into pieces! by " << other_name << "!";
+                removePlayer(name);
+            }
+        }
 
         updatePlayerRotation(x, y, name);
         updatePlayerPosition(x, y, name);
@@ -257,11 +275,15 @@ void GameLogicHandler::updatePlayers()
             if(!melee_in_progress_[name])
             {
                 melee_in_progress_[name] = true;
+                players_[name]->getMeleeWeapon()->getDrawer()->setZValue(1);
                 players_[name]->getSwingTimer()->start();
             }
         }
         else
+        {
+            players_[name]->getMeleeWeapon()->getDrawer()->setZValue(-1);
             melee_in_progress_[name] = false;
+        }
 
         if(commands_[name] & ServerConfig::PlayerActions::RELOAD)
         {
@@ -310,16 +332,9 @@ void GameLogicHandler::addPlayer(Player* playa)
 void GameLogicHandler::removePlayer(QString name)
 {
     removePlayerFromRoom(name);
+    players_[name]->setHp(100);
 
-    delete players_[name];
-    players_.erase(name);
-    commands_.erase(name);
-    mouse_positions_.erase(name);
-
-    shooting_in_progress_.erase(name);
-    melee_in_progress_.erase(name);
-    reloading_in_progress_.erase(name);
-    player_bullet_count_.erase(name);
+    putPlayerIntoRoom(name);
 }
 
 void GameLogicHandler::updateBullets()
@@ -373,7 +388,7 @@ bool GameLogicHandler::checkBulletCollisions(Bullet *bullet)
 
             qDebug() << name << " has " << player->getHp() << "hp";
 
-            if(player->getHp() == 0)
+            if(player->getHp() <= 0)
             {
                 qDebug() << "igrac unisten";
                 removePlayer(name);

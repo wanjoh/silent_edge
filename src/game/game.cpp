@@ -22,7 +22,6 @@ Game::Game(QString name, QObject *parent)
 
     connect(client_, &Client::serverTickReceived, this, &Game::serializeData, Qt::DirectConnection);
     connect(client_, &Client::dataReceived, this, &Game::deserializeData, Qt::DirectConnection);
-
 }
 
 Game::~Game()
@@ -118,8 +117,6 @@ void Game::deserializeData(const QByteArray &data)
                 }
             } else if (object["type"].toString() == "bullet")
             {
-                std::map<QString, Player*> bullets;
-
                 for(const auto& value : array) {
                     QJsonObject bulletObject = value.toObject();
 
@@ -130,19 +127,15 @@ void Game::deserializeData(const QByteArray &data)
                     qreal rotation = bulletObject["rotation"].toDouble();
 
 
-                    if(bullets_.contains(id)) {
-                        bullets_[id]->setPos(x, y);
-                        bullets_[id]->setRotation(rotation);
-                    }
-                    else {
+                    if(!bullets_.contains(id))
+                    {
                         Bullet *bullet = new Bullet(id, owner_name);
-                        bullet->getDrawer()->setPos(x, y);
-                        bullet->getDrawer()->setRotation(rotation);
-                        EntityDrawer* drawer = bullet->getDrawer();
-                        bullets_[id] = drawer;
-
-                        gui_->addEntity(bullet->getName(), drawer);
+                        bullets_[id] = bullet;
+                        gui_->addEntity(bullets_[id]->getDrawer()->name(), bullets_[id]->getDrawer());
                     }
+
+                    bullets_[id]->getDrawer()->setPos(x, y);
+                    bullets_[id]->getDrawer()->setRotation(rotation);
                 }
             }
         } else {

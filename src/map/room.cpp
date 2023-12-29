@@ -66,11 +66,9 @@ void Room::addPlayerToRoom(Player *player)
 
 void Room::removePlayerFromRoom(Player *player)
 {
-    // limun: ako u nekoj sobi neko prestane da bude vezan za spawnpoint, svi spawnpointovi postanu dostupni u toj sobi
     players_in_room_.removeOne(player);
     for(auto &spawnpoint : used_spawnpoints_)
         unused_spawnpoints_[spawnpoint.first] = spawnpoint.second;
-    used_spawnpoints_.clear();
 }
 
 void Room::addSpawnpoint(const QString &name, QPair<int, int> coords)
