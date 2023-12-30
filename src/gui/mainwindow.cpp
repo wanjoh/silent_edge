@@ -126,9 +126,9 @@ void MainWindow::onPlayerJoined(const QString &playerName, Lobby* lobby)
 
 void MainWindow::startGame(const QString& server_ip)
 {
-    Game *game = new Game("name", client_);
-    game->startGame(server_ip);
-    game->moveToThread(new QThread);
+    //Game *game = new Game("name", client_);
+    //game->startGame(server_ip);
+    //game->moveToThread(new QThread);
 }
 
 

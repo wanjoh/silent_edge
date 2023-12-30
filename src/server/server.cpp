@@ -122,7 +122,7 @@ void GameServer::sendData(Connection *user, const QByteArray& msg)
 
 void GameServer::incomingConnection(qintptr socket_desc)
 {
-    QMutexLocker lobby_locker(&server_lobbies_mutex_);
+    //QMutexLocker lobby_locker(&server_lobbies_mutex_);
     if (users_.size() < ServerConfig::MAX_USERS)
     {
         // ovo treba da se razmotri, nismo sigurni da li će ovo praviti siročiće
@@ -155,7 +155,7 @@ void GameServer::incomingConnection(qintptr socket_desc)
         connect(available_threads_.last(), &QThread::finished, user, &QObject::deleteLater);
 
         users_.push_back(user);
-        emit playerJoined(user->username(), lobby);
+        //emit playerJoined(user->username(), lobby);
         qDebug() << "thread created";
     }
 }
