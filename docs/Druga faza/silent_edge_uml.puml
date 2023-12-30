@@ -1,0 +1,178 @@
+@startuml
+class Game {
+--
+-updatePosition(Player)
+-updateObject(int, string)
+-deleteObject(id)
+}
+
+class Gui {
+draw()
+}
+
+class Server {
+-available_threads: List<QThread *>
+-threads_load: List<int>
+-users: List<Connection*>
+--
++start_game()
++error(QTcpSocket)
++dataReceived(Connection*, const QByteArray&)
++userDisconnected(Connection*, int)
++broadcast(const QByteArray&, Connection*)
++stopServer()
+-sendData(Connection*, const QByteArray&)
+-incomingConnection(qintptr)
+}
+
+class Connection {
+-username: QString
+-socket_descriptor: qintptr
+-*socket: QTcpSocket
+-*socket_stream: QDataStream
+--
++sendData(const QByteArray&)
++receiveData()
++disconnectClient()
++error(QTcpSocket::SocketError)
++logMessage(const QString&)
++dataReceived(const QByteArray&)
++disconnectedFromClient()
+}
+
+class Client {
+-client_socket: QTcpSocket*
+-logged_in: bool
+-player_x: float
+-player_y: float
+-serializer: BinarySerializer*
+-player: Player*
+--
++connectToServer(const QString, quint16)
++sendMessage(const QString &)
++disconnectFromHost()
+-onReadyRead()
+-updatePosition()
+-dataReceived(const QByteArray &)
+}
+
+class Entity {
++rotation: float
+-pixmap_path: QString
+--
++updatePixmap(Qstring)
+}
+
+class Map {
+-number_of_rooms: int
+-rooms: List<Room>
+--
+}
+
+class Room {
+-id: int
+-type: RoomType
+--
+}
+
+enum RoomType {
+EMPTY
+COVER
+}
+
+class Tileset {
+-tiles: List<Tile>
+--
+}
+
+class Tile {
+-type: TileType
+--
+}
+
+enum TileType {
+GROUND
+WALL
+}
+
+class Bullet {
+-type: BulletType
+--
+}
+
+enum BulletType {
+LIGHT
+MEDIUM
+HEAVY
+}
+
+class Player {
+-name: QString
+-hp: qreal
+-energy: qreal 
+-dpp: qreal
+-score: qreal
+-weapons: List<Weapon>
+--
++getHp()
++getEnergy()
++getDpp()
++getScore()
++setName(QString name)
++move(Player*)
++keyPressEvent(QKeyEvent* event) override
++getName()
+}
+
+abstract Weapon {
+-price: qreal
+-damage_dealt: qreal
+-rareness: RarenessType
+--
+}
+
+enum RarenessType {
+COMMON
+UNCOMMON
+RARE
+EPIC
+LEGENDARY
+}
+
+class RangedWeapon {
+-bullets_used: List<Bullet>
+-rate_of_fire: qreal
+--
+}
+
+class MeleeWeapon {
+-cooldown: float
+--
+}
+
+Weapon --> Player
+Bullet --> RangedWeapon
+Connection --> Server
+Client --> Player
+Game --> Gui
+Client --> Game
+
+RoomType --> Room
+TileType --> Tile
+BulletType --> Bullet
+RarenessType --> Weapon
+
+Entity <|-- Player
+Entity <|-- Bullet
+Entity <|-- Weapon
+Weapon <|-- RangedWeapon
+Weapon <|-- MeleeWeapon
+QGraphicsRectItem <|-- Entity
+Tile <|-- Tileset
+
+
+Room o-- Tileset
+
+Map *-- Room
+Game *-- Map
+@enduml
