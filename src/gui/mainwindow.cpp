@@ -1,6 +1,8 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 
+#include <QJsonDocument>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -110,7 +112,8 @@ void MainWindow::onPlayerJoined(const QString &playerName, Lobby* lobby)
         {
             connect(lobby,&Lobby::closeConnection,this,&MainWindow::disconnectFromServer);
             connect(this,&MainWindow::updateLobbySignal,lobby,&Lobby::updateLobby);
-            connect(lobby,&Lobby::startGameSignal,this,&MainWindow::startGame);
+            connect(lobby,&Lobby::startGameSignal,server_,&GameServer::broadcast);
+            connect(client_, &Client::startGameSignal, this, &MainWindow::startGame);
             lobby_ = lobby;
             lobby->show();
             qDebug() << playerName << "joined the game!";
@@ -124,7 +127,7 @@ void MainWindow::onPlayerJoined(const QString &playerName, Lobby* lobby)
 
 }
 
-void MainWindow::startGame(const QString& server_ip)
+void MainWindow::startGame(const QString &server_ip)
 {
     Game *game = new Game("name", client_);
     game->startGame(server_ip);

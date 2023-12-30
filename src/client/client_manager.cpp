@@ -54,6 +54,11 @@ void Client::onReadyRead()
             {
                 emit serverTickReceived();
             }
+            else if (data[0] == 'i' && data[1] == 'p' && data[2] == ' ')
+            {
+                QString ip = data.right(data.size()-3);
+                emit startGameSignal(ip);
+            }
             emit dataReceived(data);
         } else
         {

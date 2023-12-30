@@ -58,11 +58,6 @@ GameServer::~GameServer()
     qDebug() << "server gotov";
 }
 
-void GameServer::startGame()
-{
-
-}
-
 void GameServer::stopServer()
 {
     emit stopAllClients();
@@ -164,6 +159,7 @@ void GameServer::emitTickMessage()
 {
     broadcast(QByteArray("tick\0"));
 }
+
 Lobby *GameServer::getLobby() const
 {
     return lobby;

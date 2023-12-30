@@ -23,7 +23,7 @@ public slots:
 
 signals:
     void closeConnection();
-    void startGameSignal(const QString&);
+    void startGameSignal(const QByteArray);
 
 private:
     Ui::Lobby *ui;

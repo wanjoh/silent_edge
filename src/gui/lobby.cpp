@@ -32,7 +32,11 @@ void Lobby::onPbReady_clicked()
 {
     qDebug() << "Ready";
 
-    emit startGameSignal(server_ip_);
+    QString string = "ip ";
+    string.append(server_ip_);
+    string.append("\0");
+
+    emit startGameSignal(string.toUtf8());
 }
 
 void Lobby::updateLobby(const QString &playerName)

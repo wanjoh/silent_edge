@@ -29,6 +29,7 @@ signals:
     void signalTileNameReceived();
     void error(QAbstractSocket::SocketError socketError);
     void dataReceived(const QByteArray &data);
+    void startGameSignal(const QString &ip);
 private:
     QTcpSocket *client_socket_;
     bool logged_in_;

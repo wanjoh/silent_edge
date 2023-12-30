@@ -17,7 +17,6 @@ public:
     GameServer(const GameServer&) = delete;
     ~GameServer();
 
-    void startGame();
     QString server_address() const;
 
     Lobby *getLobby() const;
