@@ -14,6 +14,7 @@ GameServer::GameServer(QObject *parent)
     available_threads_.reserve(ServerConfig::MAX_USERS);
     threads_load_.reserve(ServerConfig::MAX_USERS);
 
+    connect(logic_handler_, &GameLogicHandler::gameIsOver, this, &GameServer::gameIsOver);
 
     if (!this->listen(ServerConfig::getHost(), ServerConfig::PORT))
     {
@@ -164,14 +165,19 @@ void GameServer::emitTickMessage()
 {
     broadcast(QByteArray("tick\0"));
 }
+
 Lobby *GameServer::getLobby() const
 {
     return lobby;
 }
 
-
 QString GameServer::server_address() const
 {
     return server_address_;
+}
 
+void GameServer::gameIsOver()
+{
+    qDebug() << "rang";
+//    emit showResults();
 }

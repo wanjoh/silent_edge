@@ -13,8 +13,12 @@ GameLogicHandler::GameLogicHandler(Map *map, QObject* parent)
     , map_(map)
     , matrix_(map_->getMatrix())
     , rooms_(map_->getRooms())
+    , results_(new Results)
 {
     initializeTimers();
+
+
+    rangList();
 }
 
 GameLogicHandler::~GameLogicHandler()
@@ -457,6 +461,58 @@ void GameLogicHandler::initializeTimers()
     ammo_respawn_timer_.setInterval(AMMO_RESPAWN_TIME);
     connect(&ammo_respawn_timer_, &QTimer::timeout, this, &GameLogicHandler::updateAmmo);
     ammo_respawn_timer_.start();
+}
+
+// pozvati na kraju runde
+void GameLogicHandler::updateScores()
+{
+    for(auto it = rooms_.begin(); it != rooms_.end(); it++)
+    {
+        Room *room = it->second;
+
+        for (auto player : room->players_in_room_)
+        {
+            if(player->getHp() != 0)
+            {
+                player->setScore(player->getScore() + 1);
+            }
+        }
+    }
+}
+
+void GameLogicHandler::rangList()
+{
+    QVector<std::pair<QString, Player*>> playersVector(players_.begin(), players_.end());
+    std::sort(playersVector.begin(), playersVector.end(),
+              [](const auto& p1, const auto& p2) {
+                  return p1.second->getScore() > p2.second->getScore();
+              });
+
+//    QString path = QDir::currentPath().mid(0, QDir::currentPath().lastIndexOf('/'));
+//    QFile resultsFile(path + "/silent-edge/resources/results.txt");
+//    resultsFile.open(QIODevice::WriteOnly | QIODevice::Text);
+
+//    if(!resultsFile.exists()){
+//        qDebug() << "File does not exist.";
+//        return ;
+//    }
+//    if(!resultsFile.isOpen())
+//    {
+//        qDebug() << "Opening failed";
+//        return;
+//    }
+
+//    QTextStream stream(&resultsFile);
+
+//    for (auto player = playersVector.begin(); player != playersVector.end(); player++)
+//    {
+//        stream << player->first << " " << player->second->getScore() << "\n";
+//    }
+
+//    resultsFile.close();
+
+//    emit gameIsOver();
+//    results_->showResults();
 }
 
 void GameLogicHandler::updatePlayerStats(const QByteArray &player_info)

@@ -6,6 +6,10 @@
 #include "../entity/bullet.hpp"
 #include "../map/map.hpp"
 #include <QMutex>
+#include <QFile>
+#include <QDir>
+
+#include "../gui/results.hpp"
 
 class GameLogicHandler : public QObject
 {
@@ -45,6 +49,7 @@ signals:
     void sendRefreshCameraSignal(QByteArray&);
     void bulletDestroyedSignal(QByteArray&);
     void labelSignal(qint32, qint32, qint32);
+    void gameIsOver();
 
 private:
     void addPlayer(Player*);
@@ -55,6 +60,8 @@ private:
     void decreaseHp(Player*, Bullet*);
     void initializeTimers();
     bool canEntityMove(QVector<int> ids);
+    void updateScores(); //
+    void rangList();    //
 
     QTimer movement_timer_;
     QTimer ammo_respawn_timer_;
@@ -76,4 +83,5 @@ private:
     std::map<QString, bool> reloading_in_progress_;
     std::map<QString, QPair<int, int>> positions_;
     std::map<QString, QPair<qreal, qreal>> mouse_positions_;
+    Results *results_;
 };

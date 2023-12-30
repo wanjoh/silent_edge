@@ -25,6 +25,7 @@ public:
     int getHeight();
     void addSpawnpoint(const QString &name, QPair<int, int> coords);
     void removePlayerFromRoom(Player *player);
+    QVector<Player *> players_in_room_;
 private:
     int id_;
     int width_;
@@ -33,5 +34,5 @@ private:
     std::pair<int, int> end_coords_;
     spawnpointMap unused_spawnpoints_;
     spawnpointMap used_spawnpoints_;
-    QVector<Player *> players_in_room_;
+//    QVector<Player *> players_in_room_;
 };

@@ -26,6 +26,7 @@ public:
     QTimer* getSwingTimer() const;
 
     void setHp(qreal);
+    void setScore(qreal);
 
 private:
     void initializeTimers();
