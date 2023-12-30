@@ -67,7 +67,9 @@ void MainWindow::onPbConnect_clicked()
     //client_->connectToServer(server_address, ServerConfig::PORT);
     //MainWindow::startGame(server_address);
 
-    Game *game = new Game("name", client_);
+    QRandomGenerator q(QDateTime::currentMSecsSinceEpoch());
+    QString name = QString("playa") + QString::number(q.generate());
+    Game *game = new Game(name, client_);
     game->startGame(server_address);
     game->moveToThread(new QThread);
 
@@ -97,7 +99,9 @@ void MainWindow::onPbDone_clicked()
         QString server_address = ui->ip_line->text();
         //server_ = new GameServer(server_address);
         //client_->connectToServer(server_address, ServerConfig::PORT);
-        Game *game = new Game("name", client_);
+        QRandomGenerator q(QDateTime::currentMSecsSinceEpoch());
+        QString name = QString("playa") + QString::number(q.generate());
+        Game *game = new Game(name, client_);
         game->startGame(server_address);
         game->moveToThread(new QThread);
     }

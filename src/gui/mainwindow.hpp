@@ -7,6 +7,8 @@
 #include "../game/game.hpp"
 #include <QHostAddress>
 #include <QString>
+#include <QRandomGenerator>
+#include <QTime>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
