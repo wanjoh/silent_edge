@@ -71,6 +71,7 @@ private:
     std::map<QString, Player*> players_;
     // limun: mapa čiji je ključ ime igrača, a sadrži listu metaka
     std::map<int, Bullet*> bullets_;
+    std::map<int, bool> bullet_moved_;
     Map* map_;
     std::unordered_map<qint32, Room*> rooms_;
     std::unordered_map<qint32, Tile*> matrix_;

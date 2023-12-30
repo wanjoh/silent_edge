@@ -233,6 +233,14 @@ void GameLogicHandler::updateAll()
 
     emit updatePlayersSignal(player_info);
     emit updateBulletsSignal(bullet_info);
+
+    for(auto it = bullets_.cbegin(); it != bullets_.cend();)
+    {
+        if (!bullet_moved_[it->first])
+            bullets_.erase(it++->first);
+        else
+            it++;
+    }
 }
 
 void GameLogicHandler::updatePlayers()
@@ -347,31 +355,17 @@ void GameLogicHandler::removePlayer(QString name)
 void GameLogicHandler::updateBullets()
 {
     QMutexLocker locker(&mutex_);
-    for(auto it = bullets_.cbegin(); it != bullets_.cend();)
+    for(auto it = bullets_.cbegin(); it != bullets_.cend(); it++)
     {
+        bullet_moved_[it->first] = true;
         if (checkBulletCollisions(it->second))
-        {
-            // limun: neki emit treba ovde ili prosto da brišemo svaki metak koji se ne pojavljuje više u poruci od servera
-
-            QJsonObject object;
-            object["type"] = "delete_bullet";
-            object["id"] = it->first;
-            const QJsonDocument json_data(object);
-
-            QByteArray bullet_info = json_data.toJson();
-
-            emit bulletDestroyedSignal(bullet_info);
-
-            bullets_.erase(it++->first);
-        }
+            bullet_moved_[it->first] = false;
         else
         {
             qreal x_pos = it->second->getDrawer()->x() + BULLET_SPEED * qSin(qDegreesToRadians(it->second->getDrawer()->rotation()));
             qreal y_pos = it->second->getDrawer()->y() - BULLET_SPEED * qCos(qDegreesToRadians(it->second->getDrawer()->rotation()));
 
             it->second->getDrawer()->setPos(x_pos, y_pos);
-
-            it++;
         }
     }
 }

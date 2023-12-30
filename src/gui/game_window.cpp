@@ -183,8 +183,6 @@ bool GameWindow::eventFilter(QObject *obj, QEvent *event)
 
 void GameWindow::make_overlay()
 {
-
-
     pistol_overlay_->setPos(phase_->sceneRect().width() - pistol_overlay_->boundingRect().width() + start_x_,
                             phase_->sceneRect().height() - pistol_overlay_->boundingRect().height() + start_y_);
     pistol_overlay_->setZValue(4);
@@ -212,8 +210,6 @@ void GameWindow::make_overlay()
 
     qreal hp_x_pos = start_x_;
     qreal hp_y_pos = start_y_ + window_height_ - 1 * IMAGE_SIZE;
-    qDebug() << 1* IMAGE_SIZE;
-    qDebug() << "UPON SETTING UP HP X AND Y POS " << hp_x_pos << hp_y_pos;
     hp_overlay_->setRect(hp_x_pos, hp_y_pos, IMAGE_SIZE, IMAGE_SIZE);
     hp_overlay_->setBrush(Qt::green);
     hp_overlay_->setZValue(5);

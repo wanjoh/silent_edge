@@ -148,8 +148,17 @@ void Game::deserializeData(const QByteArray &data)
                         gui_->addEntity(bullet_drawers_[id]->name(), bullet_drawers_[id]);
                     }
 
-                    bullet_drawers_[id]->setPos(x, y);
-                    bullet_drawers_[id]->setRotation(rotation);
+                    if(bullet_drawers_[id]->x() == x && bullet_drawers_[id]->y() == y)
+                    {
+                        qDebug() << "erasing bullet: " << id;
+                        bullet_drawers_.erase(id);
+                        gui_->removeEntity(QString::number(id));
+                    }
+                    else
+                    {
+                        bullet_drawers_[id]->setPos(x, y);
+                        bullet_drawers_[id]->setRotation(rotation);
+                    }
                 }
             }
         }
@@ -182,13 +191,6 @@ void Game::deserializeData(const QByteArray &data)
                 Room *room = map_->findRoomForPlayer(*player_);
                 gui_->changeRoom(room);
                 gui_->teleportPlayer(player_->getName(), player_->getDrawer()->x(), player_->getDrawer()->y());
-            }
-            if(object["type"].toString() == "delete_bullet")
-            {
-                qDebug() << "erasing bullet";
-                int id = object["id"].toInt();
-                bullet_drawers_.erase(id);
-                gui_->removeEntity(QString::number(id));
             }
         }
     }

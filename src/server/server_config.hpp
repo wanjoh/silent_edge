@@ -20,7 +20,7 @@ inline quint32 operator&(quint32 a, PlayerActions b)
 
 
 // za testiranje sa vise racunara
-static constexpr bool REMOTE_SERVER = false;
+static constexpr bool REMOTE_SERVER = true;
 inline static const QHostAddress getRemoteIp() { return QHostAddress("192.168.100.49"); };
 
 static constexpr qint32 PORT = 6969;
