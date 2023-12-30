@@ -29,5 +29,5 @@ static constexpr qint32 MAX_ROOMS = MAX_USERS / 2;
 inline static const QHostAddress getHost() {
     return REMOTE_SERVER ? getRemoteIp() : QHostAddress::LocalHost;
 }
-static constexpr quint32 TICK_TIME = 1000 / 60;
+static constexpr quint32 TICK_TIME = 1000 / 10;
 }
