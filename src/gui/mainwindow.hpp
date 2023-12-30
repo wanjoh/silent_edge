@@ -30,7 +30,6 @@ public slots:
     void onPbBack_clicked();
     void onPbDone_clicked();
     void onPbQuit_clicked();
-    void onPlayerJoined(const QString&, Lobby*);
     void disconnectFromServer();
     void startGame(const QString&);
 

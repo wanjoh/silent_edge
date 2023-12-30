@@ -7,7 +7,7 @@
 #include <QJsonDocument>
 #include<QJsonObject>
 
-GameServer::GameServer(QObject *parent)
+/*GameServer::GameServer(QObject *parent)
     : QTcpServer(parent)
     , logic_handler_(new GameLogicHandler)
 {
@@ -25,16 +25,16 @@ GameServer::GameServer(QObject *parent)
         qDebug() << "Server started on " << ServerConfig::getHost() <<  ", port" << ServerConfig::PORT;
         initializeTimers();
     }
-}
+}*/
 
 GameServer::GameServer(QString ip, QObject *parent)
     : QTcpServer(parent), server_address_(ip),
-    lobby(new Lobby(ip)),
     logic_handler_(new GameLogicHandler)
 {
     available_threads_.reserve(ServerConfig::MAX_USERS);
     threads_load_.reserve(ServerConfig::MAX_USERS);
 
+    connect(logic_handler_, &GameLogicHandler::gameIsOver, this, &GameServer::gameIsOver);
 
     const QHostAddress ip_address = QHostAddress(ip);
 
@@ -48,6 +48,7 @@ GameServer::GameServer(QString ip, QObject *parent)
         initializeTimers();
     }
 
+    qDebug() << ip_address.toString();
 }
 
 GameServer::~GameServer()
@@ -122,6 +123,8 @@ void GameServer::sendData(Connection *user, const QByteArray& msg)
 
 void GameServer::incomingConnection(qintptr socket_desc)
 {
+
+    qDebug() << "ovo";
     //QMutexLocker lobby_locker(&server_lobbies_mutex_);
     if (users_.size() < ServerConfig::MAX_USERS)
     {
@@ -155,7 +158,7 @@ void GameServer::incomingConnection(qintptr socket_desc)
         connect(available_threads_.last(), &QThread::finished, user, &QObject::deleteLater);
 
         users_.push_back(user);
-        //emit playerJoined(user->username(), lobby);
+
         qDebug() << "thread created";
     }
 }

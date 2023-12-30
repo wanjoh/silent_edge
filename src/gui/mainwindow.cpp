@@ -56,13 +56,20 @@ void MainWindow::onPbJoinGame_clicked()
 
     ui->stackedWidget->setCurrentIndex(2);
 
+
 }
 
 void MainWindow::onPbConnect_clicked()
 {
 
     QString server_address = ui->serverIP_line->text();
-    client_->connectToServer(server_address, ServerConfig::PORT);
+    //server_ = new GameServer(server_address);
+    //client_->connectToServer(server_address, ServerConfig::PORT);
+    //MainWindow::startGame(server_address);
+
+    Game *game = new Game("name", client_);
+    game->startGame(server_address);
+    game->moveToThread(new QThread);
 
 }
 
@@ -88,10 +95,11 @@ void MainWindow::onPbDone_clicked()
     {
 
         QString server_address = ui->ip_line->text();
-
-        server_ = new GameServer(server_address);
-
-        connect(server_, &GameServer::playerJoined, this, &MainWindow::onPlayerJoined);
+        //server_ = new GameServer(server_address);
+        //client_->connectToServer(server_address, ServerConfig::PORT);
+        Game *game = new Game("name", client_);
+        game->startGame(server_address);
+        game->moveToThread(new QThread);
     }
 
     ui->stackedWidget->setCurrentIndex(0);
@@ -101,7 +109,7 @@ void MainWindow::onPbQuit_clicked()
 {
     this->close();
 }
-
+/*
 void MainWindow::onPlayerJoined(const QString &playerName, Lobby* lobby)
 {
     if (lobby)
@@ -122,13 +130,13 @@ void MainWindow::onPlayerJoined(const QString &playerName, Lobby* lobby)
         }
     }
 
-}
+}*/
 
 void MainWindow::startGame(const QString& server_ip)
 {
-    //Game *game = new Game("name", client_);
-    //game->startGame(server_ip);
-    //game->moveToThread(new QThread);
+    Game *game = new Game("name", client_);
+    game->startGame(server_ip);
+    game->moveToThread(new QThread);
 }
 
 

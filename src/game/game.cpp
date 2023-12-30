@@ -6,9 +6,9 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 
-Game::Game(QString name, QObject *parent)
+Game::Game(QString name,Client* client, QObject *parent)
     : QObject(parent)
-    , client_(new Client())
+    , client_(client)
     , map_(new Map())
     , player_(new Player(name, false))
 {
@@ -29,18 +29,18 @@ Game::~Game()
 
 }
 
-void Game::startGame()
+void Game::startGame(QString server_ip)
 {
-    startServer();
-    client_->connectToServer(ServerConfig::getHost().toString(), ServerConfig::PORT);
+   startServer(server_ip);
+   client_->connectToServer(server_ip, ServerConfig::PORT);
 
-    gui_->show(GameWindow::GamePhase::FIGHT_PHASE);
+   gui_->show(GameWindow::GamePhase::FIGHT_PHASE);
 
 }
 
-void Game::startServer()
+void Game::startServer(QString server_ip)
 {
-    server_ = new GameServer();
+    server_ = new GameServer(server_ip);
 }
 
 void Game::quit()
