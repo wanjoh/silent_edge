@@ -8,3 +8,9 @@ Najkraće rečeno, fastpaced LAN multiplayer PvP topdown shooter/fighter igrica 
  - <a href="https://gitlab.com/Stefann2">Stefan Nikolić 124/2020</a>
  - <a href="https://gitlab.com/sandraugrinic">Sandra Ugrinić 266/2017</a>
  - <a href="https://gitlab.com/djordje1298">Đorđe Marinković 378/2020</a>
+
+  ## Izgradnja projekta
+
+ - Klonirati repozitorijum
+ - Otvoriti dobijeni folder u QtCreator
+ - Pritisnuti na build dugme
