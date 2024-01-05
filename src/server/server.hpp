@@ -32,7 +32,6 @@ private slots:
     void gameIsOver();
 signals:
     void logMessage(const QString&);
-    //void labelSignal(qint32, qint32, qint32);
     void stopAllClients();
     void playerJoined(const QString&, Lobby* lobby);
     void showResults();

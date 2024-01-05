@@ -11,6 +11,20 @@
 
 #include "../gui/results.hpp"
 
+enum class LogicEvents : quint32
+{
+    CAMERA = 1,
+    RESTOCK = 1 << 1,
+    TILECHANGE = 1 << 2
+};
+inline quint32 operator&(quint32 a, LogicEvents b)
+{
+    return a & static_cast<quint32>(b);
+}
+inline quint32 operator|(quint32 a, LogicEvents b)
+{
+    return a | static_cast<quint32>(b);
+}
 class GameLogicHandler : public QObject
 {
     Q_OBJECT
@@ -42,13 +56,8 @@ private slots:
     void reload(const QString &);
     void swing(const QString &);
 signals:
-    void tileChangedSignal(QByteArray&);
     void updatePlayersSignal(QByteArray&);
     void updateBulletsSignal(QByteArray&);
-    void restockAmmoPilesSignal(QByteArray&);
-    void sendRefreshCameraSignal(QByteArray&);
-    void bulletDestroyedSignal(QByteArray&);
-    void labelSignal(qint32, qint32, qint32);
     void gameIsOver();
 
 private:
@@ -69,7 +78,6 @@ private:
     QTimer reload_timer_;
     QTimer swing_timer_;
     std::map<QString, Player*> players_;
-    // limun: mapa čiji je ključ ime igrača, a sadrži listu metaka
     std::map<int, Bullet*> bullets_;
     std::map<int, bool> bullet_moved_;
     Map* map_;
@@ -78,11 +86,13 @@ private:
     QMutex mutex_;
     QMutex reload_mutex_;
     std::map<QString, quint32> commands_;
+    std::map<QString, quint32> logic_events_;
     std::map<QString, bool> shooting_in_progress_;
     std::map<QString, quint32> player_bullet_count_;
     std::map<QString, bool> melee_in_progress_;
     std::map<QString, bool> reloading_in_progress_;
     std::map<QString, QPair<int, int>> positions_;
     std::map<QString, QPair<qreal, qreal>> mouse_positions_;
+    std::map<QString, int> tile_id_;
     Results *results_;
 };

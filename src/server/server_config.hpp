@@ -17,6 +17,10 @@ inline quint32 operator&(quint32 a, PlayerActions b)
 {
     return a & static_cast<quint32>(b);
 }
+inline quint32 operator|(quint32 a, PlayerActions b)
+{
+    return a | static_cast<quint32>(b);
+}
 
 
 // za testiranje sa vise racunara

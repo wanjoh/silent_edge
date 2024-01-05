@@ -40,16 +40,7 @@ void GameLogicHandler::putPlayerIntoRoom(const QString &name)
 
         it->second->addPlayerToRoom(players_[name]);
 
-        QJsonObject object;
-        object["type"] = "refresh_camera";
-        object["name"] = name;
-        object["x"] = players_[name]->getDrawer()->x();
-        object["y"] = players_[name]->getDrawer()->y();
-        const QJsonDocument json_data(object);
-
-        QByteArray refresh_info = json_data.toJson();
-
-        emit sendRefreshCameraSignal(refresh_info);
+        logic_events_[name] = logic_events_[name] | LogicEvents::CAMERA;
 
         return;
     }
@@ -93,19 +84,16 @@ void GameLogicHandler::addBullet(int x, int y, const QString& name)
 
 void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name)
 {
-    using namespace ServerConfig;
-
-
     qreal dx = 0.0;
     qreal dy = 0.0;
 
-    if(commands_[name] & PlayerActions::LEFT)
+    if(commands_[name] & ServerConfig::PlayerActions::LEFT)
         dx -= 1.0;
-    if(commands_[name] & PlayerActions::RIGHT)
+    if(commands_[name] & ServerConfig::PlayerActions::RIGHT)
         dx += 1.0;
-    if(commands_[name] & PlayerActions::UP)
+    if(commands_[name] & ServerConfig::PlayerActions::UP)
         dy -= 1.0;
-    if(commands_[name] & PlayerActions::DOWN)
+    if(commands_[name] & ServerConfig::PlayerActions::DOWN)
         dy += 1.0;
 
     if(qFabs(dx) < EPSILON && qFabs(dy) < EPSILON)
@@ -143,33 +131,21 @@ bool GameLogicHandler::checkPlayerCollision(qreal x, qreal y, const QString &nam
     int id_y = (int)y/IMAGE_SIZE;
     int tile_id = id_y * map_->getM() + id_x;
 
-    if(matrix_[tile_id]->getTileType() == Tile::TileType::AMMO_PILE && map_->getActiveAmmoBuckets().contains(tile_id))
-    {
-        std::unordered_map<int, Tile*> active_buckets = map_->getActiveAmmoBuckets();
+    std::unordered_map<int, Tile*> active_buckets = map_->getActiveAmmoBuckets();
 
+    if(matrix_[tile_id]->getTileType() == Tile::TileType::AMMO_PILE && active_buckets.contains(tile_id))
+    {
         map_->removeFromActive(tile_id);
         players_[name]->getRangedWeapon()->setRemainingBullets(players_[name]->getRangedWeapon()->getRemainingBullets() + AMMO_BUCKET_CAPACITY);
 
-
-        QByteArray tile_info = jsonify_tile(tile_id, "../silent-edge/src/images/ground.png");
-        emit tileChangedSignal(tile_info);
+        logic_events_[name] = logic_events_[name] | LogicEvents::TILECHANGE;
+        tile_id_[name] = tile_id;
     }
 
     if(matrix_[tile_id]->getTileType() == Tile::TileType::WALL)
         return true;
 
     return false;
-}
-
-QByteArray GameLogicHandler::jsonify_tile(int tile_id, const QString &path)
-{
-    QJsonObject tile_object;
-    tile_object["type"] = "tile";
-    tile_object["tile_id"] = tile_id;
-    tile_object["path"] = path;
-    const QJsonDocument json_data(tile_object);
-
-    return json_data.toJson();
 }
 
 QByteArray GameLogicHandler::jsonify(const QString& data_type)
@@ -191,6 +167,8 @@ QByteArray GameLogicHandler::jsonify(const QString& data_type)
             playerObject["shooting"] = shooting_in_progress_[name];
             playerObject["bullet_count"] = static_cast<qint32>(player_bullet_count_[name]);
             playerObject["remaining_bullets"] = player->getRangedWeapon()->getRemainingBullets();
+            playerObject["logic_events"] = static_cast<qint32>(logic_events_[name]);
+            playerObject["tile_id"] = tile_id_[name];
 
             playersArray.append(playerObject);
         }
@@ -241,6 +219,9 @@ void GameLogicHandler::updateAll()
         else
             it++;
     }
+
+    for(auto &[name, event] : logic_events_)
+        logic_events_[name] = 0;
 }
 
 void GameLogicHandler::updatePlayers()
@@ -318,13 +299,9 @@ void GameLogicHandler::updateAmmo()
 {
     map_->restockAmmoPiles();
 
-    QJsonObject json_object;
-    QString type = "bucket_activation";
-    json_object["type"] = type;
-    QJsonDocument json_data(json_object);
-    QByteArray byte_array = json_data.toJson();
-
-    emit restockAmmoPilesSignal(byte_array);
+    for(auto &[name, player] : players_) {
+        logic_events_[name] = logic_events_[name] | LogicEvents::RESTOCK;
+    }
 }
 
 void GameLogicHandler::addPlayer(Player* playa)

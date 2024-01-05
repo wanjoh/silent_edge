@@ -75,6 +75,11 @@ void Game::deserializeData(const QByteArray &data)
                     bool is_shooting = playerObject["shooting"].toBool();
                     qint32 bullet_count = playerObject["bullet_count"].toInt();
                     qint32 remaining_bullets = playerObject["remaining_bullets"].toInt();
+                    quint32 logic_events = playerObject["logic_events"].toInt();
+                    bool camera_change = logic_events & LogicEvents::CAMERA;
+                    bool restock = logic_events & LogicEvents::RESTOCK;
+                    bool tilechange = logic_events & LogicEvents::TILECHANGE;
+                    int tile_id = playerObject["tile_id"].toInt();
 
                     if(player_->getName() == this_name) {
                         player_->getDrawer()->setPos(x, y);
@@ -87,7 +92,6 @@ void Game::deserializeData(const QByteArray &data)
 
                         if(is_shooting)
                             gui_->updateBulletsLabel(player_->getRangedWeapon()->getCapacity() - bullet_count, player_->getRangedWeapon()->getCapacity(), remaining_bullets);
-
                         if(!player_->getReloadTimer()->isActive())
                             gui_->updateBulletsLabel(player_->getRangedWeapon()->getCapacity() - bullet_count, player_->getRangedWeapon()->getCapacity(), remaining_bullets);
 
@@ -97,11 +101,18 @@ void Game::deserializeData(const QByteArray &data)
                             player_->getMeleeWeapon()->getDrawer()->setZValue(-1);
 
                         if(is_reloading)
-                        {
                             player_->getReload()->getDrawer()->setZValue(7);
-                        }
                         else
                             player_->getReload()->getDrawer()->setZValue(-1);
+
+                        if(camera_change) {
+                            player_->getDrawer()->setPos(x, y);
+                            Room *room = map_->findRoomForPlayer(*player_);
+                            gui_->changeRoom(room);
+                            gui_->teleportPlayer(player_->getName(), player_->getDrawer()->x(), player_->getDrawer()->y());
+                        }
+                        if(restock)
+                            map_->restockAmmoPiles();
                     }
                     else
                     {
@@ -127,6 +138,11 @@ void Game::deserializeData(const QByteArray &data)
                             enemies_[this_name]->getReload()->getDrawer()->setZValue(7);
                         else
                             enemies_[this_name]->getReload()->getDrawer()->setZValue(-1);
+                    }
+
+                    if(tilechange) {
+                        map_->getDrawer()->change_picture(tile_id, "../silent-edge/src/images/ground.png");
+                        map_->removeFromActive(tile_id);
                     }
                 }
             } else if (object["type"].toString() == "bullet")
@@ -160,37 +176,6 @@ void Game::deserializeData(const QByteArray &data)
                         bullet_drawers_[id]->setRotation(rotation);
                     }
                 }
-            }
-        }
-        else
-        {
-            QJsonObject object = json_data.object();
-            if(object["type"].toString() == "tile")
-            {
-                int tile_id = object["tile_id"].toInt();
-                const QString &path = object["path"].toString();
-
-                map_->getDrawer()->change_picture(tile_id, path);
-                map_->removeFromActive(tile_id);
-            }
-
-            if(object["type"].toString() == "bucket_activation")
-            {
-                map_->restockAmmoPiles();
-            }
-
-            if(object["type"].toString() == "refresh_camera")
-            {
-                if(object["name"].toString() == player_->getName())
-                {
-                    qreal x = object["x"].toDouble();
-                    qreal y = object["y"].toDouble();
-                    player_->getDrawer()->setPos(x, y);
-                }
-
-                Room *room = map_->findRoomForPlayer(*player_);
-                gui_->changeRoom(room);
-                gui_->teleportPlayer(player_->getName(), player_->getDrawer()->x(), player_->getDrawer()->y());
             }
         }
     }
