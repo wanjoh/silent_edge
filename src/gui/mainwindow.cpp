@@ -62,17 +62,17 @@ void MainWindow::onPbJoinGame_clicked()
 void MainWindow::onPbConnect_clicked()
 {
 
-    QString server_address = ui->serverIP_line->text();
-    //server_ = new GameServer(server_address);
-    //client_->connectToServer(server_address, ServerConfig::PORT);
-    //MainWindow::startGame(server_address);
+    if(ui->lineUsername->text().trimmed()!="")
+    {
+        QString server_address = ui->serverIP_line->text();
 
-    QRandomGenerator q(QDateTime::currentMSecsSinceEpoch());
-    QString name = QString("playa") + QString::number(q.generate());
-    Game *game = new Game(name, client_);
-    game->startGame(server_address);
-    game->moveToThread(new QThread);
+        QString username = ui->lineUsername->text();
 
+        Game *game = new Game(username, client_);
+        game->startGame(server_address);
+        game->moveToThread(new QThread);
+
+    }
 }
 
 void MainWindow::onPbSettings_clicked()
@@ -97,13 +97,9 @@ void MainWindow::onPbDone_clicked()
     {
 
         QString server_address = ui->ip_line->text();
-        //server_ = new GameServer(server_address);
-        //client_->connectToServer(server_address, ServerConfig::PORT);
-        QRandomGenerator q(QDateTime::currentMSecsSinceEpoch());
-        QString name = QString("playa") + QString::number(q.generate());
-        Game *game = new Game(name, client_);
-        game->startGame(server_address);
-        game->moveToThread(new QThread);
+
+        server_ = new GameServer(server_address);
+
     }
 
     ui->stackedWidget->setCurrentIndex(0);
@@ -112,35 +108,6 @@ void MainWindow::onPbDone_clicked()
 void MainWindow::onPbQuit_clicked()
 {
     this->close();
-}
-/*
-void MainWindow::onPlayerJoined(const QString &playerName, Lobby* lobby)
-{
-    if (lobby)
-    {
-        if(!lobby->isVisible())
-        {
-            connect(lobby,&Lobby::closeConnection,this,&MainWindow::disconnectFromServer);
-            connect(this,&MainWindow::updateLobbySignal,lobby,&Lobby::updateLobby);
-            connect(lobby,&Lobby::startGameSignal,this,&MainWindow::startGame);
-            lobby_ = lobby;
-            lobby->show();
-            qDebug() << playerName << "joined the game!";
-            emit updateLobbySignal(playerName);
-        }
-        else
-        {
-            emit updateLobbySignal(playerName);
-        }
-    }
-
-}*/
-
-void MainWindow::startGame(const QString& server_ip)
-{
-    Game *game = new Game("name", client_);
-    game->startGame(server_ip);
-    game->moveToThread(new QThread);
 }
 
 

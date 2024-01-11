@@ -119,8 +119,6 @@ void GameServer::sendData(Connection *user, const QByteArray& msg)
 
 void GameServer::incomingConnection(qintptr socket_desc)
 {
-
-    qDebug() << "ovo";
     //QMutexLocker lobby_locker(&server_lobbies_mutex_);
     if (users_.size() < ServerConfig::MAX_USERS)
     {

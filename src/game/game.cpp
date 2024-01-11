@@ -31,7 +31,6 @@ Game::~Game()
 
 void Game::startGame(QString server_ip)
 {
-   startServer(server_ip);
    client_->connectToServer(server_ip, ServerConfig::PORT);
 
    gui_->show(GameWindow::GamePhase::FIGHT_PHASE);
