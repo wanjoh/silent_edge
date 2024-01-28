@@ -7,6 +7,7 @@
 #include <QJsonArray>
 
 int bullet_id = 1;
+float PLAYER_SIZE_MULTIPLIER = 0.9f;
 
 GameLogicHandler::GameLogicHandler(Map *map, QObject* parent)
     : QObject(parent)
@@ -114,10 +115,15 @@ void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name)
     qreal width = players_[name]->getDrawer()->boundingRect().width();
     qreal height = players_[name]->getDrawer()->boundingRect().height();
 
-    if(checkPlayerCollision(x, y, name) ||
-        checkPlayerCollision(x + width, y, name) ||
-        checkPlayerCollision(x, y + height, name) ||
-        checkPlayerCollision(x + width, y + height, name))
+    float x1 = x + width * (1 - PLAYER_SIZE_MULTIPLIER);
+    float x2 = x + width * PLAYER_SIZE_MULTIPLIER;
+    float y1 = y + height * (1 - PLAYER_SIZE_MULTIPLIER);
+    float y2 = y + height * PLAYER_SIZE_MULTIPLIER;
+
+    if(checkPlayerCollision(x1, y1, name) ||
+        checkPlayerCollision(x2, y1, name) ||
+        checkPlayerCollision(x1, y2, name) ||
+        checkPlayerCollision(x2, y2, name))
         return;
 
 
