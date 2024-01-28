@@ -76,6 +76,11 @@ void GameLogicHandler::addBullet(qreal x, qreal y, const QString& name)
     bullet->getDrawer()->setRotation(players_[name]->getDrawer()->rotation());
     bullet->getDrawer()->setPos(top_center.x(), top_center.y()-bullet->BULLET_HEIGHT);
 
+    if (checkBulletCollisions(bullet)) {
+        delete bullet;
+        return;
+    }
+
     bullets_[bullet_id] = bullet;
 
     bullet_id++;
@@ -233,6 +238,14 @@ QByteArray GameLogicHandler::jsonify(const QString& data_type)
 
 void GameLogicHandler::updateAll()
 {
+    for(auto it = bullets_.cbegin(); it != bullets_.cend();)
+    {
+        if (!bullet_moved_[it->first])
+            bullets_.erase(it++->first);
+        else
+            it++;
+    }
+
     updatePlayers();
     updateBullets();
 
@@ -241,14 +254,6 @@ void GameLogicHandler::updateAll()
 
     emit updatePlayersSignal(player_info);
     emit updateBulletsSignal(bullet_info);
-
-    for(auto it = bullets_.cbegin(); it != bullets_.cend();)
-    {
-        if (!bullet_moved_[it->first])
-            bullets_.erase(it++->first);
-        else
-            it++;
-    }
 
     for(auto &[name, event] : logic_events_)
         logic_events_[name] = 0;
