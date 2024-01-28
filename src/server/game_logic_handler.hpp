@@ -40,10 +40,10 @@ public:
     GameLogicHandler(Map* = new Map(), QObject* = nullptr);
     GameLogicHandler(const GameLogicHandler&) = delete;
     ~GameLogicHandler();
-    void updatePlayerRotation(int x, int y, const QString& name);
-    void updatePlayerPosition(int x, int y, const QString& name);
+    void updatePlayerRotation(qreal x, qreal y, const QString& name);
+    void updatePlayerPosition(qreal x, qreal y, const QString& name);
     void updatePlayerStats(const QByteArray&);
-    void addBullet(int x, int y, const QString& name);
+    void addBullet(qreal x, qreal y, const QString& name);
     void putPlayerIntoRoom(const QString &name);
     void removePlayerFromRoom(const QString &name);
     void updateAll();

@@ -7,6 +7,7 @@
 #include <QJsonArray>
 
 int bullet_id = 1;
+float PLAYER_SIZE_MULTIPLIER = 0.9f;
 
 GameLogicHandler::GameLogicHandler(Map *map, QObject* parent)
     : QObject(parent)
@@ -62,7 +63,7 @@ void GameLogicHandler::removePlayerFromRoom(const QString &name)
     }
 }
 
-void GameLogicHandler::addBullet(int x, int y, const QString& name)
+void GameLogicHandler::addBullet(qreal x, qreal y, const QString& name)
 {
     QMutexLocker locker(&mutex_);
 
@@ -75,6 +76,11 @@ void GameLogicHandler::addBullet(int x, int y, const QString& name)
     bullet->getDrawer()->setRotation(players_[name]->getDrawer()->rotation());
     bullet->getDrawer()->setPos(top_center.x(), top_center.y()-bullet->BULLET_HEIGHT);
 
+    if (checkBulletCollisions(bullet)) {
+        delete bullet;
+        return;
+    }
+
     bullets_[bullet_id] = bullet;
 
     bullet_id++;
@@ -82,7 +88,7 @@ void GameLogicHandler::addBullet(int x, int y, const QString& name)
         bullet_id = 1;
 }
 
-void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name)
+void GameLogicHandler::updatePlayerPosition(qreal x, qreal y, const QString& name)
 {
     qreal dx = 0.0;
     qreal dy = 0.0;
@@ -99,36 +105,65 @@ void GameLogicHandler::updatePlayerPosition(int x, int y, const QString& name)
     if(qFabs(dx) < EPSILON && qFabs(dy) < EPSILON)
         return;
 
-    if (qFabs(dx) > EPSILON && qFabs(dy) > EPSILON)
-    {
+    if(qFabs(dx) > EPSILON && qFabs(dy) > EPSILON) {
         qreal length = qSqrt(dx * dx + dy * dy);
         dx /= length;
         dy /= length;
     }
 
-    x += dx * DEFAULT_PLAYER_VELOCITY;
-    y += dy * DEFAULT_PLAYER_VELOCITY;
-
-    std::unordered_map<int, Tile*> active_buckets = map_->getActiveAmmoBuckets();
-
     qreal width = players_[name]->getDrawer()->boundingRect().width();
     qreal height = players_[name]->getDrawer()->boundingRect().height();
 
-    if(checkPlayerCollision(x, y, name) ||
-        checkPlayerCollision(x + width, y, name) ||
-        checkPlayerCollision(x, y + height, name) ||
-        checkPlayerCollision(x + width, y + height, name))
-        return;
+    qreal best_x = x;
+    qreal best_y = y;
+    qreal tmp_x = x;
+
+    if(qFabs(dx) > EPSILON) {
+        x += dx * DEFAULT_PLAYER_VELOCITY;
+
+        float x1 = x + width * (1 - PLAYER_SIZE_MULTIPLIER);
+        float x2 = x + width * PLAYER_SIZE_MULTIPLIER;
+        float y1 = y + height * (1 - PLAYER_SIZE_MULTIPLIER);
+        float y2 = y + height * PLAYER_SIZE_MULTIPLIER;
+
+        // limun: ako ima kolizije, nemoj ništa raditi
+        // u suprotnom, promeni najbolju poziciju
+        if(checkPlayerCollision(x1, y1, name) ||
+            checkPlayerCollision(x2, y1, name) ||
+            checkPlayerCollision(x1, y2, name) ||
+            checkPlayerCollision(x2, y2, name))
+            ;
+        else
+            best_x = x;
+
+        x = tmp_x;
+    }
+    if(qFabs(dy) > EPSILON) {
+        y += dy * DEFAULT_PLAYER_VELOCITY;
+
+        float x1 = x + width * (1 - PLAYER_SIZE_MULTIPLIER);
+        float x2 = x + width * PLAYER_SIZE_MULTIPLIER;
+        float y1 = y + height * (1 - PLAYER_SIZE_MULTIPLIER);
+        float y2 = y + height * PLAYER_SIZE_MULTIPLIER;
+
+        if(checkPlayerCollision(x1, y1, name) ||
+            checkPlayerCollision(x2, y1, name) ||
+            checkPlayerCollision(x1, y2, name) ||
+            checkPlayerCollision(x2, y2, name))
+            ;
+        else
+            best_y = y;
+    }
 
 
-    players_[name]->getDrawer()->setPos(x, y);
-    players_[name]->getMeleeWeapon()->getDrawer()->setPos(x+IMAGE_SIZE/2, y+IMAGE_SIZE/2);
+    players_[name]->getDrawer()->setPos(best_x, best_y);
+    players_[name]->getMeleeWeapon()->getDrawer()->setPos(best_x+IMAGE_SIZE/2, best_y+IMAGE_SIZE/2);
 }
 
 bool GameLogicHandler::checkPlayerCollision(qreal x, qreal y, const QString &name)
 {
-    int id_x = (int)x/IMAGE_SIZE;
-    int id_y = (int)y/IMAGE_SIZE;
+    int id_x = x/IMAGE_SIZE;
+    int id_y = y/IMAGE_SIZE;
     int tile_id = id_y * map_->getM() + id_x;
 
     std::unordered_map<int, Tile*> active_buckets = map_->getActiveAmmoBuckets();
@@ -203,6 +238,14 @@ QByteArray GameLogicHandler::jsonify(const QString& data_type)
 
 void GameLogicHandler::updateAll()
 {
+    for(auto it = bullets_.cbegin(); it != bullets_.cend();)
+    {
+        if (!bullet_moved_[it->first])
+            bullets_.erase(it++->first);
+        else
+            it++;
+    }
+
     updatePlayers();
     updateBullets();
 
@@ -211,14 +254,6 @@ void GameLogicHandler::updateAll()
 
     emit updatePlayersSignal(player_info);
     emit updateBulletsSignal(bullet_info);
-
-    for(auto it = bullets_.cbegin(); it != bullets_.cend();)
-    {
-        if (!bullet_moved_[it->first])
-            bullets_.erase(it++->first);
-        else
-            it++;
-    }
 
     for(auto &[name, event] : logic_events_)
         logic_events_[name] = 0;
@@ -347,7 +382,7 @@ void GameLogicHandler::updateBullets()
     }
 }
 
-void GameLogicHandler::updatePlayerRotation(int x, int y, const QString& name)
+void GameLogicHandler::updatePlayerRotation(qreal x, qreal y, const QString& name)
 {
     QPointF aiming_point = QPointF(mouse_positions_[name].first, mouse_positions_[name].second);
     if(players_[name]->getDrawer()->contains(players_[name]->getDrawer()->mapFromScene(aiming_point)))
