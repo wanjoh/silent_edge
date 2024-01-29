@@ -1,6 +1,7 @@
 stages:          # List of stages for jobs, and their order of execution
   - build
   - lint
+  - notification
 
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
@@ -21,3 +22,19 @@ lint-job:
     - apt-get install clang-tidy --yes
   script:
     - bash lint.sh
+
+success_notification:
+  stage: notification
+  script:
+    - wget https://raw.githubusercontent.com/DiscordHooks/gitlab-ci-discord-webhook/master/send.sh
+    - chmod +x send.sh
+    - ./send.sh success https://discord.com/api/webhooks/1201528645840293918/hZ0HwGjDlHf4_DODYYHo-TnUMY10dpski1kqB8usyunRI4nZEGOjaiaojH-VL1hDb8QR
+  when: on_success
+
+failure_notification:
+  stage: notification
+  script:
+    - wget https://raw.githubusercontent.com/DiscordHooks/gitlab-ci-discord-webhook/master/send.sh
+    - chmod +x send.sh
+    - ./send.sh failure https://discord.com/api/webhooks/1201528645840293918/hZ0HwGjDlHf4_DODYYHo-TnUMY10dpski1kqB8usyunRI4nZEGOjaiaojH-VL1hDb8QR
+  when: on_failure

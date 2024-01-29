@@ -1,6 +1,6 @@
 # Silent Edge
 
-Najkraće rečeno, fastpaced LAN multiplayer PvP topdown shooter/fighter igrica sa elementima AI tureta.
+Najkraće rečeno, fastpaced LAN multiplayer PvP topdown shooter/fighter igrica.
 
 Članovi:
  - <a href="https://gitlab.com/lukastan1">Luka Stanković 38/2020</a>
@@ -12,5 +12,5 @@ Najkraće rečeno, fastpaced LAN multiplayer PvP topdown shooter/fighter igrica 
   ## Izgradnja projekta
 
  - Klonirati repozitorijum
- - Otvoriti dobijeni folder u QtCreator
+ - Otvoriti dobijeni folder u QtCreator-u
  - Pritisnuti na build dugme
