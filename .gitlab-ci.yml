@@ -6,7 +6,8 @@ stages:          # List of stages for jobs, and their order of execution
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
   before_script:
-    - apt-get update --yes - apt-get install --yes cmake
+    - apt-get update --yes
+    - apt-get install --yes cmake
   script:
     - cd ../debug
     - cmake ..
