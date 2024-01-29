@@ -1,0 +1,15 @@
+build1:
+  stage: build
+  script:
+    -echo "Testing if CI build1 works"
+
+test1:
+  stage: test
+  script:
+    -echo "This is a test1 script"
+
+deploy:
+  stage: deploy
+  script:
+    -echo "This is a deploy job"
+  enviroment: production
