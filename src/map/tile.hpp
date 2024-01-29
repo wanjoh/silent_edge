@@ -14,7 +14,7 @@ public:
         WALL,
         AMMO_PILE
     };
-    Tile(int id = 0, const QString &path = "", QPair<int, int> coords = QPair<int, int>(0, 0), TileType type = Tile::TileType::GROUND ,QObject * = nullptr);
+    Tile(int id = 0, const QString &path = "", QPair<int, int> coords = QPair<int, int>(0, 0), TileType type = Tile::TileType::GROUND);
     ~Tile();
     TileType getTileType();
     TileDrawer* getDrawer();

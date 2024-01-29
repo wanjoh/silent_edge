@@ -12,8 +12,8 @@ float PLAYER_SIZE_MULTIPLIER = 0.9f;
 GameLogicHandler::GameLogicHandler(Map *map, QObject* parent)
     : QObject(parent)
     , map_(map)
-    , matrix_(map_->getMatrix())
     , rooms_(map_->getRooms())
+    , matrix_(map_->getMatrix())
     , results_(new Results)
 {
     initializeTimers();
@@ -63,7 +63,7 @@ void GameLogicHandler::removePlayerFromRoom(const QString &name)
     }
 }
 
-void GameLogicHandler::addBullet(qreal x, qreal y, const QString& name)
+void GameLogicHandler::addBullet(const QString& name)
 {
     QMutexLocker locker(&mutex_);
 
@@ -88,8 +88,11 @@ void GameLogicHandler::addBullet(qreal x, qreal y, const QString& name)
         bullet_id = 1;
 }
 
-void GameLogicHandler::updatePlayerPosition(qreal x, qreal y, const QString& name)
+void GameLogicHandler::updatePlayerPosition(const QString& name)
 {
+    qreal x = players_[name]->getDrawer()->x();
+    qreal y = players_[name]->getDrawer()->y();
+
     qreal dx = 0.0;
     qreal dy = 0.0;
 
@@ -263,10 +266,6 @@ void GameLogicHandler::updatePlayers()
 {
     for (auto& [name, player] : players_)
     {
-        qreal x = player->getDrawer()->x();
-        qreal y = player->getDrawer()->y();
-
-
         // limun: kolizija, rotacija, pozicija, meci
 
         for(auto &[other_name, other_player] : players_)
@@ -285,14 +284,14 @@ void GameLogicHandler::updatePlayers()
             }
         }
 
-        updatePlayerRotation(x, y, name);
-        updatePlayerPosition(x, y, name);
+        updatePlayerRotation(name);
+        updatePlayerPosition(name);
 
         if((commands_[name] & ServerConfig::PlayerActions::SHOOT))
         {
             if(!shooting_in_progress_[name] && player_bullet_count_[name] < player->getRangedWeapon()->getCapacity())
             {
-                addBullet(x, y, name);
+                addBullet(name);
                 shooting_in_progress_[name] = true;
                 ++player_bullet_count_[name];
 
@@ -382,7 +381,7 @@ void GameLogicHandler::updateBullets()
     }
 }
 
-void GameLogicHandler::updatePlayerRotation(qreal x, qreal y, const QString& name)
+void GameLogicHandler::updatePlayerRotation(const QString& name)
 {
     QPointF aiming_point = QPointF(mouse_positions_[name].first, mouse_positions_[name].second);
     if(players_[name]->getDrawer()->contains(players_[name]->getDrawer()->mapFromScene(aiming_point)))

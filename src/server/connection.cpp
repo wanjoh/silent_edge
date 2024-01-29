@@ -4,8 +4,8 @@
 
 Connection::Connection(qintptr socket_desc, QObject * parent)
     :QObject(parent),
-    socket_descriptor_(socket_desc),
-    username_("user")
+    username_("user"),
+    socket_descriptor_(socket_desc)
 {
     if (!(socket_ = new QTcpSocket()))
     {

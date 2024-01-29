@@ -1,17 +1,18 @@
 #include "game_window.hpp"
 
 #include <QKeyEvent>
+#include <QGraphicsView>
 #include <QGraphicsSceneMouseEvent>
-#include "../map/overlay.hpp"
+#include "../map/tile.hpp"
 
 GameWindow::GameWindow(Room* room, qreal width, qreal height, QObject *parent)
     : QGraphicsScene(0, 0, width, height, parent)
-    , window_width_(width)
-    , window_height_(height)
+    , movement_(0)
     , width_zoom_level_(1.0)
     , height_zoom_level_(1.0)
+    , window_width_(width)
+    , window_height_(height)
     , room_(room)
-    , movement_(0)
 {
     phase_ = new QGraphicsView(this);
     phase_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

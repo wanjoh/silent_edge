@@ -1,9 +1,7 @@
 #pragma once
 
 #include <QGraphicsScene>
-#include <QGraphicsView>
 #include "entity_drawer.hpp"
-#include "map_drawer.hpp"
 #include "../server/server_config.hpp"
 
 // mogao bi room drawer ili stagod, samo da se ovo izbaci

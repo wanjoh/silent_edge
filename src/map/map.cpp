@@ -25,7 +25,6 @@ void Map::initializeMatrix()
 {
     QVector<QString> wall_paths = {"wall.png", "wall1.png", "wall2.png", "wall3.png", "wall4.png", "wall5.png",
                                     "wall6.png", "wall7.png", "wall8.png", "wall9.png", "wall10.png", "wall11.png",};
-    int rand_index;
     srand(time(nullptr));
 
     QFile file(map_path_);

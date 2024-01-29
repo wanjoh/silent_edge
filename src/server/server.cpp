@@ -28,8 +28,8 @@
 }*/
 
 GameServer::GameServer(QString ip, QObject *parent)
-    : QTcpServer(parent), server_address_(ip),
-    logic_handler_(new GameLogicHandler)
+    : QTcpServer(parent), logic_handler_(new GameLogicHandler),
+    server_address_(ip)
 {
     available_threads_.reserve(ServerConfig::MAX_USERS);
     threads_load_.reserve(ServerConfig::MAX_USERS);
