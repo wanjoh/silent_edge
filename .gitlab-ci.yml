@@ -8,9 +8,11 @@ build-job:       # This job runs in the build stage, which runs first.
   before_script:
     - apt-get update --yes
     - apt-get install --yes cmake
+    - apt-get install --yes qt6-base-dev
   script:
+    - mkdir ../debug
     - cd ../debug
-    - cmake ..
+    - cmake ../silent-edge
     - cmake --build .
 
 unit-test-job:   # This job runs in the test stage.
