@@ -4,15 +4,12 @@
 
 Connection::Connection(qintptr socket_desc, QObject * parent)
     :QObject(parent),
-    socket_descriptor_(socket_desc),
-    username_("user")
+    username_("user"),
+    socket_descriptor_(socket_desc)
 {
-    if (!(socket_ = new QTcpSocket()))
-    {
+    if ((socket_ = new QTcpSocket()) == nullptr) {
         qDebug() << "Creating socket failed";
-    }
-    else
-    {
+    } else {
         socket_stream_ = new QDataStream(socket_);
         socket_stream_->setVersion(QDataStream::Qt_6_4);
         socket_->setSocketDescriptor(socket_descriptor_);

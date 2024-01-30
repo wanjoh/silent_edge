@@ -28,8 +28,8 @@
 }*/
 
 GameServer::GameServer(QString ip, QObject *parent)
-    : QTcpServer(parent), server_address_(ip),
-    logic_handler_(new GameLogicHandler)
+    : QTcpServer(parent), logic_handler_(new GameLogicHandler),
+    server_address_(ip)
 {
     available_threads_.reserve(ServerConfig::MAX_USERS);
     threads_load_.reserve(ServerConfig::MAX_USERS);
@@ -74,7 +74,7 @@ void GameServer::stopServer()
 void GameServer::initializeTimers()
 {
     server_timer_.setInterval(ServerConfig::TICK_TIME);
-    connect(&server_timer_, &QTimer::timeout, logic_handler_, &GameLogicHandler::updateAll);
+    connect(&server_timer_, &QTimer::timeout, logic_handler_, &GameLogicHandler::updateEntities);
     connect(&server_timer_, &QTimer::timeout, this, &GameServer::emitTickMessage);
     connect(logic_handler_, &GameLogicHandler::updatePlayersSignal, this, &GameServer::broadcast);
     connect(logic_handler_, &GameLogicHandler::updateBulletsSignal, this, &GameServer::broadcast);
@@ -103,8 +103,7 @@ void GameServer::userDisconnected(Connection* user, int thread_idx)
 
 void GameServer::broadcast(const QByteArray& msg)
 {
-    for (auto user : users_)
-    {
+    for (auto *user : users_) {
         Q_ASSERT(user);
         user->sendData(msg);
     }

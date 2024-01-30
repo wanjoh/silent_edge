@@ -22,14 +22,13 @@ public:
 
     Lobby *getLobby() const;
 
-public slots:
     void error(QTcpSocket::SocketError);
     void userDisconnected(Connection*, int);
     void broadcast(const QByteArray&);
     void stopServer();
 private slots:
     void emitTickMessage();
-    void gameIsOver();
+    static void gameIsOver();
 signals:
     void logMessage(const QString&);
     void stopAllClients();
@@ -37,7 +36,7 @@ signals:
     void showResults();
 private:
     void initializeTimers();
-    void sendData(Connection*, const QByteArray&);
+    static void sendData(Connection*, const QByteArray&);
     void incomingConnection(qintptr socket_desc) override;
     GameLogicHandler* logic_handler_;
     QVector<QThread *> available_threads_;

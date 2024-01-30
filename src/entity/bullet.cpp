@@ -25,7 +25,7 @@ Bullet::BulletType Bullet::getBulletType()
     return type_;
 }
 
-qreal Bullet::getDamageDealt()
+qreal Bullet::getDamageDealt() const
 {
     return damage_dealt_;
 }

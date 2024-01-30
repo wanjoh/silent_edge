@@ -1,6 +1,6 @@
 #include "map_drawer.hpp"
 
-MapDrawer::MapDrawer(std::unordered_map<int, Tile*> matrix, QGraphicsItem* parent)
+MapDrawer::MapDrawer(std::unordered_map<int, Tile*> matrix)
 {
     matrix_ = matrix;
     group_ = new QGraphicsItemGroup();

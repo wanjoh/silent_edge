@@ -17,5 +17,5 @@ int main(int argc, char *argv[])
     Game *game = new Game(name);
     game->startGame();
     game->moveToThread(new QThread);*/
-    return a.exec();
+    return QApplication::exec();
 }

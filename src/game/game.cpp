@@ -75,9 +75,9 @@ void Game::deserializeData(const QByteArray &data)
                     qint32 bullet_count = playerObject["bullet_count"].toInt();
                     qint32 remaining_bullets = playerObject["remaining_bullets"].toInt();
                     quint32 logic_events = playerObject["logic_events"].toInt();
-                    bool camera_change = logic_events & LogicEvents::CAMERA;
-                    bool restock = logic_events & LogicEvents::RESTOCK;
-                    bool tilechange = logic_events & LogicEvents::TILECHANGE;
+                    bool camera_change = (logic_events & LogicEvents::CAMERA) != 0u;
+                    bool restock = (logic_events & LogicEvents::RESTOCK) != 0u;
+                    bool tilechange = (logic_events & LogicEvents::TILECHANGE) != 0u;
                     int tile_id = playerObject["tile_id"].toInt();
 
                     if(player_->getName() == this_name) {
@@ -89,20 +89,30 @@ void Game::deserializeData(const QByteArray &data)
                         player_->setHp(hp);
                         gui_->update_hp_overlay(hp);
 
-                        if(is_shooting)
-                            gui_->updateBulletsLabel(player_->getRangedWeapon()->getCapacity() - bullet_count, player_->getRangedWeapon()->getCapacity(), remaining_bullets);
-                        if(!player_->getReloadTimer()->isActive())
-                            gui_->updateBulletsLabel(player_->getRangedWeapon()->getCapacity() - bullet_count, player_->getRangedWeapon()->getCapacity(), remaining_bullets);
+                        if (is_shooting) {
+                            gui_->updateBulletsLabel(player_->getRangedWeapon()->getCapacity()
+                                                         - bullet_count,
+                                                     player_->getRangedWeapon()->getCapacity(),
+                                                     remaining_bullets);
+                        }
+                        if (!player_->getReloadTimer()->isActive()) {
+                            gui_->updateBulletsLabel(player_->getRangedWeapon()->getCapacity()
+                                                         - bullet_count,
+                                                     player_->getRangedWeapon()->getCapacity(),
+                                                     remaining_bullets);
+                        }
 
-                        if(is_swinging)
+                        if (is_swinging) {
                             player_->getMeleeWeapon()->getDrawer()->setZValue(5);
-                        else
+                        } else {
                             player_->getMeleeWeapon()->getDrawer()->setZValue(-1);
+                        }
 
-                        if(is_reloading)
+                        if (is_reloading) {
                             player_->getReload()->getDrawer()->setZValue(7);
-                        else
+                        } else {
                             player_->getReload()->getDrawer()->setZValue(-1);
+                        }
 
                         if(camera_change) {
                             player_->getDrawer()->setPos(x, y);
@@ -110,8 +120,9 @@ void Game::deserializeData(const QByteArray &data)
                             gui_->changeRoom(room);
                             gui_->teleportPlayer(player_->getName(), player_->getDrawer()->x(), player_->getDrawer()->y());
                         }
-                        if(restock)
+                        if (restock) {
                             map_->restockAmmoPiles();
+                        }
                     }
                     else
                     {
@@ -128,15 +139,17 @@ void Game::deserializeData(const QByteArray &data)
                         enemies_[this_name]->getReload()->getDrawer()->setPos(x, y);
                         enemies_[this_name]->setHp(hp);
 
-                        if(is_swinging)
+                        if (is_swinging) {
                             enemies_[this_name]->getMeleeWeapon()->getDrawer()->setZValue(5);
-                        else
+                        } else {
                             enemies_[this_name]->getMeleeWeapon()->getDrawer()->setZValue(-1);
+                        }
 
-                        if(is_reloading)
+                        if (is_reloading) {
                             enemies_[this_name]->getReload()->getDrawer()->setZValue(7);
-                        else
+                        } else {
                             enemies_[this_name]->getReload()->getDrawer()->setZValue(-1);
+                        }
                     }
 
                     if(tilechange) {

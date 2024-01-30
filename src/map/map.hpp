@@ -22,8 +22,9 @@ public:
     const tile_map& getInactiveAmmoBuckets() const;
     const std::unordered_map<int, Room*>& getRooms() const;
     MapDrawer* getDrawer();
-    int getN();
-    int getM();
+    int getN() const;
+    int getM() const;
+
 private:
     void initializeMatrix();
     QString map_path_;

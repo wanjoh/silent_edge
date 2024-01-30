@@ -7,7 +7,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 20)
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall -Wextra")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
@@ -100,11 +101,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         src/gui/bullet_drawer.cpp
         src/gui/melee_drawer.hpp
         src/gui/melee_drawer.cpp
-
-        src/map/overlay.hpp
-        src/map/overlay.cpp
-        src/gui/overlay_drawer.hpp
-        src/gui/overlay_drawer.cpp
 
         src/server/game_logic_handler.hpp
         src/server/game_logic_handler.cpp

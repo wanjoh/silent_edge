@@ -21,7 +21,7 @@ Room::~Room()
 
 }
 
-qreal Room::getId()
+qreal Room::getId() const
 {
     return id_;
 }
@@ -47,7 +47,7 @@ void Room::setEndCoords(std::pair<int, int> end_coords)
     end_coords_ = end_coords;
 }
 
-QVector<Player *> Room::getPlayersInRoom()
+QVector<Player *> Room::getPlayersInRoom() const
 {
     return players_in_room_;
 }
@@ -67,8 +67,9 @@ void Room::addPlayerToRoom(Player *player)
 void Room::removePlayerFromRoom(Player *player)
 {
     players_in_room_.removeOne(player);
-    for(auto &spawnpoint : used_spawnpoints_)
+    for (auto &spawnpoint : used_spawnpoints_) {
         unused_spawnpoints_[spawnpoint.first] = spawnpoint.second;
+    }
 }
 
 void Room::addSpawnpoint(const QString &name, QPair<int, int> coords)
@@ -86,12 +87,12 @@ std::pair<int, int> Room::getEndCoords()
     return end_coords_;
 }
 
-int Room::getWidth()
+int Room::getWidth() const
 {
     return width_;
 }
 
-int Room::getHeight()
+int Room::getHeight() const
 {
     return height_;
 }

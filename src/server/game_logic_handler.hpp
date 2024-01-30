@@ -29,7 +29,7 @@ class GameLogicHandler : public QObject
 {
     Q_OBJECT
 public:
-    static constexpr qreal DEFAULT_PLAYER_VELOCITY = 5.0f;
+    static constexpr qreal DEFAULT_PLAYER_VELOCITY = 5.0F;
     static constexpr quint32 BULLETS_PER_SECOND = 3;
     static constexpr quint32 BULLET_SPEED = 10;
     static constexpr quint32 AMMO_RESPAWN_TIME = 20000;
@@ -40,16 +40,17 @@ public:
     GameLogicHandler(Map* = new Map(), QObject* = nullptr);
     GameLogicHandler(const GameLogicHandler&) = delete;
     ~GameLogicHandler();
-    void updatePlayerRotation(qreal x, qreal y, const QString& name);
-    void updatePlayerPosition(qreal x, qreal y, const QString& name);
+    void updatePlayerRotation(const QString& name);
+    void updatePlayerPosition(const QString& name);
     void updatePlayerStats(const QByteArray&);
-    void addBullet(qreal x, qreal y, const QString& name);
+    void addBullet(const QString& name);
     void putPlayerIntoRoom(const QString &name);
     void removePlayerFromRoom(const QString &name);
-    void updateAll();
+    void updateEntities();
     void updatePlayers();
     void updateBullets();
-    QByteArray jsonify(const QString&);
+    QByteArray jsonify_players();
+    QByteArray jsonify_bullets();
     QByteArray jsonify_tile(int, const QString &);
 private slots:
     void updateAmmo();
@@ -66,7 +67,7 @@ private:
     /*Returns true on bullet collision*/
     bool checkBulletCollisions(Bullet *bullet);
     bool checkPlayerCollision(qreal x, qreal y,const QString &name);
-    void decreaseHp(Player*, Bullet*);
+    static void decreaseHp(Player *, Bullet *);
     void initializeTimers();
     bool canEntityMove(QVector<int> ids);
     void updateScores(); //
