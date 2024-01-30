@@ -46,7 +46,7 @@ public:
     void addBullet(const QString& name);
     void putPlayerIntoRoom(const QString &name);
     void removePlayerFromRoom(const QString &name);
-    void updateAll();
+    void updateEntities();
     void updatePlayers();
     void updateBullets();
     QByteArray jsonify_players();

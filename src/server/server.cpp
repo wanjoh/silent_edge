@@ -74,7 +74,7 @@ void GameServer::stopServer()
 void GameServer::initializeTimers()
 {
     server_timer_.setInterval(ServerConfig::TICK_TIME);
-    connect(&server_timer_, &QTimer::timeout, logic_handler_, &GameLogicHandler::updateAll);
+    connect(&server_timer_, &QTimer::timeout, logic_handler_, &GameLogicHandler::updateEntities);
     connect(&server_timer_, &QTimer::timeout, this, &GameServer::emitTickMessage);
     connect(logic_handler_, &GameLogicHandler::updatePlayersSignal, this, &GameServer::broadcast);
     connect(logic_handler_, &GameLogicHandler::updateBulletsSignal, this, &GameServer::broadcast);
