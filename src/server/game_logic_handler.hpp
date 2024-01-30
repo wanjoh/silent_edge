@@ -49,7 +49,8 @@ public:
     void updateAll();
     void updatePlayers();
     void updateBullets();
-    QByteArray jsonify(const QString&);
+    QByteArray jsonify_players();
+    QByteArray jsonify_bullets();
     QByteArray jsonify_tile(int, const QString &);
 private slots:
     void updateAmmo();

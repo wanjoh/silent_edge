@@ -1,10 +1,11 @@
 #include "game_logic_handler.hpp"
-#include "server_config.hpp"
+
 #include <QtMath>
 #include <QVector2D>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include "server_config.hpp"
 
 int bullet_id = 1;
 float PLAYER_SIZE_MULTIPLIER = 0.9f;
@@ -186,60 +187,57 @@ bool GameLogicHandler::checkPlayerCollision(qreal x, qreal y, const QString &nam
     return false;
 }
 
-QByteArray GameLogicHandler::jsonify(const QString& data_type)
+QByteArray GameLogicHandler::jsonify_players()
 {
-    if(data_type == "player") {
-        QJsonArray playersArray;
+    QJsonArray playersArray;
 
-        for(auto& [name, player] : players_)
-        {
-            QJsonObject playerObject;
-            playerObject["type"] = "player";
-            playerObject["name"] = name;
-            playerObject["position_x"] = player->getDrawer()->x();
-            playerObject["position_y"] = player->getDrawer()->y();
-            playerObject["rotation"] = player->getDrawer()->rotation();
-            playerObject["hp"] = player->getHp();
-            playerObject["swinging"] = melee_in_progress_[name];
-            playerObject["reloading"] = reloading_in_progress_[name];
-            playerObject["shooting"] = shooting_in_progress_[name];
-            playerObject["bullet_count"] = static_cast<qint32>(player_bullet_count_[name]);
-            playerObject["remaining_bullets"] = player->getRangedWeapon()->getRemainingBullets();
-            playerObject["logic_events"] = static_cast<qint32>(logic_events_[name]);
-            playerObject["tile_id"] = tile_id_[name];
+    for(auto& [name, player] : players_)
+    {
+        QJsonObject playerObject;
+        playerObject["type"] = "player";
+        playerObject["name"] = name;
+        playerObject["position_x"] = player->getDrawer()->x();
+        playerObject["position_y"] = player->getDrawer()->y();
+        playerObject["rotation"] = player->getDrawer()->rotation();
+        playerObject["hp"] = player->getHp();
+        playerObject["swinging"] = melee_in_progress_[name];
+        playerObject["reloading"] = reloading_in_progress_[name];
+        playerObject["shooting"] = shooting_in_progress_[name];
+        playerObject["bullet_count"] = static_cast<qint32>(player_bullet_count_[name]);
+        playerObject["remaining_bullets"] = player->getRangedWeapon()->getRemainingBullets();
+        playerObject["logic_events"] = static_cast<qint32>(logic_events_[name]);
+        playerObject["tile_id"] = tile_id_[name];
 
-            playersArray.append(playerObject);
-        }
-
-        const QJsonDocument json_data(playersArray);
-
-        return json_data.toJson();
+        playersArray.append(playerObject);
     }
-    else if(data_type == "bullet") {
-        QJsonArray bulletsArray;
 
-        for(auto& [bullet_id, bullet] : bullets_) {
-            QJsonObject bulletObject;
-            bulletObject["type"] = "bullet";
-            bulletObject["id"] = bullet_id;
-            bulletObject["owner_name"] = bullet->getOwnerName();
-            bulletObject["position_x"] = bullet->getDrawer()->x();
-            bulletObject["position_y"] = bullet->getDrawer()->y();
-            bulletObject["rotation"] = bullet->getDrawer()->rotation();
+    const QJsonDocument json_data(playersArray);
 
-            bulletsArray.append(bulletObject);
-        }
-
-        const QJsonDocument json_data(bulletsArray);
-
-        return json_data.toJson();
-    }
-    else {
-        return nullptr;
-    }
+    return json_data.toJson();
 }
 
-void GameLogicHandler::updateAll()
+QByteArray GameLogicHandler::jsonify_bullets()
+{
+    QJsonArray bulletsArray;
+
+    for(auto& [bullet_id, bullet] : bullets_) {
+        QJsonObject bulletObject;
+        bulletObject["type"] = "bullet";
+        bulletObject["id"] = bullet_id;
+        bulletObject["owner_name"] = bullet->getOwnerName();
+        bulletObject["position_x"] = bullet->getDrawer()->x();
+        bulletObject["position_y"] = bullet->getDrawer()->y();
+        bulletObject["rotation"] = bullet->getDrawer()->rotation();
+
+        bulletsArray.append(bulletObject);
+    }
+
+    const QJsonDocument json_data(bulletsArray);
+
+    return json_data.toJson();
+}
+
+void GameLogicHandler::updateEntities()
 {
     for(auto it = bullets_.cbegin(); it != bullets_.cend();)
     {
@@ -252,8 +250,8 @@ void GameLogicHandler::updateAll()
     updatePlayers();
     updateBullets();
 
-    QByteArray player_info = jsonify("player");
-    QByteArray bullet_info = jsonify("bullet");
+    QByteArray player_info = jsonify_players();
+    QByteArray bullet_info = jsonify_bullets();
 
     emit updatePlayersSignal(player_info);
     emit updateBulletsSignal(bullet_info);
@@ -294,7 +292,6 @@ void GameLogicHandler::updatePlayers()
                 addBullet(name);
                 shooting_in_progress_[name] = true;
                 ++player_bullet_count_[name];
-
             }
         }
         else
