@@ -88,7 +88,7 @@ void GameWindow::show(GamePhase phase)
     }
 }
 
-void GameWindow::addEntity(QString name, EntityDrawer* entity)
+void GameWindow::addEntity(const QString& name, EntityDrawer* entity)
 {
     items_[name] = entity;
     addItem(entity);
@@ -99,7 +99,7 @@ void GameWindow::teleportPlayer(const QString &name, qreal x, qreal y)
     items_[name]->setPos(x, y);
 }
 
-void GameWindow::removeEntity(QString name)
+void GameWindow::removeEntity(const QString& name)
 {
     if(items_.contains(name)) {
         removeItem(items_[name]);

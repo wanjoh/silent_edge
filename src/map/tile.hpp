@@ -20,7 +20,7 @@ public:
     TileDrawer* getDrawer();
     QPair<int, int> get_coords();
     int get_id() const;
-    void setDrawer(QString path);
+    void setDrawer(const QString &path);
 private:
     int id_;
     QPair<int, int> coords_;

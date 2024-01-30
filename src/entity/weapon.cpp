@@ -1,11 +1,13 @@
 #include "weapon.hpp"
 
+#include <utility>
+
 Weapon::Weapon()
     : Entity()
 {}
 
 Weapon::Weapon(QString name, RarenessType rtype, qreal price, qreal dmg_dealt, QObject *parent)
-    : Entity(name, parent)
+    : Entity(std::move(name), parent)
     , type_(rtype)
     , price_(price)
     , damage_dealt_(dmg_dealt)

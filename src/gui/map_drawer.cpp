@@ -1,8 +1,10 @@
 #include "map_drawer.hpp"
 
+#include <utility>
+
 MapDrawer::MapDrawer(std::unordered_map<int, Tile*> matrix)
 {
-    matrix_ = matrix;
+    matrix_ = std::move(matrix);
     group_ = new QGraphicsItemGroup();
     initialize_group(matrix_);
 }

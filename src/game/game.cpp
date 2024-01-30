@@ -6,7 +6,7 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 
-Game::Game(QString name,Client* client, QObject *parent)
+Game::Game(const QString& name,Client* client, QObject *parent)
     : QObject(parent)
     , client_(client)
     , map_(new Map())
@@ -29,7 +29,7 @@ Game::~Game()
 
 }
 
-void Game::startGame(QString server_ip)
+void Game::startGame(const QString& server_ip)
 {
    client_->connectToServer(server_ip, ServerConfig::PORT);
 
@@ -37,7 +37,7 @@ void Game::startGame(QString server_ip)
 
 }
 
-void Game::startServer(QString server_ip)
+void Game::startServer(const QString& server_ip)
 {
     server_ = new GameServer(server_ip);
 }

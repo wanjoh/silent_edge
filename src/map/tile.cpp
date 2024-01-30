@@ -33,7 +33,7 @@ TileDrawer* Tile::getDrawer()
     return drawer_;
 }
 
-void Tile::setDrawer(QString path)
+void Tile::setDrawer(const QString &path)
 {
     drawer_->setImagePath(path);
 }

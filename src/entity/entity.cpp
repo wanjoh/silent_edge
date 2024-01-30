@@ -1,5 +1,7 @@
 #include "entity.hpp"
 
+#include <utility>
+
 Entity::Entity(QObject* parent) : Entity("dummy", parent)
 {
 
@@ -7,7 +9,7 @@ Entity::Entity(QObject* parent) : Entity("dummy", parent)
 
 Entity::Entity(QString name, QObject* parent) :
     QObject(parent)
-    , name_(name)
+    , name_(std::move(name))
 {
 }
 

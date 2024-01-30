@@ -21,9 +21,8 @@ Player::Player()
     reload_drawer->setScale(0.5);
 }
 
-Player::Player(QString name, bool enemy, qreal hp, int x, int y, QObject* parent) : Entity(name, parent)
+Player::Player(const QString &name, bool enemy, qreal hp, int x, int y, QObject* parent) : Entity(name, parent)
 {
-
     melee_weapon_ = new MeleeWeapon("Katana", Weapon::RarenessType::COMMON, 50.0, 20.0, 1000.0);
     ranged_weapon_ = new RangedWeapon("Gun",
                                       Weapon::RarenessType::COMMON,

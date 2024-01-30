@@ -36,8 +36,8 @@ void Results::readResultsFromFile()
 
         QStringList lineList = line.split(" ");
 
-        QString name = lineList.at(0);
-        QString score = (lineList.at(1));
+        const QString& name = lineList.at(0);
+        const QString& score = lineList.at(1);
 
         players_ += name + "\n";
         scores_ += score + "\n";

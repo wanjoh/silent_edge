@@ -1,5 +1,7 @@
 #include "bullet.hpp"
 
+#include <utility>
+
 
 Bullet::Bullet(int id, QString owner_name, qreal damage_dealt, QObject* parent)
     : Entity(QString::number(id), parent)
@@ -10,7 +12,7 @@ Bullet::Bullet(int id, QString owner_name, qreal damage_dealt, QObject* parent)
     entityType_ = "bullet";
     damage_dealt_ = damage_dealt;
     id_ = id;
-    owner_name_ = owner_name;
+    owner_name_ = std::move(owner_name);
 }
 
 Bullet::~Bullet()

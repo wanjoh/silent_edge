@@ -13,7 +13,7 @@ class Player : public Entity
 public:
     constexpr static qint32 VELOCITY = 3;
     Player();
-    Player(QString, bool = true, qreal hp = 100, int x = 128, int y = 128, QObject* = nullptr);
+    Player(const QString &, bool = true, qreal hp = 100, int x = 128, int y = 128, QObject* = nullptr);
 
     qreal getHp() const;
     qreal getEnergy();

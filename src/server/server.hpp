@@ -13,7 +13,7 @@ class GameServer : public QTcpServer {
 public:
 
     //GameServer(QObject* = nullptr);
-    GameServer(QString,QObject* = nullptr);
+    GameServer(const QString &, QObject* = nullptr);
     GameServer(const GameServer&) = delete;
     ~GameServer();
 

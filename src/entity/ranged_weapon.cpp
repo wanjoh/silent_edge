@@ -1,5 +1,7 @@
 #include "ranged_weapon.hpp"
 
+#include <utility>
+
 RangedWeapon::RangedWeapon()
     : Weapon()
 {}
@@ -13,7 +15,7 @@ RangedWeapon::RangedWeapon(QString name,
                            qreal rel_time,
                            qint32 rem_bul,
                            QObject *parent)
-    : Weapon(name, rtype, price, dmg_dealt, parent)
+    : Weapon(std::move(name), rtype, price, dmg_dealt, parent)
     , shot_cooldown_(shot_cooldown)
     , reload_time_(rel_time)
     , capacity_(capacity)

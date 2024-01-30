@@ -5,7 +5,7 @@ MeleeWeapon::MeleeWeapon()
     : Weapon()
 {}
 
-MeleeWeapon::MeleeWeapon(QString name,
+MeleeWeapon::MeleeWeapon(const QString& name,
                          RarenessType rtype,
                          qreal price,
                          qreal dmg_dealt,

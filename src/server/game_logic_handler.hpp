@@ -63,7 +63,7 @@ signals:
 
 private:
     void addPlayer(Player*);
-    void removePlayer(QString);
+    void removePlayer(const QString &);
     /*Returns true on bullet collision*/
     bool checkBulletCollisions(Bullet *bullet);
     bool checkPlayerCollision(qreal x, qreal y,const QString &name);

@@ -27,7 +27,7 @@
     }
 }*/
 
-GameServer::GameServer(QString ip, QObject *parent)
+GameServer::GameServer(const QString &ip, QObject *parent)
     : QTcpServer(parent), logic_handler_(new GameLogicHandler),
     server_address_(ip)
 {

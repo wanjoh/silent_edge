@@ -358,7 +358,7 @@ void GameLogicHandler::addPlayer(Player* playa)
     putPlayerIntoRoom(name);
 }
 
-void GameLogicHandler::removePlayer(QString name)
+void GameLogicHandler::removePlayer(const QString &name)
 {
     removePlayerFromRoom(name);
     players_[name]->setHp(100);

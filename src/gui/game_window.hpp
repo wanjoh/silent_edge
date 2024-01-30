@@ -39,8 +39,8 @@ public:
     qreal getMouseY();
 
     void resetMovement();
-    void addEntity(QString, EntityDrawer*);
-    void removeEntity(QString);
+    void addEntity(const QString&, EntityDrawer*);
+    void removeEntity(const QString&);
     void updateBulletsLabel(qint32, qint32, qint32);
 signals:
     void focusedOutSignal();
