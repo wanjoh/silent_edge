@@ -13,7 +13,7 @@ class Client : public QObject
     Q_DISABLE_COPY(Client)
 public:
     explicit Client(QObject *parent = nullptr);
-    ~Client();
+    ~Client() override;
 
     void setPlayerX(float pos_x);
     void setPlayerY(float pos_y);

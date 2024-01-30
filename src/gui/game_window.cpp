@@ -48,7 +48,7 @@ void GameWindow::changeRoom(Room *new_room)
     make_overlay();
 }
 
-quint32 GameWindow::getMovement() const
+auto GameWindow::getMovement() const -> quint32
 {
     // ne toliko thread safe, moze se desiti da se movement promeni usred slanja
     // todo: poboljsati ako ostane vremena
@@ -88,7 +88,7 @@ void GameWindow::show(GamePhase phase)
     }
 }
 
-void GameWindow::addEntity(QString name, EntityDrawer* entity)
+void GameWindow::addEntity(const QString& name, EntityDrawer* entity)
 {
     items_[name] = entity;
     addItem(entity);
@@ -99,7 +99,7 @@ void GameWindow::teleportPlayer(const QString &name, qreal x, qreal y)
     items_[name]->setPos(x, y);
 }
 
-void GameWindow::removeEntity(QString name)
+void GameWindow::removeEntity(const QString& name)
 {
     if(items_.contains(name)) {
         removeItem(items_[name]);
@@ -165,10 +165,10 @@ void GameWindow::focusOutEvent(QFocusEvent *event)
     emit focusedOutSignal();
 }
 
-bool GameWindow::eventFilter(QObject *obj, QEvent *event)
+auto GameWindow::eventFilter(QObject *obj, QEvent *event) -> bool
 {
     if (event->type() == QEvent::Resize) {
-        QResizeEvent *resizeEvent = static_cast<QResizeEvent*>(event);
+        auto *resizeEvent = static_cast<QResizeEvent*>(event);
 
         width_zoom_level_ *= (qreal)resizeEvent->size().width() / window_width_;
         height_zoom_level_ *= (qreal)resizeEvent->size().height() / window_height_;
@@ -227,8 +227,7 @@ void GameWindow::change_weapon(int id)
     QList<QGraphicsItem*> child_items = overlay_group_->childItems();
 
     int i = 0;
-    for (auto it = child_items.begin(); it != child_items.end(); it++) {
-        QGraphicsItem* current_item = *it;
+    for (auto current_item : child_items) {
         if (current_item != nullptr) {
             if (i != id) {
                 current_item->setVisible(false);
@@ -248,12 +247,12 @@ void GameWindow::update_hp_overlay(qreal hp)
     hp_overlay_->setRect(hp_x_pos, hp_y_pos, IMAGE_SIZE, IMAGE_SIZE);
 
 }
-qreal GameWindow::getMouseX()
+auto GameWindow::getMouseX() -> qreal
 {
     return phase_->mapToScene(phase_->mapFromGlobal(QCursor::pos())).x();
 }
 
-qreal GameWindow::getMouseY()
+auto GameWindow::getMouseY() -> qreal
 {
     return phase_->mapToScene(phase_->mapFromGlobal(QCursor::pos())).y();
 }

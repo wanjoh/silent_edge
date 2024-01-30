@@ -13,11 +13,11 @@ enum class PlayerActions : quint32
     MELEE = 1 << 5,
     RELOAD = 1 << 6
 };
-inline quint32 operator&(quint32 a, PlayerActions b)
+inline auto operator&(quint32 a, PlayerActions b) -> quint32
 {
     return a & static_cast<quint32>(b);
 }
-inline quint32 operator|(quint32 a, PlayerActions b)
+inline auto operator|(quint32 a, PlayerActions b) -> quint32
 {
     return a | static_cast<quint32>(b);
 }
@@ -25,7 +25,7 @@ inline quint32 operator|(quint32 a, PlayerActions b)
 
 // za testiranje sa vise racunara
 static constexpr bool REMOTE_SERVER = true;
-inline static QHostAddress getRemoteIp()
+inline static auto getRemoteIp() -> QHostAddress
 {
     return QHostAddress("192.168.1.2");
 };
@@ -33,7 +33,7 @@ inline static QHostAddress getRemoteIp()
 static constexpr qint32 PORT = 6969;
 static constexpr qint32 MAX_USERS = 8;
 static constexpr qint32 MAX_ROOMS = MAX_USERS / 2;
-inline static QHostAddress getHost()
+inline static auto getHost() -> QHostAddress
 {
     return REMOTE_SERVER ? getRemoteIp() : QHostAddress::LocalHost;
 }

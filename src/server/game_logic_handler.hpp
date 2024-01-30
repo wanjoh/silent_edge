@@ -17,11 +17,11 @@ enum class LogicEvents : quint32
     RESTOCK = 1 << 1,
     TILECHANGE = 1 << 2
 };
-inline quint32 operator&(quint32 a, LogicEvents b)
+inline auto operator&(quint32 a, LogicEvents b) -> quint32
 {
     return a & static_cast<quint32>(b);
 }
-inline quint32 operator|(quint32 a, LogicEvents b)
+inline auto operator|(quint32 a, LogicEvents b) -> quint32
 {
     return a | static_cast<quint32>(b);
 }
@@ -39,7 +39,7 @@ public:
 
     GameLogicHandler(Map* = new Map(), QObject* = nullptr);
     GameLogicHandler(const GameLogicHandler&) = delete;
-    ~GameLogicHandler();
+    ~GameLogicHandler() override;
     void updatePlayerRotation(const QString& name);
     void updatePlayerPosition(const QString& name);
     void updatePlayerStats(const QByteArray&);
@@ -49,9 +49,9 @@ public:
     void updateEntities();
     void updatePlayers();
     void updateBullets();
-    QByteArray jsonify_players();
-    QByteArray jsonify_bullets();
-    QByteArray jsonify_tile(int, const QString &);
+    auto jsonify_players() -> QByteArray;
+    auto jsonify_bullets() -> QByteArray;
+    auto jsonify_tile(int, const QString &) -> QByteArray;
 private slots:
     void updateAmmo();
     void reload(const QString &);
@@ -63,13 +63,13 @@ signals:
 
 private:
     void addPlayer(Player*);
-    void removePlayer(QString);
+    void removePlayer(const QString &);
     /*Returns true on bullet collision*/
-    bool checkBulletCollisions(Bullet *bullet);
-    bool checkPlayerCollision(qreal x, qreal y,const QString &name);
+    auto checkBulletCollisions(Bullet *bullet) -> bool;
+    auto checkPlayerCollision(qreal x, qreal y, const QString &name) -> bool;
     static void decreaseHp(Player *, Bullet *);
     void initializeTimers();
-    bool canEntityMove(QVector<int> ids);
+    auto canEntityMove(QVector<int> ids) -> bool;
     void updateScores(); //
     void rangList();    //
 

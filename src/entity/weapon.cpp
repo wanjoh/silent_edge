@@ -1,11 +1,13 @@
 #include "weapon.hpp"
 
+#include <utility>
+
 Weapon::Weapon()
     : Entity()
 {}
 
 Weapon::Weapon(QString name, RarenessType rtype, qreal price, qreal dmg_dealt, QObject *parent)
-    : Entity(name, parent)
+    : Entity(std::move(name), parent)
     , type_(rtype)
     , price_(price)
     , damage_dealt_(dmg_dealt)
@@ -13,18 +15,18 @@ Weapon::Weapon(QString name, RarenessType rtype, qreal price, qreal dmg_dealt, Q
 
 }
 
-qreal Weapon::getPrice() const
+auto Weapon::getPrice() const -> qreal
 {
     return price_;
 }
 
-qreal Weapon::getDamageDealt() const
+auto Weapon::getDamageDealt() const -> qreal
 {
     return damage_dealt_;
 }
 
 
-Weapon::RarenessType Weapon::getRarenessClass()
+auto Weapon::getRarenessClass() -> Weapon::RarenessType
 {
     return type_;
 }

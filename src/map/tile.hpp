@@ -15,12 +15,12 @@ public:
         AMMO_PILE
     };
     Tile(int id = 0, const QString &path = "", QPair<int, int> coords = QPair<int, int>(0, 0), TileType type = Tile::TileType::GROUND);
-    ~Tile();
-    TileType getTileType();
-    TileDrawer* getDrawer();
-    QPair<int, int> get_coords();
-    int get_id() const;
-    void setDrawer(QString path);
+    ~Tile() override;
+    auto getTileType() -> TileType;
+    auto getDrawer() -> TileDrawer *;
+    auto get_coords() -> QPair<int, int>;
+    auto get_id() const -> int;
+    void setDrawer(const QString &path);
 private:
     int id_;
     QPair<int, int> coords_;

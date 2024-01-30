@@ -51,7 +51,7 @@ void Connection::disconnectClient()
     emit disconnectedFromServer();
 }
 
-QString Connection::username() const
+auto Connection::username() const -> QString
 {
     return username_;
 }

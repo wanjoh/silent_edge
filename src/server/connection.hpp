@@ -10,10 +10,10 @@ class Connection : public QObject
 public:
     Connection(qintptr, QObject* = nullptr);
     Connection(const Connection&) = delete;
-    ~Connection();
+    ~Connection() override;
 
     void sendData(const QByteArray&);
-    QString username() const;
+    auto username() const -> QString;
 
     void receiveData();
     void disconnectClient();

@@ -5,7 +5,7 @@ MeleeWeapon::MeleeWeapon()
     : Weapon()
 {}
 
-MeleeWeapon::MeleeWeapon(QString name,
+MeleeWeapon::MeleeWeapon(const QString& name,
                          RarenessType rtype,
                          qreal price,
                          qreal dmg_dealt,
@@ -18,7 +18,7 @@ MeleeWeapon::MeleeWeapon(QString name,
     drawer_->setScale(2);
 }
 
-qreal MeleeWeapon::getSwingTime() const
+auto MeleeWeapon::getSwingTime() const -> qreal
 {
     return swing_time_;
 }

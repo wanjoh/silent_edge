@@ -4,9 +4,10 @@
 class BulletDrawer : public EntityDrawer
 {
 public:
-    BulletDrawer(QString name, const QString &pixmap_path = "path_to_pixmap",
+    BulletDrawer(const QString &name, const QString &pixmap_path = "path_to_pixmap",
                  QGraphicsItem * = nullptr);
-    ~BulletDrawer();
+    ~BulletDrawer() override;
+
 private:
     QString name_;
 };

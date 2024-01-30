@@ -14,7 +14,7 @@ class Results : public QWidget
 
 public:
     explicit Results(QWidget *parent = nullptr);
-    ~Results();
+    ~Results() override;
 
     void readResultsFromFile();
     void showResults();

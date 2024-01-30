@@ -13,10 +13,10 @@ class Game : public QObject
     Q_DISABLE_COPY(Game)
 public:
     inline static const QString DEFAULT_NAME = "playa";
-    explicit Game(QString = DEFAULT_NAME,Client* = nullptr, QObject* = nullptr);
-    ~Game();
-    void startGame(QString server_ip);
-    void startServer(QString server_ip);
+    explicit Game(const QString& = DEFAULT_NAME,Client* = nullptr, QObject* = nullptr);
+    ~Game() override;
+    void startGame(const QString& server_ip);
+    void startServer(const QString& server_ip);
     void quit();
 
     void deserializeData(const QByteArray &);

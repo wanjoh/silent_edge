@@ -7,9 +7,9 @@ class MapDrawer : public QGraphicsPixmapItem
 {
 public:
     MapDrawer(std::unordered_map<int, Tile*> matrix);
-    ~MapDrawer();
+    ~MapDrawer() override;
     void initialize_group(std::unordered_map<int, Tile*>& matrix);
-    QGraphicsItemGroup *get_group();
+    auto get_group() -> QGraphicsItemGroup *;
 
     void change_picture(int tile_id, const QString &path);
 

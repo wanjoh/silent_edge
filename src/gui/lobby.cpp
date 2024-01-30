@@ -1,10 +1,12 @@
 #include "lobby.hpp"
+
+#include <utility>
 #include "ui_lobby.h"
 
 Lobby::Lobby(QString server_ip,QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Lobby),
-    server_ip_(server_ip)
+    server_ip_(std::move(server_ip))
 {
     ui->setupUi(this);
 
@@ -17,7 +19,7 @@ Lobby::~Lobby()
     delete ui;
 }
 
-bool Lobby::isEmpty() const
+auto Lobby::isEmpty() const -> bool
 {
     return ui->playerList->count() == 0;
 }

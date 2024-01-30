@@ -13,14 +13,14 @@ class GameServer : public QTcpServer {
 public:
 
     //GameServer(QObject* = nullptr);
-    GameServer(QString,QObject* = nullptr);
+    GameServer(const QString &, QObject* = nullptr);
     GameServer(const GameServer&) = delete;
-    ~GameServer();
+    ~GameServer() override;
 
     void startGame();
-    QString server_address() const;
+    auto server_address() const -> QString;
 
-    Lobby *getLobby() const;
+    auto getLobby() const -> Lobby *;
 
     void error(QTcpSocket::SocketError);
     void userDisconnected(Connection*, int);

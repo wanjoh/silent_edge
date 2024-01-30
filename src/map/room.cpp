@@ -2,10 +2,7 @@
 
 const int IMAGE_SIZE = 64;
 
-Room::Room()
-{
-
-}
+Room::Room() = default;
 
 Room::Room(int id, std::pair<int, int> start_coords, std::pair<int, int> end_coords)
 {
@@ -16,22 +13,19 @@ Room::Room(int id, std::pair<int, int> start_coords, std::pair<int, int> end_coo
     setWidthAndHeight();
 }
 
-Room::~Room()
-{
+Room::~Room() = default;
 
-}
-
-qreal Room::getId() const
+auto Room::getId() const -> qreal
 {
     return id_;
 }
 
-const std::unordered_map<QString ,QPair<int, int>>& Room::getUnusedSpawnpoints()
+auto Room::getUnusedSpawnpoints() -> const std::unordered_map<QString, QPair<int, int>> &
 {
     return unused_spawnpoints_;
 }
 
-const std::unordered_map<QString, QPair<int, int>>& Room::getUsedSpawnpoints()
+auto Room::getUsedSpawnpoints() -> const std::unordered_map<QString, QPair<int, int>> &
 {
     return used_spawnpoints_;
 }
@@ -47,7 +41,7 @@ void Room::setEndCoords(std::pair<int, int> end_coords)
     end_coords_ = end_coords;
 }
 
-QVector<Player *> Room::getPlayersInRoom() const
+auto Room::getPlayersInRoom() const -> QVector<Player *>
 {
     return players_in_room_;
 }
@@ -77,22 +71,22 @@ void Room::addSpawnpoint(const QString &name, QPair<int, int> coords)
     unused_spawnpoints_[name] = coords;
 }
 
-std::pair<int, int> Room::getStartCoords()
+auto Room::getStartCoords() -> std::pair<int, int>
 {
     return start_coords_;
 }
 
-std::pair<int, int> Room::getEndCoords()
+auto Room::getEndCoords() -> std::pair<int, int>
 {
     return end_coords_;
 }
 
-int Room::getWidth() const
+auto Room::getWidth() const -> int
 {
     return width_;
 }
 
-int Room::getHeight() const
+auto Room::getHeight() const -> int
 {
     return height_;
 }

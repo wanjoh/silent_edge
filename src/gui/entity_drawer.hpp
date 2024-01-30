@@ -5,12 +5,12 @@
 class EntityDrawer : public QGraphicsPixmapItem
 {
 public:
-    EntityDrawer(const QString &name, const QString &pixmap_path = "path_to_pixmap",
+    EntityDrawer(const QString &name,
+                 const QString &pixmap_path = "path_to_pixmap",
                  QGraphicsItem * = nullptr);
 
-    QString name() const;
-
     void setName(const QString &name);
+    QString getName();
 
 private:
     QString name_;

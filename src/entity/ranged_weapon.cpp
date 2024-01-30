@@ -1,5 +1,7 @@
 #include "ranged_weapon.hpp"
 
+#include <utility>
+
 RangedWeapon::RangedWeapon()
     : Weapon()
 {}
@@ -13,7 +15,7 @@ RangedWeapon::RangedWeapon(QString name,
                            qreal rel_time,
                            qint32 rem_bul,
                            QObject *parent)
-    : Weapon(name, rtype, price, dmg_dealt, parent)
+    : Weapon(std::move(name), rtype, price, dmg_dealt, parent)
     , shot_cooldown_(shot_cooldown)
     , reload_time_(rel_time)
     , capacity_(capacity)
@@ -22,12 +24,12 @@ RangedWeapon::RangedWeapon(QString name,
 
 }
 
-qreal RangedWeapon::getShotCooldown() const
+auto RangedWeapon::getShotCooldown() const -> qreal
 {
     return shot_cooldown_;
 }
 
-qreal RangedWeapon::getReloadTime() const
+auto RangedWeapon::getReloadTime() const -> qreal
 {
     return reload_time_;
 }
@@ -38,12 +40,12 @@ qreal RangedWeapon::getReloadTime() const
 //}
 
 
-qint32 RangedWeapon::getCapacity() const
+auto RangedWeapon::getCapacity() const -> qint32
 {
     return capacity_;
 }
 
-qint32 RangedWeapon::getRemainingBullets() const
+auto RangedWeapon::getRemainingBullets() const -> qint32
 {
     return remaining_bullets_;
 }
