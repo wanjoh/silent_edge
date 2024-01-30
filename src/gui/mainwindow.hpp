@@ -22,9 +22,6 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-
-public slots:
-
     void onPbCreateServer_clicked();
     void onPbJoinGame_clicked();
     void onPbConnect_clicked();

@@ -13,7 +13,7 @@ Tile::~Tile()
 
 }
 
-int Tile::get_id()
+int Tile::get_id() const
 {
     return id_;
 }

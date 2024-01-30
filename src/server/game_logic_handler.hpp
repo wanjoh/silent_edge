@@ -29,7 +29,7 @@ class GameLogicHandler : public QObject
 {
     Q_OBJECT
 public:
-    static constexpr qreal DEFAULT_PLAYER_VELOCITY = 5.0f;
+    static constexpr qreal DEFAULT_PLAYER_VELOCITY = 5.0F;
     static constexpr quint32 BULLETS_PER_SECOND = 3;
     static constexpr quint32 BULLET_SPEED = 10;
     static constexpr quint32 AMMO_RESPAWN_TIME = 20000;
@@ -67,7 +67,7 @@ private:
     /*Returns true on bullet collision*/
     bool checkBulletCollisions(Bullet *bullet);
     bool checkPlayerCollision(qreal x, qreal y,const QString &name);
-    void decreaseHp(Player*, Bullet*);
+    static void decreaseHp(Player *, Bullet *);
     void initializeTimers();
     bool canEntityMove(QVector<int> ids);
     void updateScores(); //

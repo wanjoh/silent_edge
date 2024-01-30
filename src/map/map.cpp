@@ -4,7 +4,8 @@
 #include <QTextStream>
 
 Map::Map()
-: map_path_("../silent-edge/src/map/map_matrix.txt"), matrix_()
+    : map_path_("../silent-edge/src/map/map_matrix.txt")
+    , matrix_()
 {
     initializeMatrix();
     drawer_ = new MapDrawer(matrix_);
@@ -12,12 +13,14 @@ Map::Map()
 
 Map::~Map()
 {
-    for(auto &[name, bucket] : active_ammo_buckets_)
+    for (auto &[name, bucket] : active_ammo_buckets_) {
         active_ammo_buckets_.erase(name);
+    }
     active_ammo_buckets_.clear();
 
-    for(auto &[id, tile] : matrix_)
+    for (auto &[id, tile] : matrix_) {
         matrix_.erase(id);
+    }
     matrix_.clear();
 }
 
@@ -31,13 +34,14 @@ void Map::initializeMatrix()
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         QTextStream stream(&file);
-        int n, m;
+        int n;
+        int m;
         stream >> n >> m;
         n_ = n;
         m_ = m;
 
         int room_id = 0;
-        float is_ammo = false;
+        float is_ammo = 0.0f;
         for (int i = 0; i < n; i++)
         {
             for (int j = 0; j < m; j++)
@@ -102,7 +106,7 @@ void Map::initializeMatrix()
                     case 4:
                         path += "ammo_bucket.png";
                         type = Tile::TileType::AMMO_PILE;
-                        is_ammo = true;
+                        is_ammo = 1.0f;
                         break;
                     // default = ground
                     default:
@@ -112,9 +116,10 @@ void Map::initializeMatrix()
                 int id = i * m + j;
                 Tile *tile = new Tile(id, path, std::pair<int, int>(j, i), type);
 
-                if(is_ammo)
+                if (is_ammo != 0.0f) {
                     active_ammo_buckets_[id] = tile;
-                is_ammo = false;
+                }
+                is_ammo = 0.0f;
 
                 matrix_[id] = tile;
             }
@@ -177,20 +182,25 @@ Room* Map::findRoomForPlayer(Player& player)
     for(auto &[_, room] : rooms_)
     {
         QVector<Player*> players = room->getPlayersInRoom();
-        if(players.contains(&player))
+        if (players.contains(&player)) {
             players.removeOne(&player);
+        }
     }
 
     for(auto &[_, room] : rooms_)
     {
-        int start_x, start_y, end_x, end_y;
+        int start_x;
+        int start_y;
+        int end_x;
+        int end_y;
         std::tie(start_x, start_y) = room->getStartCoords();
         std::tie(end_x, end_y) = room->getEndCoords();
 
         if(player_x >= start_x*IMAGE_SIZE && player_x <= end_x*IMAGE_SIZE &&
            player_y >= start_y*IMAGE_SIZE && player_y <= end_y*IMAGE_SIZE) {
-            if (!room->getPlayersInRoom().contains(&player))
+            if (!room->getPlayersInRoom().contains(&player)) {
                 room->addPlayerToRoom(&player);
+            }
             return room;
         }
     }
@@ -203,12 +213,12 @@ MapDrawer* Map::getDrawer()
     return drawer_;
 }
 
-int Map::getN()
+int Map::getN() const
 {
     return n_;
 }
 
-int Map::getM()
+int Map::getM() const
 {
     return m_;
 }

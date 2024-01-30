@@ -19,7 +19,7 @@ public:
     TileType getTileType();
     TileDrawer* getDrawer();
     QPair<int, int> get_coords();
-    int get_id();
+    int get_id() const;
     void setDrawer(QString path);
 private:
     int id_;

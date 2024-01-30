@@ -103,8 +103,7 @@ void GameServer::userDisconnected(Connection* user, int thread_idx)
 
 void GameServer::broadcast(const QByteArray& msg)
 {
-    for (auto user : users_)
-    {
+    for (auto *user : users_) {
         Q_ASSERT(user);
         user->sendData(msg);
     }

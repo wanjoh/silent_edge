@@ -48,7 +48,7 @@ void GameWindow::changeRoom(Room *new_room)
     make_overlay();
 }
 
-quint32 GameWindow::getMovement()
+quint32 GameWindow::getMovement() const
 {
     // ne toliko thread safe, moze se desiti da se movement promeni usred slanja
     // todo: poboljsati ako ostane vremena
@@ -229,11 +229,12 @@ void GameWindow::change_weapon(int id)
     int i = 0;
     for (auto it = child_items.begin(); it != child_items.end(); it++) {
         QGraphicsItem* current_item = *it;
-        if (current_item) {
-            if (i != id)
+        if (current_item != nullptr) {
+            if (i != id) {
                 current_item->setVisible(false);
-            else
+            } else {
                 current_item->setVisible(true);
+            }
         }
         i++;
     }

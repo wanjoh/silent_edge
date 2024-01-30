@@ -23,21 +23,21 @@ public:
     };
     void show(GamePhase);
 
-    void keyPressEvent(QKeyEvent*) override;
-    void keyReleaseEvent(QKeyEvent*) override;
-    void mouseMoveEvent(QGraphicsSceneMouseEvent*) override;
-    void mousePressEvent(QGraphicsSceneMouseEvent*) override;
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent*) override;
-    void focusOutEvent(QFocusEvent*) override;
+    void keyPressEvent(QKeyEvent * /*event*/) override;
+    void keyReleaseEvent(QKeyEvent * /*event*/) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent * /*event*/) override;
+    void mousePressEvent(QGraphicsSceneMouseEvent * /*event*/) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent * /*event*/) override;
+    void focusOutEvent(QFocusEvent * /*event*/) override;
     bool eventFilter(QObject *obj, QEvent *event) override;
     void make_overlay();
     void setSceneUp();
     void changeRoom(Room *new_room);
     void teleportPlayer(const QString &name, qreal x, qreal y);
-    quint32 getMovement();
+    quint32 getMovement() const;
     qreal getMouseX();
     qreal getMouseY();
-public slots:
+
     void resetMovement();
     void addEntity(QString, EntityDrawer*);
     void removeEntity(QString);

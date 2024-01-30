@@ -21,8 +21,8 @@ public:
     Weapon();
     Weapon(QString, RarenessType = Weapon::RarenessType::COMMON, qreal = 200.0, qreal = 10.0, QObject* = nullptr);
 
-    qreal getPrice();
-    qreal getDamageDealt();
+    qreal getPrice() const;
+    qreal getDamageDealt() const;
     RarenessType getRarenessClass();
 
 

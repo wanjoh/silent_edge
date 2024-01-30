@@ -25,7 +25,7 @@ public:
 
     ~Bullet();
     BulletType getBulletType();
-    qreal getDamageDealt();
+    qreal getDamageDealt() const;
 
     void setOwnerName(const QString &);
     QString getOwnerName();

@@ -2,10 +2,18 @@
 
 #include <QKeyEvent>
 
-Player::Player() : Entity()
+Player::Player()
+    : Entity()
 {
     melee_weapon_ = new MeleeWeapon("Katana", Weapon::RarenessType::COMMON, 50.0, 20.0, 400.0);
-    ranged_weapon_ = new RangedWeapon("Gun", Weapon::RarenessType::COMMON, 200.0, 10.0, 200.0, 10u, 1300.0, 30u);
+    ranged_weapon_ = new RangedWeapon("Gun",
+                                      Weapon::RarenessType::COMMON,
+                                      200.0,
+                                      10.0,
+                                      200.0,
+                                      10U,
+                                      1300.0,
+                                      30U);
 
     reload_ = new Entity("reload");
     EntityDrawer* reload_drawer = new EntityDrawer(reload_->getName(), "../silent-edge/src/images/reload.png");
@@ -17,7 +25,14 @@ Player::Player(QString name, bool enemy, qreal hp, int x, int y, QObject* parent
 {
 
     melee_weapon_ = new MeleeWeapon("Katana", Weapon::RarenessType::COMMON, 50.0, 20.0, 1000.0);
-    ranged_weapon_ = new RangedWeapon("Gun", Weapon::RarenessType::COMMON, 200.0, 10.0, 200.0, 10u, 1300.0, 20u);
+    ranged_weapon_ = new RangedWeapon("Gun",
+                                      Weapon::RarenessType::COMMON,
+                                      200.0,
+                                      10.0,
+                                      200.0,
+                                      10U,
+                                      1300.0,
+                                      20U);
     drawer_ = new PlayerDrawer(name, enemy ? "../silent-edge/src/images/enemy.png" : "../silent-edge/src/images/samurai.png");
 
     reload_ = new Entity("reload");
@@ -38,12 +53,12 @@ Player::Player(QString name, bool enemy, qreal hp, int x, int y, QObject* parent
 
 }
 
-qreal Player::getHp()
+qreal Player::getHp() const
 {
     return hp_;
 }
 
-qreal Player::getScore()
+qreal Player::getScore() const
 {
     return score_;
 }

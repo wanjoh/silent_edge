@@ -18,7 +18,6 @@ public:
     void setPlayerX(float pos_x);
     void setPlayerY(float pos_y);
 
-public slots:
     void connectToServer(const QString &ipAdress, quint16 port);
     void sendMessage(const QByteArray&);
     void disconnectFromHost();

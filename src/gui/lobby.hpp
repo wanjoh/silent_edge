@@ -16,7 +16,7 @@ public:
     ~Lobby();
 
     bool isEmpty() const;
-public slots:
+
     void onPbExit_clicked();
     void onPbReady_clicked();
     void updateLobby(const QString&);

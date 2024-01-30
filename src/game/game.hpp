@@ -18,8 +18,9 @@ public:
     void startGame(QString server_ip);
     void startServer(QString server_ip);
     void quit();
-public slots:
-    void deserializeData(const QByteArray&);
+
+    void deserializeData(const QByteArray &);
+
 private:
     void serializeData();
     GameServer* server_;

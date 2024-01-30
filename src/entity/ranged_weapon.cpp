@@ -2,11 +2,22 @@
 
 RangedWeapon::RangedWeapon()
     : Weapon()
-{
-}
+{}
 
-RangedWeapon::RangedWeapon(QString name, RarenessType rtype, qreal price, qreal dmg_dealt, qreal shot_cooldown, qint32 capacity, qreal rel_time, qint32 rem_bul, QObject* parent)
-    : Weapon(name, rtype, price, dmg_dealt, parent), shot_cooldown_(shot_cooldown), reload_time_(rel_time), capacity_(capacity), remaining_bullets_(rem_bul)
+RangedWeapon::RangedWeapon(QString name,
+                           RarenessType rtype,
+                           qreal price,
+                           qreal dmg_dealt,
+                           qreal shot_cooldown,
+                           qint32 capacity,
+                           qreal rel_time,
+                           qint32 rem_bul,
+                           QObject *parent)
+    : Weapon(name, rtype, price, dmg_dealt, parent)
+    , shot_cooldown_(shot_cooldown)
+    , reload_time_(rel_time)
+    , capacity_(capacity)
+    , remaining_bullets_(rem_bul)
 {
 
 }
