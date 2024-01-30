@@ -15,18 +15,18 @@ Weapon::Weapon(QString name, RarenessType rtype, qreal price, qreal dmg_dealt, Q
 
 }
 
-qreal Weapon::getPrice() const
+auto Weapon::getPrice() const -> qreal
 {
     return price_;
 }
 
-qreal Weapon::getDamageDealt() const
+auto Weapon::getDamageDealt() const -> qreal
 {
     return damage_dealt_;
 }
 
 
-Weapon::RarenessType Weapon::getRarenessClass()
+auto Weapon::getRarenessClass() -> Weapon::RarenessType
 {
     return type_;
 }

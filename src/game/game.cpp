@@ -17,17 +17,15 @@ Game::Game(const QString& name,Client* client, QObject *parent)
     gui_->addItem(map_->getDrawer()->get_group());
     json_object_["name"] = name;
     gui_->addEntity(name, player_->getDrawer());
-    gui_->addEntity(player_->getMeleeWeapon()->getDrawer()->name(), player_->getMeleeWeapon()->getDrawer());
-    gui_->addEntity(player_->getReload()->getDrawer()->name(), player_->getReload()->getDrawer());
+    gui_->addEntity(player_->getMeleeWeapon()->getDrawer()->getName(), player_->getMeleeWeapon()->getDrawer());
+    gui_->addEntity(player_->getReload()->getDrawer()->getName(), player_->getReload()->getDrawer());
 
     connect(client_, &Client::serverTickReceived, this, &Game::serializeData, Qt::DirectConnection);
     connect(client_, &Client::dataReceived, this, &Game::deserializeData, Qt::DirectConnection);
 }
 
 Game::~Game()
-{
-
-}
+= default;
 
 void Game::startGame(const QString& server_ip)
 {
@@ -129,8 +127,8 @@ void Game::deserializeData(const QByteArray &data)
                         if(!enemies_.contains(this_name)) {
                             enemies_[this_name] = new Player(this_name);
                             gui_->addEntity(this_name, enemies_[this_name]->getDrawer());
-                            gui_->addEntity(enemies_[this_name]->getMeleeWeapon()->getDrawer()->name(), enemies_[this_name]->getMeleeWeapon()->getDrawer());
-                            gui_->addEntity(enemies_[this_name]->getReload()->getDrawer()->name(), enemies_[this_name]->getReload()->getDrawer());
+                            gui_->addEntity(enemies_[this_name]->getMeleeWeapon()->getDrawer()->getName(), enemies_[this_name]->getMeleeWeapon()->getDrawer());
+                            gui_->addEntity(enemies_[this_name]->getReload()->getDrawer()->getName(), enemies_[this_name]->getReload()->getDrawer());
                         }
                         enemies_[this_name]->getDrawer()->setPos(x, y);
                         enemies_[this_name]->getDrawer()->setRotation(rotation);
@@ -171,9 +169,9 @@ void Game::deserializeData(const QByteArray &data)
 
                     if(!bullet_drawers_.contains(id))
                     {
-                        Bullet *bullet = new Bullet(id, owner_name);
+                        auto *bullet = new Bullet(id, owner_name);
                         bullet_drawers_[id] = bullet->getDrawer();
-                        gui_->addEntity(bullet_drawers_[id]->name(), bullet_drawers_[id]);
+                        gui_->addEntity(bullet_drawers_[id]->getName(), bullet_drawers_[id]);
                     }
 
                     if(bullet_drawers_[id]->x() == x && bullet_drawers_[id]->y() == y)

@@ -18,7 +18,7 @@ MeleeWeapon::MeleeWeapon(const QString& name,
     drawer_->setScale(2);
 }
 
-qreal MeleeWeapon::getSwingTime() const
+auto MeleeWeapon::getSwingTime() const -> qreal
 {
     return swing_time_;
 }

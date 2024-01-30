@@ -7,23 +7,23 @@
 class Map
 {
 public:
-    typedef std::unordered_map<int, Tile*> tile_map;
+    using tile_map = std::unordered_map<int, Tile *>;
     Map();
     ~Map();
-    QGraphicsItemGroup *get_group();
+    auto get_group() -> QGraphicsItemGroup *;
     void removeTile(int id);
     void removeFromActive(int id);
     void addToActive(int id);
     void restockAmmoPiles();
-    const Room& getRoomById(int id) const;
-    Room *findRoomForPlayer(Player &);
-    const tile_map& getMatrix() const;
-    const tile_map& getActiveAmmoBuckets() const;
-    const tile_map& getInactiveAmmoBuckets() const;
-    const std::unordered_map<int, Room*>& getRooms() const;
-    MapDrawer* getDrawer();
-    int getN() const;
-    int getM() const;
+    auto getRoomById(int id) const -> const Room &;
+    auto findRoomForPlayer(Player &) -> Room *;
+    auto getMatrix() const -> const tile_map &;
+    auto getActiveAmmoBuckets() const -> const tile_map &;
+    auto getInactiveAmmoBuckets() const -> const tile_map &;
+    auto getRooms() const -> const std::unordered_map<int, Room *> &;
+    auto getDrawer() -> MapDrawer *;
+    auto getN() const -> int;
+    auto getM() const -> int;
 
 private:
     void initializeMatrix();

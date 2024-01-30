@@ -19,10 +19,11 @@ public:
         ALTERNATING,
         LOCKON
     };
-    TurretMode getTurretMode();
-    TurretType getTurretType();
-    std::list<Player> getTurretControllers();
-    std::list<Player> getAvailableTargets();
+    auto getTurretMode() -> TurretMode;
+    auto getTurretType() -> TurretType;
+    auto getTurretControllers() -> std::list<Player>;
+    auto getAvailableTargets() -> std::list<Player>;
+
 private:
     TurretMode mode_;
     TurretType type_;

@@ -23,12 +23,12 @@ public:
 
     Bullet(int, QString, qreal damage_dealt = 20, QObject* = nullptr);
 
-    ~Bullet();
-    BulletType getBulletType();
-    qreal getDamageDealt() const;
+    ~Bullet() override;
+    auto getBulletType() -> BulletType;
+    auto getDamageDealt() const -> qreal;
 
     void setOwnerName(const QString &);
-    QString getOwnerName();
+    auto getOwnerName() -> QString;
 
 private:
     int id_;

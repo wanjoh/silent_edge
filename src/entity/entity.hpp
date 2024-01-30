@@ -10,11 +10,12 @@ public:
     // limun: što?
     Entity(QObject* = nullptr);
     Entity(QString, QObject* = nullptr);
-    virtual ~Entity() = default;
-    QString getName();
-    EntityDrawer* getDrawer();
+    ~Entity() override = default;
+    auto getName() -> QString;
+    auto getDrawer() -> EntityDrawer *;
     void setDrawer(EntityDrawer*);
-    QString getEtityType();
+    auto getEtityType() -> QString;
+
 protected:
     EntityDrawer* drawer_;
     QString name_;

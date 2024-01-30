@@ -33,15 +33,14 @@ GameLogicHandler::~GameLogicHandler()
 
 void GameLogicHandler::putPlayerIntoRoom(const QString &name)
 {
-    for(auto it = rooms_.begin(); it != rooms_.end(); it++)
-    {
-        int n = it->second->getUnusedSpawnpoints().size();
+    for (auto &room : rooms_) {
+        int n = room.second->getUnusedSpawnpoints().size();
 
         if (n == 0) {
             continue;
         }
 
-        it->second->addPlayerToRoom(players_[name]);
+        room.second->addPlayerToRoom(players_[name]);
 
         logic_events_[name] = logic_events_[name] | LogicEvents::CAMERA;
 
@@ -51,16 +50,15 @@ void GameLogicHandler::putPlayerIntoRoom(const QString &name)
 
 void GameLogicHandler::removePlayerFromRoom(const QString &name)
 {
-    for(auto it = rooms_.begin(); it != rooms_.end(); it++)
-    {
-        int n = it->second->getUnusedSpawnpoints().size();
+    for (auto &room : rooms_) {
+        int n = room.second->getUnusedSpawnpoints().size();
 
         if (n == 0) {
             continue;
         }
 
-        if(it->second->getPlayersInRoom().contains(players_[name])) {
-            it->second->removePlayerFromRoom(players_[name]);
+        if (room.second->getPlayersInRoom().contains(players_[name])) {
+            room.second->removePlayerFromRoom(players_[name]);
             return;
         }
     }
@@ -70,7 +68,7 @@ void GameLogicHandler::addBullet(const QString& name)
 {
     QMutexLocker locker(&mutex_);
 
-    Bullet* bullet = new Bullet(bullet_id, name);
+    auto *bullet = new Bullet(bullet_id, name);
 
     QPointF top_left = players_[name]->getDrawer()->scenePos();
     QPointF top_right = players_[name]->getDrawer()->mapToScene(players_[name]->getDrawer()->pixmap().rect().topRight());
@@ -170,7 +168,7 @@ void GameLogicHandler::updatePlayerPosition(const QString& name)
     players_[name]->getMeleeWeapon()->getDrawer()->setPos(best_x+IMAGE_SIZE/2, best_y+IMAGE_SIZE/2);
 }
 
-bool GameLogicHandler::checkPlayerCollision(qreal x, qreal y, const QString &name)
+auto GameLogicHandler::checkPlayerCollision(qreal x, qreal y, const QString &name) -> bool
 {
     int id_x = x/IMAGE_SIZE;
     int id_y = y/IMAGE_SIZE;
@@ -194,7 +192,7 @@ bool GameLogicHandler::checkPlayerCollision(qreal x, qreal y, const QString &nam
     return false;
 }
 
-QByteArray GameLogicHandler::jsonify_players()
+auto GameLogicHandler::jsonify_players() -> QByteArray
 {
     QJsonArray playersArray;
 
@@ -223,7 +221,7 @@ QByteArray GameLogicHandler::jsonify_players()
     return json_data.toJson();
 }
 
-QByteArray GameLogicHandler::jsonify_bullets()
+auto GameLogicHandler::jsonify_bullets() -> QByteArray
 {
     QJsonArray bulletsArray;
 
@@ -351,9 +349,8 @@ void GameLogicHandler::addPlayer(Player* playa)
     melee_in_progress_[name] = false;
     reloading_in_progress_[name] = false;
     player_bullet_count_[name] = 0;
-    connect(playa->getReloadTimer(), &QTimer::timeout, std::bind(&GameLogicHandler::reload, this, name));
-    connect(playa->getSwingTimer(), &QTimer::timeout, std::bind(&GameLogicHandler::swing, this, name));
-
+    connect(playa->getReloadTimer(), &QTimer::timeout, [this, name] { reload(name); });
+    connect(playa->getSwingTimer(), &QTimer::timeout, [this, name] { swing(name); });
 
     putPlayerIntoRoom(name);
 }
@@ -369,16 +366,19 @@ void GameLogicHandler::removePlayer(const QString &name)
 void GameLogicHandler::updateBullets()
 {
     QMutexLocker locker(&mutex_);
-    for(auto it = bullets_.cbegin(); it != bullets_.cend(); it++)
-    {
-        bullet_moved_[it->first] = true;
-        if (checkBulletCollisions(it->second)) {
-            bullet_moved_[it->first] = false;
+    for (auto bullet : bullets_) {
+        bullet_moved_[bullet.first] = true;
+        if (checkBulletCollisions(bullet.second)) {
+            bullet_moved_[bullet.first] = false;
         } else {
-            qreal x_pos = it->second->getDrawer()->x() + BULLET_SPEED * qSin(qDegreesToRadians(it->second->getDrawer()->rotation()));
-            qreal y_pos = it->second->getDrawer()->y() - BULLET_SPEED * qCos(qDegreesToRadians(it->second->getDrawer()->rotation()));
+            qreal x_pos = bullet.second->getDrawer()->x()
+                          + BULLET_SPEED
+                                * qSin(qDegreesToRadians(bullet.second->getDrawer()->rotation()));
+            qreal y_pos = bullet.second->getDrawer()->y()
+                          - BULLET_SPEED
+                                * qCos(qDegreesToRadians(bullet.second->getDrawer()->rotation()));
 
-            it->second->getDrawer()->setPos(x_pos, y_pos);
+            bullet.second->getDrawer()->setPos(x_pos, y_pos);
         }
     }
 }
@@ -406,7 +406,7 @@ void GameLogicHandler::updatePlayerRotation(const QString& name)
     players_[name]->getMeleeWeapon()->getDrawer()->setRotation(angle);
 }
 
-bool GameLogicHandler::checkBulletCollisions(Bullet *bullet)
+auto GameLogicHandler::checkBulletCollisions(Bullet *bullet) -> bool
 {
     // limun: dosta bolje (videćemo)
     for(auto &[name, player] : players_) {
@@ -472,9 +472,8 @@ void GameLogicHandler::initializeTimers()
 // pozvati na kraju runde
 void GameLogicHandler::updateScores()
 {
-    for(auto it = rooms_.begin(); it != rooms_.end(); it++)
-    {
-        Room *room = it->second;
+    for (auto &it : rooms_) {
+        Room *room = it.second;
 
         for (auto *player : room->players_in_room_) {
             if(player->getHp() != 0)
@@ -529,7 +528,7 @@ void GameLogicHandler::updatePlayerStats(const QByteArray &player_info)
         QString name = json_data["name"].toString();
         if (commands_.find(name) == commands_.end())
         {
-            Player* playa = new Player(name);
+            auto *playa = new Player(name);
             addPlayer(playa);
         }
         commands_[name] = static_cast<quint32>(json_data["movement"].toInteger());

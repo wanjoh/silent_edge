@@ -20,7 +20,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() override;
 
     void onPbCreateServer_clicked();
     void onPbJoinGame_clicked();

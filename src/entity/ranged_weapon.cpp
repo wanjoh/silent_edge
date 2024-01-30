@@ -24,12 +24,12 @@ RangedWeapon::RangedWeapon(QString name,
 
 }
 
-qreal RangedWeapon::getShotCooldown() const
+auto RangedWeapon::getShotCooldown() const -> qreal
 {
     return shot_cooldown_;
 }
 
-qreal RangedWeapon::getReloadTime() const
+auto RangedWeapon::getReloadTime() const -> qreal
 {
     return reload_time_;
 }
@@ -40,12 +40,12 @@ qreal RangedWeapon::getReloadTime() const
 //}
 
 
-qint32 RangedWeapon::getCapacity() const
+auto RangedWeapon::getCapacity() const -> qint32
 {
     return capacity_;
 }
 
-qint32 RangedWeapon::getRemainingBullets() const
+auto RangedWeapon::getRemainingBullets() const -> qint32
 {
     return remaining_bullets_;
 }

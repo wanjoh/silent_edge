@@ -149,32 +149,32 @@ void Map::restockAmmoPiles()
     }
 }
 
-const std::unordered_map<int, Tile*>& Map::getMatrix() const
+auto Map::getMatrix() const -> const std::unordered_map<int, Tile*>&
 {
     return matrix_;
 }
 
-const std::unordered_map<int, Tile*>& Map::getActiveAmmoBuckets() const
+auto Map::getActiveAmmoBuckets() const -> const std::unordered_map<int, Tile*>&
 {
     return active_ammo_buckets_;
 }
 
-const std::unordered_map<int, Tile*>& Map::getInactiveAmmoBuckets() const
+auto Map::getInactiveAmmoBuckets() const -> const std::unordered_map<int, Tile*>&
 {
     return inactive_ammo_buckets_;
 }
 
-const std::unordered_map<int, Room*>& Map::getRooms() const
+auto Map::getRooms() const -> const std::unordered_map<int, Room*>&
 {
     return rooms_;
 }
 
-const Room& Map::getRoomById(int id) const
+auto Map::getRoomById(int id) const -> const Room&
 {
     return *rooms_.at(id);
 }
 
-Room* Map::findRoomForPlayer(Player& player)
+auto Map::findRoomForPlayer(Player& player) -> Room*
 {
     qreal player_x = player.getDrawer()->x();
     qreal player_y = player.getDrawer()->y();
@@ -208,17 +208,17 @@ Room* Map::findRoomForPlayer(Player& player)
     return new Room();
 }
 
-MapDrawer* Map::getDrawer()
+auto Map::getDrawer() -> MapDrawer*
 {
     return drawer_;
 }
 
-int Map::getN() const
+auto Map::getN() const -> int
 {
     return n_;
 }
 
-int Map::getM() const
+auto Map::getM() const -> int
 {
     return m_;
 }

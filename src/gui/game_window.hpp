@@ -14,7 +14,7 @@ public:
     static constexpr qreal WINDOW_WIDTH = 1280;
     static constexpr qreal WINDOW_HEIGHT = 720;
     GameWindow(Room *, qreal = WINDOW_WIDTH, qreal = WINDOW_HEIGHT, QObject* = nullptr);
-    ~GameWindow();
+    ~GameWindow() override;
 
     enum class GamePhase : quint32
     {
@@ -29,14 +29,14 @@ public:
     void mousePressEvent(QGraphicsSceneMouseEvent * /*event*/) override;
     void mouseReleaseEvent(QGraphicsSceneMouseEvent * /*event*/) override;
     void focusOutEvent(QFocusEvent * /*event*/) override;
-    bool eventFilter(QObject *obj, QEvent *event) override;
+    auto eventFilter(QObject *obj, QEvent *event) -> bool override;
     void make_overlay();
     void setSceneUp();
     void changeRoom(Room *new_room);
     void teleportPlayer(const QString &name, qreal x, qreal y);
-    quint32 getMovement() const;
-    qreal getMouseX();
-    qreal getMouseY();
+    auto getMovement() const -> quint32;
+    auto getMouseX() -> qreal;
+    auto getMouseY() -> qreal;
 
     void resetMovement();
     void addEntity(const QString&, EntityDrawer*);
@@ -49,7 +49,7 @@ public slots:
     void change_weapon(int id);
     void update_hp_overlay(qreal hp);
 private:
-    typedef unsigned int uint;
+    using uint = unsigned int;
     std::map<uint, uint> movement_map_
     {
         {static_cast<uint>(Qt::Key_W), static_cast<uint>(ServerConfig::PlayerActions::UP)},

@@ -8,27 +8,24 @@ Tile::Tile(int id, const QString &path, QPair<int, int> coords, TileType type)
     id_ = id;
 }
 
-Tile::~Tile()
-{
+Tile::~Tile() = default;
 
-}
-
-int Tile::get_id() const
+auto Tile::get_id() const -> int
 {
     return id_;
 }
 
-QPair<int, int> Tile::get_coords()
+auto Tile::get_coords() -> QPair<int, int>
 {
     return coords_;
 }
 
-Tile::TileType Tile::getTileType()
+auto Tile::getTileType() -> Tile::TileType
 {
     return type_;
 }
 
-TileDrawer* Tile::getDrawer()
+auto Tile::getDrawer() -> TileDrawer *
 {
     return drawer_;
 }

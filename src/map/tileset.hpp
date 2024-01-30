@@ -6,7 +6,8 @@
 class Tileset : public Tile
 {
 public:
-    std::list<Tile> getTiles();
+    auto getTiles() -> std::list<Tile>;
+
 private:
     std::list<Tile> tiles_;
 };

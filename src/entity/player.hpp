@@ -15,15 +15,15 @@ public:
     Player();
     Player(const QString &, bool = true, qreal hp = 100, int x = 128, int y = 128, QObject* = nullptr);
 
-    qreal getHp() const;
-    qreal getEnergy();
-    qreal getDpp();
-    qreal getScore() const;
-    MeleeWeapon* getMeleeWeapon() const;
-    RangedWeapon* getRangedWeapon() const;
-    Entity* getReload() const;
-    QTimer* getReloadTimer() const;
-    QTimer* getSwingTimer() const;
+    auto getHp() const -> qreal;
+    auto getEnergy() -> qreal;
+    auto getDpp() -> qreal;
+    auto getScore() const -> qreal;
+    auto getMeleeWeapon() const -> MeleeWeapon *;
+    auto getRangedWeapon() const -> RangedWeapon *;
+    auto getReload() const -> Entity *;
+    auto getReloadTimer() const -> QTimer *;
+    auto getSwingTimer() const -> QTimer *;
 
     void setHp(qreal);
     void setScore(qreal);

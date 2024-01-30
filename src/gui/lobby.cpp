@@ -19,7 +19,7 @@ Lobby::~Lobby()
     delete ui;
 }
 
-bool Lobby::isEmpty() const
+auto Lobby::isEmpty() const -> bool
 {
     return ui->playerList->count() == 0;
 }

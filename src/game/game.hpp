@@ -14,7 +14,7 @@ class Game : public QObject
 public:
     inline static const QString DEFAULT_NAME = "playa";
     explicit Game(const QString& = DEFAULT_NAME,Client* = nullptr, QObject* = nullptr);
-    ~Game();
+    ~Game() override;
     void startGame(const QString& server_ip);
     void startServer(const QString& server_ip);
     void quit();

@@ -113,7 +113,7 @@ void GameServer::sendData(Connection *user, const QByteArray& msg)
 {
     Q_ASSERT(user);
 
-    QTimer::singleShot(0, user, std::bind(&Connection::sendData, user, msg));
+    QTimer::singleShot(0, user, [user, msg] { user->sendData(msg); });
 }
 
 void GameServer::incomingConnection(qintptr socket_desc)
@@ -122,7 +122,7 @@ void GameServer::incomingConnection(qintptr socket_desc)
     if (users_.size() < ServerConfig::MAX_USERS)
     {
         // ovo treba da se razmotri, nismo sigurni da li će ovo praviti siročiće
-        Connection *user = new Connection(socket_desc, nullptr);
+        auto *user = new Connection(socket_desc, nullptr);
 
         int thread_idx = available_threads_.size();
 
@@ -140,8 +140,12 @@ void GameServer::incomingConnection(qintptr socket_desc)
 
         user->moveToThread(available_threads_.at(thread_idx));
 
-        connect(user, &Connection::disconnectedFromServer, this, std::bind(&GameServer::userDisconnected, this, user, thread_idx));
-        connect(user, &Connection::error, this, std::bind(&GameServer::error, this, std::placeholders::_1));
+        connect(user, &Connection::disconnectedFromServer, this, [this, user, thread_idx] {
+            userDisconnected(user, thread_idx);
+        });
+        connect(user, &Connection::error, this, [this](auto &&PH1) {
+            error(std::forward<decltype(PH1)>(PH1));
+        });
         connect(user, &Connection::dataReceived, logic_handler_, &GameLogicHandler::updatePlayerStats);
         connect(user, &Connection::logMessage, this, &GameServer::logMessage);
         connect(this, &GameServer::stopAllClients, user, &Connection::disconnectedFromServer); // popraviti
@@ -161,12 +165,12 @@ void GameServer::emitTickMessage()
     broadcast(QByteArray("tick\0"));
 }
 
-Lobby *GameServer::getLobby() const
+auto GameServer::getLobby() const -> Lobby *
 {
     return lobby;
 }
 
-QString GameServer::server_address() const
+auto GameServer::server_address() const -> QString
 {
     return server_address_;
 }

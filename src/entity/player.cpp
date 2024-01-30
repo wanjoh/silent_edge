@@ -16,7 +16,7 @@ Player::Player()
                                       30U);
 
     reload_ = new Entity("reload");
-    EntityDrawer* reload_drawer = new EntityDrawer(reload_->getName(), "../silent-edge/src/images/reload.png");
+    auto* reload_drawer = new EntityDrawer(reload_->getName(), "../silent-edge/src/images/reload.png");
     reload_->setDrawer(reload_drawer);
     reload_drawer->setScale(0.5);
 }
@@ -35,7 +35,7 @@ Player::Player(const QString &name, bool enemy, qreal hp, int x, int y, QObject*
     drawer_ = new PlayerDrawer(name, enemy ? "../silent-edge/src/images/enemy.png" : "../silent-edge/src/images/samurai.png");
 
     reload_ = new Entity("reload");
-    EntityDrawer* reload_drawer = new EntityDrawer(reload_->getName(), "../silent-edge/src/images/reload.png");
+    auto* reload_drawer = new EntityDrawer(reload_->getName(), "../silent-edge/src/images/reload.png");
     reload_->setDrawer(reload_drawer);
     reload_drawer->setScale(0.5);
 
@@ -52,27 +52,27 @@ Player::Player(const QString &name, bool enemy, qreal hp, int x, int y, QObject*
 
 }
 
-qreal Player::getHp() const
+auto Player::getHp() const -> qreal
 {
     return hp_;
 }
 
-qreal Player::getScore() const
+auto Player::getScore() const -> qreal
 {
     return score_;
 }
 
-MeleeWeapon* Player::getMeleeWeapon() const
+auto Player::getMeleeWeapon() const -> MeleeWeapon*
 {
     return melee_weapon_;
 }
 
-RangedWeapon* Player::getRangedWeapon() const
+auto Player::getRangedWeapon() const -> RangedWeapon*
 {
     return ranged_weapon_;
 }
 
-Entity* Player::getReload() const
+auto Player::getReload() const -> Entity*
 {
     return reload_;
 }
@@ -89,12 +89,12 @@ void Player::initializeTimers()
 }
 
 
-QTimer* Player::getReloadTimer() const
+auto Player::getReloadTimer() const -> QTimer*
 {
     return reload_timer_;
 }
 
-QTimer* Player::getSwingTimer() const
+auto Player::getSwingTimer() const -> QTimer*
 {
     return swing_timer_;
 }

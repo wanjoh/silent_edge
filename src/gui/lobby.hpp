@@ -13,9 +13,9 @@ class Lobby : public QMainWindow
 
 public:
     explicit Lobby(QString server_ip,QWidget *parent = nullptr);
-    ~Lobby();
+    ~Lobby() override;
 
-    bool isEmpty() const;
+    auto isEmpty() const -> bool;
 
     void onPbExit_clicked();
     void onPbReady_clicked();

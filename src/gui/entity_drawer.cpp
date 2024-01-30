@@ -1,14 +1,15 @@
 #include "entity_drawer.hpp"
 
-EntityDrawer::EntityDrawer(const QString& name, const QString& pixmap_path,
-                           QGraphicsItem* parent):
-    QGraphicsPixmapItem(QPixmap(pixmap_path), parent),
-    name_(name)
+#include <utility>
+
+EntityDrawer::EntityDrawer(const QString &name, const QString &pixmap_path, QGraphicsItem *parent)
+    : QGraphicsPixmapItem(QPixmap(pixmap_path), parent)
+    , name_(std::move(name))
 {
     setTransformOriginPoint(pixmap().rect().center());
 }
 
-QString EntityDrawer::name() const
+QString EntityDrawer::getName()
 {
     return name_;
 }

@@ -8,6 +8,4 @@ BulletDrawer::BulletDrawer(const QString &name,const QString &pixmap_path,
 }
 
 BulletDrawer::~BulletDrawer()
-{
-
-}
+= default;

@@ -13,7 +13,7 @@ Entity::Entity(QString name, QObject* parent) :
 {
 }
 
-EntityDrawer* Entity::getDrawer()
+auto Entity::getDrawer() -> EntityDrawer*
 {
     return drawer_;
 }
@@ -23,12 +23,12 @@ void Entity::setDrawer(EntityDrawer* drawer)
     drawer_ = drawer;
 }
 
-QString Entity::getEtityType()
+auto Entity::getEtityType() -> QString
 {
     return entityType_;
 }
 
-QString Entity::getName()
+auto Entity::getName() -> QString
 {
     return name_;
 }
